@@ -458,6 +458,18 @@ Util.checkCalendarDateStrFormat = function( inputStr )
 	}
 }
 
+Util.convertDateObjectToStr = function( dateObj )
+{
+	var year = dateObj.getFullYear();
+	var month = dateObj.getMonth() + 1;
+	month = ( month < 10 ) ? "0" + month : "" + month;
+	
+	var dayInMonth = dateObj.getDate();
+	dayInMonth = ( dayInMonth < 10 ) ? "0" + dayInMonth : dayInMonth;
+	
+	return year + "-" + month + "-" + dayInMonth;
+}
+
 // -------
 // Date Formatting Related
 
@@ -536,7 +548,6 @@ Util.formatDate_LongDesc = function( date )
 // Date Formatting Related
 // -------
 
-
 Util.setupDatePicker = function( ctrl, onSelectFunc, dateFormat, type )
 {
 	if ( !Util.checkValue( dateFormat ) )
@@ -551,6 +562,7 @@ Util.setupDatePicker = function( ctrl, onSelectFunc, dateFormat, type )
 	}
 
 	var maxDate = null;
+	var minDate = null;
 	var yearRangeStr = "";
 	var yearRangeStr = "";
 	var currentYear = (new Date()).getFullYear();
@@ -563,6 +575,15 @@ Util.setupDatePicker = function( ctrl, onSelectFunc, dateFormat, type )
 	else if ( type !== undefined && type == "upToToday" )
 	{
 		yearRangeStr = '' + (currentYear - 15) + ':' + currentYear;
+		maxDate = 0;
+	}
+	else if ( type !== undefined && type == "futureOnly" )
+	{
+		minDate = 0;
+	}
+	else if ( type !== undefined && type == "todayOnly" )
+	{
+		minDate = 0;
 		maxDate = 0;
 	}
 	else
@@ -587,6 +608,7 @@ Util.setupDatePicker = function( ctrl, onSelectFunc, dateFormat, type )
 		,changeYear: true
 		,yearRange: yearRangeStr
 		,maxDate: maxDate
+		,minDate: minDate
 	});
 }
 
@@ -620,3 +642,66 @@ $.fn.outerHTML = function(){
           return contents;
     })(this[0]));
 }
+
+
+
+// ---------------------------------------
+// --- App block/unblock ---
+
+function MsgManager() {}
+		
+MsgManager.cssBlock_Body = { 
+	border: 'none'
+	,padding: '15px'
+	,backgroundColor: '#000'
+	,'-webkit-border-radius': '10px'
+	,'-moz-border-radius': '10px'
+	,opacity: .5
+	,color: '#fff'
+	,width: '200px'
+};
+
+MsgManager.appBlock = function( msg )
+{
+	if ( !Util.checkValue( msg ) ) msg = "Processing..";
+
+	FormBlock.block( true, msg, MsgManager.cssBlock_Body );
+}
+
+MsgManager.appUnblock = function()
+{
+	FormBlock.block( false );
+}
+
+
+// --- Messaging ---
+MsgManager.divMsgAreaTag;
+MsgManager.spanMsgAreaCloseTag;
+MsgManager.btnMsgAreaCloseTag;
+MsgManager.spanMsgAreaTextTag;
+
+MsgManager.initialSetup = function()
+{
+	MsgManager.divMsgAreaTag = $( '#divMsgArea' );
+	MsgManager.spanMsgAreaCloseTag = $( '#spanMsgAreaClose' );
+	MsgManager.btnMsgAreaCloseTag = $( '#btnMsgAreaClose' );
+	MsgManager.spanMsgAreaTextTag = $( '#spanMsgAreaText' );
+		
+
+	MsgManager.btnMsgAreaCloseTag.click( function()
+	{
+		MsgManager.divMsgAreaTag.hide( 'fast' );
+	});
+}
+
+MsgManager.msgAreaShow = function( msg )
+{
+	MsgManager.divMsgAreaTag.hide( 'fast' );
+	MsgManager.spanMsgAreaTextTag.text( '' );
+
+	MsgManager.spanMsgAreaTextTag.text( msg );
+	MsgManager.divMsgAreaTag.show( 'medium' );
+
+	console.log( ' -- Msg: ' + msg );
+}
+
