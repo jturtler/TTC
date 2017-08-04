@@ -32,7 +32,6 @@ function SearchMatrixOrgUnit( MatrixObj )
 			me.orgUnitNameTag.focus();
 		});
 		
-		
 		me.setUp_orgUnitTreePopup( me.onOrgUnitSelect );
 	};
 	
@@ -172,7 +171,7 @@ function SearchMatrixOrgUnit( MatrixObj )
 					else
 					{
 						response( json_orgUnitList_new );
-
+						me.matrixOuDataDivTag.hide();
 						Util.paintAttention( orgUnitNameTag );
 					}
 				}
@@ -253,7 +252,6 @@ function SearchMatrixOrgUnit( MatrixObj )
 	
 	me.setUp_orgUnitTreePopup = function( onOrgUnitSelectFunc )
 	{
-		
 		me.orgUnitTreeBtnTag.click( function()
 		{
 			me.orgUnitSelectionTreePopup.openForm();

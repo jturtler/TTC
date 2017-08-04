@@ -79,22 +79,26 @@ function MatrixOrgunitPeriod( _orgUnitSelectionTreePopup, _TabularDEObj )
 		
 		me.matrixExecuteRetrievalTag.click( function(){
 			
-			me.matrixOuDataTag.html("");
-			
 			var parentOuId = me.searchMatrixOrgUnit.getOrgUnitId(); 
-			if( parentOuId != "" )
+			var programId = me.programListTag.val();
+			if( parentOuId !== undefined && parentOuId != "" && programId !== "" )
 			{
+				me.matrixOuDataTag.html("");
+				
 				me.ouChildrenLoaded = false;
 				me.matrixDataLoaded = false;
 				
 				me.loadOrgUnitChildren();
 				me.loadMatrixData();
 			}
-			else
+			else if( parentOuId == undefined || parentOuId == "" )
 			{
 				alert("Please select an orgUnit.");
 			}
-			
+			else if( programId == "" )
+			{
+				alert("Please select a program.");
+			}
 		});
 		
 		me.matrixPrevPeriodTag.click( function(){

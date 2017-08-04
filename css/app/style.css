@@ -804,8 +804,8 @@ div#selectionTree a.locked
 .switch {
   position: relative;
   display: inline-block;
-  width: 60px;
-  height: 34px;
+  width: 52px;
+  height: 25px;
 }
 
 /* Hide default HTML checkbox */
@@ -827,8 +827,8 @@ div#selectionTree a.locked
 .slider:before {
   position: absolute;
   content: "";
-  height: 26px;
-  width: 26px;
+  height: 18px;
+  width: 18px;
   left: 4px;
   bottom: 4px;
   background-color: white;
@@ -852,7 +852,7 @@ input:checked + .slider:before {
 
 /* Rounded sliders */
 .slider.round {
-  border-radius: 34px;
+  border-radius: 25px;
 }
 
 .slider.round:before {
