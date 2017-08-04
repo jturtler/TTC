@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Tabular Tracker Capture</title>
+<meta charset="UTF-8">
+
+	<!-- Credit: 
+		'webL10n' - implemented by Victor Garcia, vgarciabnz@gmail.com
+	-->
+	<script src="js/jQuery/jquery-1.11.1.min.js"></script>
+	<script src="js/jQuery/jquery-ui.min.js"></script>
+	<script src="js/jQuery/jquery.ui.core.js"></script>
+	<script src="js/jQuery/jquery.ui.widget.js"></script>
+	<script src="js/jQuery/jquery.ui.datepicker.js"></script>
+	<script src="js/jQuery/jquery.dateFormat-1.0.js"></script>
+	<script src="js/jQuery/jquery.watermark.js"></script>
+	<script src="js/jQuery/jquery.cookie.js"></script>
+	<script src="js/jQuery/jquery.blockUI.js"></script>
+
+	<script src="js/gmap3/gmap3.min.js"></script> 
+	<script src="js/gmap3/gmap3-menu.js"></script>
+
+	<script src="js/app/dialogLoading.js"></script>
+	<script src="js/app/util.js"></script>
+	<script src="js/app/RESTUtil.js"></script>
+	
+	<link rel="stylesheet" href="css/jQuery/jquery.ui.all.css">
+	<link rel="stylesheet" href="css/jQuery/jquery-ui.css" />
+	<link rel="stylesheet" href="css/gmap3/gmap3-menu.css" />
+	<link rel="stylesheet" href="css/app/style.css">
+
+	<link rel="resource" type="application/l10n" href="locales/locales.ini" />
+	<script src="js/l10n.js"></script>
+
+	<!-- URL addresses (Dhis site, home, api) -->
+	<script>
+
+
+		// ------------------------------------
+		// *** DHIS AppStore Deploy Version ***
+		// -- App Manifest Json (Get this via Synch, so that it is defined ahead)
+		var _appManifest = $.parseJSON( RESTUtil.getSynchData( 'manifest.webapp' ) );
+		// -- URLs
+		var _dhisSiteURL = _appManifest.activities.dhis.href.replace( '/dhis-web-maintenance-appmanager', '' ) + '/';
+		// ------------------------------------
+
+		// -------------------
+		// *** PSI Version ***
+		//var _dhisSiteURL = "../../";
+		// -------------------
+
+		var _dhisHomeURL = _dhisSiteURL + 'dhis-web-dashboard-integration/index.action';
+
+		var _queryURL_api = _dhisSiteURL + 'api/';
+
+		var _queryURL_me = _queryURL_api + "me";
+		var _queryURL_Program = _queryURL_api + "programs/";
+		var _queryURL_ProgramStage = _queryURL_api + "programStages/";
+		var _queryURL_ProgramRules = _queryURL_api + "programRules";
+		var _queryURL_ProgramRuleVariables = _queryURL_api + "programRuleVariables";
+
+		var _queryURL_ProgramStageInstance = _queryURL_api + "events/"; 
+
+
+	</script>
+
+	<script>
+		
+		
+
+		jQuery(document).ready(function()
+		{
+			new DataEntryForm();
+		});
+
+
+
+		function DataEntryForm()
+		{
+			var me = this;
+			me.entryFormTag = $( "#entryForm" );
+			me.runBtnTag = $( "#runBtn" );
+			me.programTag = $( "#programId" );
+			
+			me.programRuleLoaded = false;
+			me.ruleVariableLoaded = false;
+			
+			me.programRules = new Array();
+			me.ruleVariables = new Array();
+			
+			me.init = function()
+			{
+				me.runBtnTag.click( me.run );
+			};
+			
+			me.run = function()
+			{
+				me.entryFormTag.find( "tr" ).remove();
+				me.programRuleLoaded = false;
+				me.ruleVariableLoaded = false;
+				var programId = me.programTag.val();
+				me.loadProgramRules( programId );
+				me.loadProgramRuleVariables( programId );
+			};
+			
+			me.loadProgramRules = function( programId )
+			{
+				RESTUtil.getAsynchData( _queryURL_ProgramRules + '.json?paging=false&fields=id,condition,programRuleActions[programRuleActionType,dataElement[id],content],programTrackedEntityAttributes[id,name]&filter=program.id:eq:' + programId
+					, function( json_Data ) 
+					{
+						me.programRules = json_Data.programRules;
+						me.programRuleLoaded = true;
+						me.checkMetadataLoaded();
+					}
+				);
+			
+			};
+			
+			
+			me.loadProgramRuleVariables = function( programId )
+			{
+			
+				RESTUtil.getAsynchData( _queryURL_ProgramRuleVariables + '.json?paging=false&fields=id,name,programRuleVariableSourceType,program[id],programStage[id],trackedEntityAttribute[id],dataElement[id]&filter=program.id:eq:' + programId
+					, function( json_Data ) 
+					{
+						me.ruleVariables = json_Data.programRuleVariables;
+						me.ruleVariableLoaded = true;
+						me.checkMetadataLoaded();
+					}
+				);
+			
+			};
+			
+
+			// Check if both Rule and Variables are finished retrieving..
+			me.checkMetadataLoaded = function()
+			{
+				if( me.programRuleLoaded && me.ruleVariableLoaded )
+				{
+					var ruleList = [];
+					for( var i=0; i<me.programRules.length; i++ )
+					{
+						var rule = me.resolveRule( me.programRules[i], me.ruleVariables );
+						ruleList.push( rule );
+					}
+					
+					me.loadEntryForm( me.programTag.val(), ruleList );
+				}
+			};
+			
+
+			// Replace the variable name to object id (ex. data Element id --> #{eed234sdf} )
+			// - for attribute, it use A{--uid--} rather than #{--}
+			me.resolveRule = function( rule, ruleVariables )
+			{
+				var condition = rule.condition;
+				rule.conditionObjects = [];
+					
+				for( var j=0; j<ruleVariables.length; j++ )
+				{
+					var ruleVariable = ruleVariables[j];
+					var type = ruleVariable.programRuleVariableSourceType;
+					var variableId = me.convertObjectIdToVariable( type, ruleVariable.name );
+					if( condition.indexOf( variableId ) >= 0 )
+					{
+						var objectId = me.getObjectIdFromVariable( type, ruleVariable );
+						
+						var conditionObject = {};
+						conditionObject.id = objectId;
+						conditionObject.type = type;
+						if( ruleVariable.programStage !== undefined )
+						{
+							conditionObject.programStageId = ruleVariable.programStage.id;
+						}
+						
+						rule.conditionObjects.push( conditionObject );
+						rule.condition = rule.condition.split( variableId ).join( me.convertObjectIdToVariable( type, objectId ) );
+					}
+					
+				}
+				
+				return rule;
+			};
+				
+			me.convertObjectIdToVariable = function( type, id )
+			{
+				return ( type == "TEI_ATTRIBUTE" ) ? "A{" + id + "}" : "#{" + id + "}";
+			};
+			
+			me.getObjectIdFromVariable = function( type, ruleVariable )
+			{
+				return ( type == "TEI_ATTRIBUTE" ) ? ruleVariable.trackedEntityAttribute.id : ruleVariable.dataElement.id;
+			};
+			
+			me.loadEntryForm = function( programId, ruleList )
+			{
+				
+				// STEP 1. Load data element list
+				RESTUtil.getAsynchData( _queryURL_Program + programId + ".json?fields=programTrackedEntityAttributes[trackedEntityAttribute[id,name]],programStages[id, programStageDataElements[dataElement[id,name]]"
+					, function( json_Data ) 
+					{
+						for( var j=0; j<json_Data.programStages.length; j++ )
+						{
+							var stageId = json_Data.programStages[j].id;
+							
+							var rowTag = $( "<tr></tr>" );
+							rowTag.append( "<td>" + stageId + "</td>" );
+							var inputCell = $( "<td></td>" );
+							rowTag.append( inputCell );
+							me.entryFormTag.append( rowTag );	
+				
+				
+							
+							// Generate TEI Attribute fields
+							var programAttributes = json_Data.programTrackedEntityAttributes;
+							for( var i=0; i<programAttributes.length; i++ )
+							{
+								var attribute = programAttributes[i].trackedEntityAttribute;
+								var rowTag = me.createRow( stageId, attribute, ruleList );
+								me.entryFormTag.append( rowTag );							
+							}
+							
+							// Generate DE fields
+							var psDataElements = json_Data.programStages[j].programStageDataElements;	
+							for( var i=0; i<psDataElements.length; i++ )
+							{
+								var rowTag = me.createRow( json_Data.programStages[j].id, psDataElements[i].dataElement, ruleList );
+								me.entryFormTag.append( rowTag );							
+							}
+						}
+						
+					}
+				);
+			};
+			
+			// Generate Row HTML tag - add event if the objectId is in the condition object list.
+			me.createRow = function( stageId, de, ruleList )
+			{
+				// STEP 2. Create the rule for each data element if any
+				var rulePreloaded = "";
+				var deRuleList = [];
+				var inputTag = $( "<input deId='" + de.id + "' stageId='" + stageId + "'>" );	
+				for( var j=0; j<ruleList.length; j++ )
+				{
+					var rule = ruleList[j];
+					if( Util.findItemFromList( rule.conditionObjects, "id", de.id ) )
+					{
+						deRuleList.push( rule );
+					}								
+				}
+
+
+				// if this DataElement is in rule condition, add those rules as attribute
+				// [BETTER, ADD rule UID and set the rule detail in some memory place]
+				// And add the 'change' event.
+
+				// But for now, add this as attributes!!!
+
+				if( deRuleList.length > 0 )
+				{
+					inputTag.attr( "rules", JSON.stringify( deRuleList ) );
+					inputTag.change( function(){
+						me.setUp_ProgamRuleForDataElement( $( this ) );
+					});
+				}
+				
+					
+				var rowTag = $( "<tr></tr>" );
+				rowTag.append( "<td>" + de.name + "</td>" );
+				
+				var inputCell = $( "<td></td>" );
+				inputCell.append( inputTag );
+				rowTag.append( inputCell );
+				
+				return rowTag;
+				
+			};
+			
+			// Perform action if the condition returns true.
+			me.setUp_ProgamRuleForDataElement = function( deTag )
+			{
+				var deId = deTag.attr( "deId" );				
+				var rules = JSON.parse( deTag.attr( "rules" ) );
+				
+				for( var i=0; i<rules.length; i++ )
+				{
+					var rule = rules[i];
+					var valid = me.checkConditionFromRule( deTag, rule );
+					
+					if( valid )
+					{
+						for( var j=0; j<rule.programRuleActions.length; j++ )
+						{
+							var action = rule.programRuleActions[j];
+							var actionDE = action.dataElement.id;
+							
+							var conditionInputTag = me.entryFormTag.find( "[deId='" + actionDE + "']" );
+
+							// Clear the previous warning message
+							me.entryFormTag.find( "span.action_" + actionDE + "" ).remove();
+							
+							if( action.programRuleActionType == 'HIDEFIELD' )
+							{
+								conditionInputTag.addClass( "action_" + deId );
+								conditionInputTag.hide();
+							}
+							else if( action.programRuleActionType == 'SHOWERROR' )
+							{
+								conditionInputTag.after( "<span style='color:red' class='action_" + actionDE + "'>" + action.content + "</span>" );
+							}
+							else if( action.programRuleActionType == 'SHOWWARNING' )
+							{
+								conditionInputTag.after( "<span style='color:blue' class='action_" + actionDE + "'>" + action.content + "</span>" );
+							}
+						}
+					}
+					else
+					{
+						for( var j=0; j<rule.programRuleActions.length; j++ )
+						{
+							var action = rule.programRuleActions[j];
+							var actionDE = action.dataElement.id;							
+							me.entryFormTag.find( "span.action_" + actionDE + "" ).remove();
+							
+						}
+						me.entryFormTag.find( "input.action_" + deId + "" ).show();
+						me.entryFormTag.find( "select.action_" + deId + "" ).show();
+					}
+				}
+				
+			}
+			
+			me.checkConditionFromRule = function( deTag, rule )
+			{	
+				var deId = deTag.attr( "deId" );
+				var conditionObjects = rule.conditionObjects;
+				var condition = rule.condition;
+				var flag = true;
+				var isMathCondition = false;
+				
+				// Check if there is any mathematic condition in the rule, such as ' a + b == c '
+				if( condition.split( /(\+|-|\/|\*)/g ).length >= 3 )
+				{
+					isMathCondition = true;
+				}
+				
+				for( var i=0; i<conditionObjects.length; i++ )
+				{
+					var conditionObject = conditionObjects[i];
+					var conditionInputTag = me.entryFormTag.find( "[deId='" + conditionObject.id + "']" );
+					if( conditionObject.programStageId !== undefined )
+					{
+						conditionInputTag = me.entryFormTag.find( "[deId='" + conditionObject.id + "'][stageId='" + conditionObject.programStageId + "']" );
+					}
+					
+					var deValue = conditionInputTag.val();
+					if( deValue != "" )
+					{
+						var joinValue = isMathCondition ? deValue : "'" + deValue + "'";
+						condition = condition.split( me.convertObjectIdToVariable( conditionObject.type, conditionObject.id ) ).join( joinValue );
+					}
+					else
+					{
+						flag = false;
+					}
+				}
+				
+				// Check if there is any mathematic condition in the rule
+				if( flag && isMathCondition )
+				{
+					var subConditions = condition.split( /(&&|\|\|)/g );
+					for( var j=0; j<subConditions.length; j ++ )
+					{
+						var subResult = me.checkSimgleMathInCondition( subConditions[j] );						
+						condition = condition.split( subConditions[j] ).join( subResult );
+					}
+				}
+				
+				return ( flag ) ? eval( condition ) : flag;
+				
+			};
+			
+			me.checkSimgleMathInCondition = function( matchStr )
+			{
+				var result = matchStr;
+				var maths = matchStr.split( /(==|>=|<=|=|!=|<>|>|<)/g );
+				
+				// Check if mathematic string like this 'a + b == c'
+				if( maths.length == 3 )
+				{
+					var value = eval( maths[0] );
+					result = result.split( maths[0] ).join( value );
+					
+				}
+				
+				return eval( result );
+			};
+			
+			me.getOperators = function( condition )
+			{
+				var patt = new RegExp("(>=|<=|=|!=|<>|>|<)");
+				var operator = patt.exec(condition);
+				return operator;
+			};
+			
+			me.init();
+				
+		}
+		
+	</script>
+	
+</head>
+
+<body>
+	Program ID : <input type='text' id='programId' value='dRQrPFrAvJG' >
+	
+	
+	<button id='runBtn' >Run</button>
+	
+	<br>
+
+	<table id='entryForm'></table>
+	
+</body>
+
+</html>

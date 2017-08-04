@@ -1,0 +1,13 @@
+{
+	"version":"1.53"
+	,"name":"Tabular Tracker Capture"
+	,"description":"Tabular Tracker Capture"
+	,"icons":{"16":null,"48":"img/icons/icon.png","128":null}
+	,"developer":{"url":"","name":"James Chang","company":null,"email":null}
+	,"launch_path":"index.html"
+	,"installs_allowed_from":null
+	,"default_locale":"en"
+	,"activities": {
+	  "dhis": { "href": "*" }
+	}
+}
