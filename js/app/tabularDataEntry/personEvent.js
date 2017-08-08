@@ -138,25 +138,40 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 		
 		// Check if an event can be created in the pass
 		me.TabularDEObj.settingForm.getSettingData( function( settingData ){
-			var type = "";
 			
-			if( ( settingData.allowCreateFutureEvent != undefined && !settingData.allowCreateFutureEvent ) 
-				&& ( settingData.lockEditingAndCreateEvent != undefined && settingData.lockEditingAndCreateEvent ) )
+			var validEventDateRange = me.getValidEventDateRange( settingData );
+			
+			
+			// Set start data for the new event date as default value of matrix period selected if any
+			// In case the range date of matrix period includes today, then set today as default value.
+			
+			var startDate = me.TabularDEObj.getDefaultStartDate();
+			var endDate = me.TabularDEObj.getDefaultEndDate();
+			var today = new Date();
+			
+			var startDateStr = $.format.date( startDate, "yyyyMMdd" );
+			var endDateStr = $.format.date( endDate, "yyyyMMdd" );
+			var validMinDateStr = $.format.date( validEventDateRange.startDate, "yyyyMMdd" );
+			var todayStr = Util.formatDate( $.format.date( today, _dateFormat_YYYYMMDD ) ).split("-").join("");
+		
+	
+			var defaultDate = $.format.date( startDate, _dateFormat_YYYYMMDD );
+			
+			if( startDateStr < validMinDateStr )
 			{
-				type="todayOnly";
-			}
-			else if( ( settingData.allowCreateFutureEvent != undefined && !settingData.allowCreateFutureEvent )
-			 && ( settingData.lockEditingAndCreateEvent != undefined && !settingData.lockEditingAndCreateEvent ) )
-			{
-				type="upToToday";
-			}
-			else if( ( settingData.allowCreateFutureEvent != undefined && settingData.allowCreateFutureEvent)
-				&& ( settingData.lockEditingAndCreateEvent != undefined && settingData.lockEditingAndCreateEvent ) )
-			{
-				type="futureOnly";
+				defaultDate = $.format.date( validEventDateRange.startDate, _dateFormat_YYYYMMDD );
 			}
 			
-			Util.setupDatePicker( eventDate
+			if( startDateStr <= todayStr && todayStr <= endDateStr )
+			{
+				eventDate.val( $.format.date( new Date(), _dateFormat_YYYYMMDD ) );
+			}
+			else
+			{
+				eventDate.val( defaultDate );
+			}
+			
+			Util.setupDateRangePicker( eventDate
 				, function() 
 				{ 
 					Util.disableTag( eventStage, true );
@@ -169,7 +184,8 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 
 				}
 				, undefined
-				,type
+				,validEventDateRange.startDate
+				,validEventDateRange.endDate
 			);
 
 		});
@@ -280,7 +296,51 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 		// Return the reference to the first control, so that it can be focused after the row generate.
 		return eventDate;
 	}
-
+	
+	
+	me.getValidEventDateRange = function( settingData )
+	{
+		var selectedProgramOption = me.TabularDEObj.searchPanel.defaultProgramTag.find("option:selected");
+			
+		// Setup expiredDate and expiredDate based today
+		
+		var relativePeriod = new RelativePeriod();
+		var todayExpiredDateRange = relativePeriod.calExpiredDateRange( selectedProgramOption.attr("peType"), selectedProgramOption.attr("expiryDays") );
+		var todayExpiredDateStr = Util.formatDate( $.format.date( todayExpiredDateRange.expiredDate, _dateFormat_YYYYMMDD ) ).split("-").join("");
+		var todayValidMinDateStr = Util.formatDate( $.format.date( todayExpiredDateRange.validMinDate, _dateFormat_YYYYMMDD ) ).split("-").join("");
+		
+		var expiredDate = todayExpiredDateRange.expiredDate;	
+		var validMinDate = todayExpiredDateRange.validMinDate;
+		
+		
+		// Today Only
+		if( ( settingData.allowCreateFutureEvent != undefined && !settingData.allowCreateFutureEvent ) 
+			&& ( settingData.lockEditingAndCreateEvent != undefined && settingData.lockEditingAndCreateEvent ) )
+		{
+			expiredDate = today;
+			validMinDate = today;
+		}
+		//upToToday
+		else if( ( settingData.allowCreateFutureEvent != undefined && !settingData.allowCreateFutureEvent )
+		 && ( settingData.lockEditingAndCreateEvent != undefined && !settingData.lockEditingAndCreateEvent ) )
+		{
+			expiredDate = today;
+		}
+		// futureOnly
+		else if( ( settingData.allowCreateFutureEvent != undefined && settingData.allowCreateFutureEvent)
+			&& ( settingData.lockEditingAndCreateEvent != undefined && settingData.lockEditingAndCreateEvent ) )
+		{	
+			validMinDate = today;
+		}
+		
+		return {
+			"startDate": validMinDate
+			,"endDate": expiredDate
+		}
+		
+	};
+  
+	
 	me.removeFromStageList = function( eventStage, doneStages )
 	{
 		if ( doneStages != "" )

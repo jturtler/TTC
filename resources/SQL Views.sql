@@ -17,6 +17,19 @@ and org.parentid = ( select organisationunitid from organisationunit where uid='
 group by 1,2,3
 
 
+
+------------------- Load Programs by Ou paret  -------
+
+select DISTINCT( prg.uid), prg.name, petype.name, prg.expirydays, prg.completeeventsexpirydays
+from program prg
+inner join program_organisationunits prgorg on prg.programid=prgorg.programid
+inner join organisationunit org on prgorg.organisationunitid=org.organisationunitid
+left outer join periodtype petype on petype.periodtypeid=prg.expiryperiodtypeid
+where org.parentid = ( select organisationunitid from organisationunit where uid='${ouId}' )
+
+
+
+
 ------------------- Period Last 12 Month ------- 
 
 SELECT date '2017-07-26' - interval '1' month * s.a 

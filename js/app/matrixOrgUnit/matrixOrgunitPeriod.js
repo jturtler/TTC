@@ -42,14 +42,15 @@ function MatrixOrgunitPeriod( _orgUnitSelectionTreePopup, _TabularDEObj )
 	{	
 		me.relativePeriod = new RelativePeriod();
 		me.searchMatrixOrgUnit = new SearchMatrixOrgUnit( me );
-		me.loadAndPopulateAllPrograms();
 		
+		Util.disableTag( me.matrixExecuteRetrievalTag, true );
 		me.setUp_Events();
 	};
 	
 	
 	me.setUp_Events = function()
 	{
+		// Change the Views
 		me.specificPeriodChkTag.change( function(){
 			if( me.specificPeriodChkTag.prop( "checked" ) )
 			{
@@ -67,22 +68,30 @@ function MatrixOrgunitPeriod( _orgUnitSelectionTreePopup, _TabularDEObj )
 			}
 		});
 		
-		me.programListTag.change( function(){
-			// Hide the data result table
-			me.matrixOuDataDivTag.hide("fast");
-		});
-		
+		// Period type change
 		me.matrixPeriodTag.change( function(){
+			
 			// Hide the data result table
 			me.matrixOuDataDivTag.hide("fast");
+			
+			if( me.searchMatrixOrgUnit.programListTag.val() != "" && me.searchMatrixOrgUnit.getOrgUnitId() != "" )
+			{
+				Util.disableTag( me.matrixExecuteRetrievalTag, false );
+			}
+			else
+			{
+				Util.disableTag( me.matrixExecuteRetrievalTag, true );
+			}
 		});
 		
+		// Run button
 		me.matrixExecuteRetrievalTag.click( function(){
 			
 			var parentOuId = me.searchMatrixOrgUnit.getOrgUnitId(); 
 			var programId = me.programListTag.val();
 			if( parentOuId !== undefined && parentOuId != "" && programId !== "" )
 			{
+				Util.disableTag( me.matrixExecuteRetrievalTag, true );
 				me.matrixOuDataTag.html("");
 				
 				me.ouChildrenLoaded = false;
@@ -129,28 +138,6 @@ function MatrixOrgunitPeriod( _orgUnitSelectionTreePopup, _TabularDEObj )
 			}			
 		});
 	
-	};
-	
-	
-	// -------------------------------------------------------------------------------------------------------
-	// Load program list
-	
-	me.loadAndPopulateAllPrograms = function()
-	{
-		RESTUtil.getAsynchData( _queryURL_ProgramList +'?fields=id,name,expiryPeriodType,expiryDays'
-			, function( jsonData )
-			{
-				me.programListTag.append("<option value=''>[Please select]</option>");
-				$.each( jsonData.programs, function( idx, item ) 
-				{
-					var id = item.id;
-					var name = item.name
-					var expiryPeriodType = item.expiryPeriodType;
-					var expiryDays = item.expiryDays;
-					me.programListTag.append("<option value='" + item.id + "' peType='" + expiryPeriodType + "' expiryDays='" + expiryDays + "'>" + item.name + "</option>");
-				});
-			}
-		);
 	};
 	
 	
@@ -393,9 +380,10 @@ function MatrixOrgunitPeriod( _orgUnitSelectionTreePopup, _TabularDEObj )
 				colExist = true;
 			}
 		}
-		
+				
 		return colExist;
 	};
+	
 	
 	// -------------------------------------------------------------------------------------------------------
 	// RUN init

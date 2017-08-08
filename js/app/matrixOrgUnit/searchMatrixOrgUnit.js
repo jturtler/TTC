@@ -14,15 +14,22 @@ function SearchMatrixOrgUnit( MatrixObj )
 	me.orgUnitNameTag = $( '#matrixOrgUnitName' );
 	me.orgUnitTreeBtnTag = $( '#matrixOrgUnitTreeBtn' );
 	me.matrixOuDataDivTag = $("#matrixOuDataDiv");
+	me.programListTag = $("#programList");
+	me.matrixExecuteRetrievalTag = $("#matrixExecuteRetrieval");
 		
 	// OrgUnit Selection Tree Popup
 	me.orgUnitSelectionTreePopup = me.MatrixObj.orgUnitSelectionTreePopup;
 			
-	// --------------------------
+	// ----------------------------------------------------------------------
 	// On Init Setup Method	
 
 	me.initialSetup = function()
 	{	
+		Util.disableTag( me.programListTag, true );
+		Util.disableTag( me.matrixExecuteRetrievalTag, true );
+		
+		me.setUp_Events();
+		
 		// Set OrgUnit Auto Selection
 		me.setUp_OrgUnitAutoSelection( me.orgUnitNameTag );
 		
@@ -33,6 +40,22 @@ function SearchMatrixOrgUnit( MatrixObj )
 		});
 		
 		me.setUp_orgUnitTreePopup( me.onOrgUnitSelect );
+	};
+	
+	me.setUp_Events = function()
+	{
+		me.programListTag.change( function(){
+			// Hide the data result table
+			me.matrixOuDataDivTag.hide("fast");
+			if( me.programListTag.val() != "" && me.getOrgUnitId() != "" )
+			{
+				Util.disableTag( me.matrixExecuteRetrievalTag, false );
+			}
+			else
+			{
+				Util.disableTag( me.matrixExecuteRetrievalTag, true );
+			}
+		});
 	};
 	
 	me.setOrgUnitTags = function( orgUnit ) 
@@ -61,7 +84,7 @@ function SearchMatrixOrgUnit( MatrixObj )
 		me.clear_OrgUnitData();
 	};
 	
-	// ----------------------------------
+	// ----------------------------------------------------------------------
 	// Event related
 
 	
@@ -104,7 +127,7 @@ function SearchMatrixOrgUnit( MatrixObj )
 							{
 								var deferredArrActions_ouAccessCheck = [];
 
-								QuickLoading.dialogShowAdd( 'orgUnitLoading' );
+								QuickLoading.dialogShowAdd( 'matrixOrgUnitLoading' );
 
 								// Due to 'ancesters' and 'parents' compatibility, copy 'ancestors' data
 								// into 'parents' and use 'parents' always.
@@ -152,7 +175,7 @@ function SearchMatrixOrgUnit( MatrixObj )
 
 								$.when.apply($, deferredArrActions_ouAccessCheck ).then( function( ) 
 								{
-									QuickLoading.dialogShowRemove( 'orgUnitLoading' );
+									QuickLoading.dialogShowRemove( 'matrixOrgUnitLoading' );
 
 									var json_orgUnitList_new_Sorted = Util.sortByKey( json_orgUnitList_new, "value" );
 
@@ -161,8 +184,8 @@ function SearchMatrixOrgUnit( MatrixObj )
 							}
 						}
 						, function() {}
-						, function() { QuickLoading.dialogShowAdd( 'orgUnitLoading' ); }
-						, function() { QuickLoading.dialogShowRemove( 'orgUnitLoading' ); }
+						, function() { QuickLoading.dialogShowAdd( 'matrixOrgUnitLoading' ); }
+						, function() { QuickLoading.dialogShowRemove( 'matrixOrgUnitLoading' ); }
 						);
 
 						me.orgUnitSearchRequests.push( xhr_ouSearch );
@@ -234,6 +257,8 @@ function SearchMatrixOrgUnit( MatrixObj )
 	// On select, set orgunit info and perform followup steps
 	me.onOrgUnitSelect = function( orgUnit, clearOu )
 	{
+		Util.disableTag( me.matrixExecuteRetrievalTag, true );
+		
 		// When coming from orgUnitPopupTree selection, clear orgUnit Map data again.
 		if ( clearOu !== undefined && clearOu )
 		{
@@ -244,9 +269,11 @@ function SearchMatrixOrgUnit( MatrixObj )
 
 		// Set OrgUnit
 		me.setOrgUnitTags( orgUnit );
-
+		
 		// Hide the data result table
 		me.matrixOuDataDivTag.hide("fast");
+		
+		me.loadProgramListByParentOrgUnit();
 
 	};
 	
@@ -264,7 +291,50 @@ function SearchMatrixOrgUnit( MatrixObj )
 	};
 	
 	
-	// ----------------------------------
+	// ----------------------------------------------------------------------
+	// Program List
+	
+	me.loadProgramListByParentOrgUnit = function()
+	{
+		// Disabled program list
+		Util.disableTag( me.programListTag, true );
+		
+		
+		QuickLoading.dialogShowAdd( 'matrixProgramLoading' );
+
+		var parentOuId = me.getOrgUnitId();
+		me.programListTag.find("option").remove();
+		
+		RESTUtil.getAsynchData( _queryURL_api +'sqlViews/MCxNK3CmTbO/data.json?var=ouId:' + parentOuId
+			, function( jsonData )
+			{
+				me.programListTag.append("<option value=''>[Please select]</option>");
+				var rows = jsonData.rows;
+				for( var i in rows )
+				{
+					var id = rows[i][0];
+					var name = rows[i][1];
+					var expiryPeriodType = rows[i][2];
+					var expiryDays = rows[i][3];
+					var completeExpiryDays = rows[i][4];
+					me.programListTag.append("<option value='" + id + "' peType='" + expiryPeriodType + "' expiryDays='" + expiryDays + "'>" + name + "</option>");
+				}
+				
+				Util.disableTag( me.programListTag, false );
+				
+				if( rows.length == 1 )
+				{
+					me.programListTag.find("option[value!='']").attr( "selected", "selected" );
+					MatrixObj.matrixExecuteRetrievalTag.click();
+				}
+				
+				QuickLoading.dialogShowRemove( 'matrixProgramLoading' );
+			}
+		);
+	};
+	
+	
+	// ----------------------------------------------------------------------
 	// RUN init method
 	
 	me.initialSetup();

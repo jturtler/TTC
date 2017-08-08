@@ -8,6 +8,31 @@ function Util() {}
 Util.disableTag = function( tag, isDisable )
 {
 	tag.prop('disabled', isDisable);
+	
+	for( var i=0; i<tag.length; i++ )
+	{
+		var element = $(tag[i]);
+		if( isDisable )
+		{
+			element.css( 'background-color', '#FAFAFA' ).css( 'cursor', 'auto' );
+			if( element.prop( "tagName" ) == 'BUTTON' && element.find("span").length > 0  )
+			{
+				element.find("span").css( 'color', 'gray' );
+			}
+			else
+			{
+				element.css( 'color', 'gray' );
+			}
+		}
+		else
+		{
+			element.css( 'background-color', 'white' ).css( 'cursor', '' ).css( 'color', '' );
+			if( element.prop( "tagName" ) == 'BUTTON' && element.find("span").length > 0  )
+			{
+				element.find("span").css( 'color', '' );
+			}
+		}
+	}
 }
 
 Util.sortByKey = function( array, key, noCase, emptyStringLast ) {
@@ -603,6 +628,36 @@ Util.setupDatePicker = function( ctrl, onSelectFunc, dateFormat, type )
 
 			}, 200 );
 		}*/
+		,dateFormat: dateFormat 
+		,changeMonth: true
+		,changeYear: true
+		,yearRange: yearRangeStr
+		,maxDate: maxDate
+		,minDate: minDate
+	});
+}
+
+
+Util.setupDateRangePicker = function( ctrl, onSelectFunc, dateFormat, minDate, maxDate )
+{
+	if ( !Util.checkValue( dateFormat ) )
+	{
+		dateFormat = _dateFormat_Picker_YYMMDD;
+	}
+
+	if ( !Util.checkDefined( onSelectFunc ) )
+	{
+		onSelectFunc = function() {}
+		//{ $( this ).focus(); }
+	}
+	
+	var currentYear = (new Date()).getFullYear();
+	var yearRangeStr = '' + (currentYear - 15) + ':' + (currentYear + 2);
+
+	// set Datepickers
+	ctrl.datepicker( 
+	{
+		onSelect: onSelectFunc
 		,dateFormat: dateFormat 
 		,changeMonth: true
 		,changeYear: true
