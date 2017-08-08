@@ -229,31 +229,48 @@ function RelativePeriod()
 	
 	me.lockDataFormByPeriod = function( periodCode, expiredPeriodType, expiredDays )
 	{
-		if( periodCode == '201701' )
-		{
-			var fdas = 0;
-		}
-		var periodDateRange = me.getDateRangeOfPeriod( periodCode );
-		var expiredRangeDate = me.calExpiredDateRange( expiredPeriodType, eval( expiredDays ) );		
-		
+		var expiredRangeDate = me.calExpiredDateRange( expiredPeriodType, eval( expiredDays ) );
+		var periodDateRange = me.getDateRangeOfPeriod( periodCode );		
+			
 		var startDateStr = me.formatDateObj_YYYYMMDD( periodDateRange.startDate );
 		var endDateStr = me.formatDateObj_YYYYMMDD( periodDateRange.endDate );
-		var validMinDateStr = me.formatDateObj_YYYYMMDD( expiredRangeDate.validMinDate );
-		var expiredDateStr = me.formatDateObj_YYYYMMDD( expiredRangeDate.expiredDate );
 		var todayStr = me.formatDateObj_YYYYMMDD( new Date() );
-		
-		if( endDateStr < validMinDateStr || expiredDateStr <= todayStr || todayStr < startDateStr )
+			
+		if( expiredRangeDate.expiredDate == undefined )
 		{
-			return me.SIGN_FULL_LOCK_FORM;
-		}
-		else if( startDateStr >= validMinDateStr && endDateStr <= expiredDateStr )
-		{
-			return me.SIGN_OPEN_FORM;
+			if( todayStr < endDateStr )
+			{
+				return me.SIGN_FULL_LOCK_FORM;
+			}
+			else
+			{
+				return me.SIGN_OPEN_FORM;
+			}
 		}
 		else
 		{
-			return me.SIGN_PART_LOCK_FORM;
+			var periodDateRange = me.getDateRangeOfPeriod( periodCode );		
+			
+			var startDateStr = me.formatDateObj_YYYYMMDD( periodDateRange.startDate );
+			var endDateStr = me.formatDateObj_YYYYMMDD( periodDateRange.endDate );
+			var validMinDateStr = me.formatDateObj_YYYYMMDD( expiredRangeDate.validMinDate );
+			var expiredDateStr = me.formatDateObj_YYYYMMDD( expiredRangeDate.expiredDate );
+			var todayStr = me.formatDateObj_YYYYMMDD( new Date() );
+			
+			if( endDateStr < validMinDateStr || expiredDateStr <= todayStr || todayStr < startDateStr )
+			{
+				return me.SIGN_FULL_LOCK_FORM;
+			}
+			else if( startDateStr >= validMinDateStr && endDateStr <= expiredDateStr )
+			{
+				return me.SIGN_OPEN_FORM;
+			}
+			else
+			{
+				return me.SIGN_PART_LOCK_FORM;
+			}
 		}
+		
 	};
 	
 	me.lockDataFormByEventDate = function( eventDateStr, expiredPeriodType, expiredDays )
@@ -275,10 +292,14 @@ function RelativePeriod()
 		
 	me.calExpiredDateRange = function( expiredPeriodType, expiredDays )
 	{
-		var expiredDate = new Date();
+		var expiredDate;
+		var startDate;
 		
-		if( expiredPeriodType != undefined )
+		if( expiredPeriodType != undefined && expiredPeriodType != "" )
 		{
+			var expiredDate = new Date();
+			var startDate = new Date();
+		
 			if( expiredPeriodType == "Monthly" )
 			{
 				expiredDate.setMonth( expiredDate.getMonth() + 1 );
@@ -424,12 +445,14 @@ function RelativePeriod()
 			// Get one date before expired date. It is easier to setup date picker and check valid date
 			expiredDate.setDate( expiredDate.getDate() + eval(expiredDays) - 2 );
 			
+			
 		}
 		
 		return {
-			"expiredDate" : expiredDate
-			,"validMinDate" : startDate
-		}
+				"expiredDate" : expiredDate
+				,"validMinDate" : startDate
+			}
+		
 	};
 	
 	
