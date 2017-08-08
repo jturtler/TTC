@@ -317,7 +317,7 @@ function SearchMatrixOrgUnit( MatrixObj )
 					var expiryPeriodType = rows[i][2];
 					var expiryDays = rows[i][3];
 					var completeExpiryDays = rows[i][4];
-					me.programListTag.append("<option value='" + id + "' peType='" + expiryPeriodType + "' expiryDays='" + expiryDays + "'>" + name + "</option>");
+					me.programListTag.append("<option value='" + id + "' peType='" + expiryPeriodType + "' expiryDays='" + expiryDays + "' completeExpiryDays='" + completeExpiryDays + "'>" + name + "</option>");
 				}
 				
 				Util.disableTag( me.programListTag, false );

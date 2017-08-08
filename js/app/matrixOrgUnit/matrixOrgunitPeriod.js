@@ -34,6 +34,11 @@ function MatrixOrgunitPeriod( _orgUnitSelectionTreePopup, _TabularDEObj )
 	me.matrixNextPeriodTag = $("#matrixNextPeriod");
 	me.matrixOuDataDivTag = $("#matrixOuDataDiv");
 	
+	// Footer
+	me.completeEventExpireDaysTag = $("#completeEventExpireDays");
+	me.expiryPeriodTypeTag = $("#expiryPeriodType");
+	me.expiryDaysTag = $("#expiryDays");
+
 	
 	// -------------------------------------------------------------------------------------------------------
 	// On Init Setup Method	
@@ -99,6 +104,17 @@ function MatrixOrgunitPeriod( _orgUnitSelectionTreePopup, _TabularDEObj )
 				
 				me.loadOrgUnitChildren();
 				me.loadMatrixData();
+				
+				var selectedProgram = me.programListTag.find("option:selected");
+				
+				var completeExpiryDays = selectedProgram.attr("completeExpiryDays");
+				completeExpiryDays = ( completeExpiryDays === undefined || completeExpiryDays == "" ) ? "--" : completeExpiryDays;
+				var expiryPeriodType = selectedProgram.attr("peType");
+				expiryPeriodType = ( expiryPeriodType === undefined || expiryPeriodType == "" ) ?  "--" : expiryPeriodType;
+				
+				me.completeEventExpireDaysTag.html( completeExpiryDays );
+				me.expiryPeriodTypeTag.html( expiryPeriodType );
+				me.expiryDaysTag.html( selectedProgram.attr("expiryDays") );
 			}
 			else if( parentOuId == undefined || parentOuId == "" )
 			{
