@@ -301,6 +301,7 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 	me.getValidEventDateRange = function( settingData )
 	{
 		var selectedProgramOption = me.TabularDEObj.searchPanel.defaultProgramTag.find("option:selected");
+		var today = new Date();
 			
 		// Setup expiredDate and expiredDate based today
 		
@@ -1112,7 +1113,18 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 					//		But, we need to perform this on 'saving' area and prevent it..
 					//		So, for now, set it as attribute?
 
-					if( json_DataElement.optionSetValue || valType == "BOOLEAN" )
+					if( json_DataElement.id == 'k3gpW1Vm3Ov' )
+					{
+						var controlTag = me.setAndGetControlTag( tdTag, ".textbox" );
+						
+						// For Orgunit Field
+						controlTag.click( function(){
+							var gpsFieldTag = $(this).closest("tr").find("td[deid='VzOmsEZChev']").find("input,select");
+							me.TabularDEObj.dataElementOrguUnitPopup.setInputTags( $(this), gpsFieldTag );
+							me.TabularDEObj.dataElementOrguUnitPopup.openForm();
+						});
+					}
+					else if( json_DataElement.optionSetValue || valType == "BOOLEAN" )
 					{
 						var controlTag = me.setAndGetControlTag( tdTag, ".dropdown" );
 

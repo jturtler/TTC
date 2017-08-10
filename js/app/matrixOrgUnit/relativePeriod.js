@@ -292,8 +292,21 @@ function RelativePeriod()
 		
 	me.calExpiredDateRange = function( expiredPeriodType, expiredDays )
 	{
+		var expiredDate = me.calExpiredDate( expiredPeriodType, expiredDays );
+		var startDate = me.calStartDateByEventDateAndPeriodType( expiredDate, expiredPeriodType, expiredDays );
+	console.log({
+				"expiredDate" : expiredDate
+				,"validMinDate" : startDate
+			});	
+		return {
+				"expiredDate" : expiredDate
+				,"validMinDate" : startDate
+			}
+	};
+	
+	me.calExpiredDate = function( expiredPeriodType, expiredDays )
+	{
 		var expiredDate;
-		var startDate;
 		
 		if( expiredPeriodType != undefined && expiredPeriodType != "" )
 		{
@@ -304,17 +317,11 @@ function RelativePeriod()
 			{
 				expiredDate.setMonth( expiredDate.getMonth() + 1 );
 				expiredDate.setDate( 1 );
-				
-				startDate = new Date( expiredDate );
-				startDate.setMonth( startDate.getMonth() - 1 );
 			}
 			else if( expiredPeriodType == "Weekly" )
 			{
 				var firstDays = expiredDate.getDate() - expiredDate.getDay() + 1; // First day is the day of the month - the day of the week
 				expiredDate.setDate( firstDays + 7 );
-				
-				startDate = new Date( expiredDate );
-				expiredDate.setDate( startDate.getDate() - 7 );
 			}
 			else if( expiredPeriodType == "Quarterly" )
 			{
@@ -327,19 +334,12 @@ function RelativePeriod()
 					expiredDate = new Date (expiredDate.getFullYear(), quarter * 3, 1);
 				}
 				expiredDate.setDate( 1 );
-				
-				
-				startDate = new Date( expiredDate );
-				startDate.setMonth( startDate.getMonth() - 3 );
 			}
 			else if( expiredPeriodType == "Yearly" )
 			{
 				expiredDate.setFullYear( expiredDate.setFullYear() + 1 );
 				expiredDate.setMonth( 0 );
 				expiredDate.setDate( 1 );
-				
-				startDate = new Date( expiredDate );
-				startDate.setFullYear( expiredDate.getFullYear() - 1 );
 			}
 			else if( expiredPeriodType == "BiMonthly" )
 			{
@@ -347,9 +347,6 @@ function RelativePeriod()
 				month = ( month % 2 == 0 ) ? 1 : 2;
 				expiredDate.setMonth( expiredDate.getMonth() +  month );
 				expiredDate.setDate( 1 );
-				
-				startDate = new Date( expiredDate );
-				startDate.setMonth( expiredDate.getMonth() - 2 );
 			}
 			else if( expiredPeriodType == "SixMonthly" )
 			{
@@ -364,9 +361,6 @@ function RelativePeriod()
 					expiredDate.setMonth( 6 );
 				}
 				expiredDate.setDate( 1 );
-				
-				startDate = new Date( expiredDate );
-				startDate.setMonth( startDate.getMonth() - 6 );
 			}
 			// April-September 2004
 			else if( expiredPeriodType == "SixMonthlyApril" )
@@ -390,10 +384,6 @@ function RelativePeriod()
 				}
 				
 				expiredDate.setDate( 1 );
-				
-				
-				startDate = new Date( expiredDate );
-				startDate.setMonth( startDate.getMonth() - 12 );
 			}
 			// Apr 2004-Mar 2005
 			else if( expiredPeriodType == "FinancialApril" )
@@ -406,9 +396,6 @@ function RelativePeriod()
 				
 				expiredDate.setMonth( 3 );// April
 				expiredDate.setDate( 1 );
-				
-				startDate = new Date( expiredDate );
-				startDate.setMonth( startDate.getMonth() - 12 );
 			}
 			// July 2004-June 2005
 			else if( expiredPeriodType == "FinancialJuly" )
@@ -421,9 +408,6 @@ function RelativePeriod()
 				
 				expiredDate.setMonth( 6 );// July
 				expiredDate.setDate( 1 );
-				
-				startDate = new Date( expiredDate );
-				startDate.setMonth( startDate.getMonth() - 12 );
 			}
 			// Oct 2004-Sep 2005
 			else if( expiredPeriodType == "FinancialOct" )
@@ -436,24 +420,165 @@ function RelativePeriod()
 				
 				expiredDate.setMonth( 9 );// Oct
 				expiredDate.setDate( 1 );
-				
-				startDate = new Date( expiredDate );
-				startDate.setMonth( startDate.getMonth() - 12 );
 			}
 			
-			startDate.setDate( expiredDate.getDate() - eval(expiredDays) - 1 );
 			// Get one date before expired date. It is easier to setup date picker and check valid date
 			expiredDate.setDate( expiredDate.getDate() + eval(expiredDays) - 2 );
+			
+		}
+		
+		return expiredDate;
+		
+	};
+	
+	
+	me.calStartDateByEventDateAndPeriodType = function( eventDate, expiredPeriodType, expiredDays )
+	{
+		var startDate;
+		
+		if( expiredPeriodType != undefined && expiredPeriodType != "" )
+		{
+			var startDate = new Date( eventDate );
+		
+			if( expiredPeriodType == "Monthly" )
+			{
+				// Get Previous Period
+				startDate.setMonth( startDate.getMonth() - 1 );
+				startDate.setDate( startDate.getDate() - eval(expiredDays) - 1 );
+				startDate.setDate( 1 );
+			}
+			else if( expiredPeriodType == "Weekly" )
+			{
+				// Get Previous Period
+				startDate.setDate( startDate.getDate() - 7 );
+				startDate.setDate( startDate.getDate() - eval(expiredDays) - 1 );
+				
+				var firstDays = startDate.getDate() - startDate.getDay() + 1; // First day is the day of the month - the day of the week
+				startDate.setDate( firstDays );
+			}
+			else if( expiredPeriodType == "Quarterly" )
+			{
+				startDate.setMonth( startDate.getMonth() - 3 );
+				startDate.setDate( startDate.getDate() - eval(expiredDays) - 1 );
+				
+				var quarter = Math.floor(( startDate.getMonth() + 3) / 3 );
+				startDate = new Date( startDate.getFullYear(), quarter, 1 );
+				startDate.setDate( 1 );
+			}
+			else if( expiredPeriodType == "Yearly" )
+			{
+				startDate.setFullYear( startDate.getFullYear() - 1 );
+				startDate.setDate( startDate.getDate() - eval(expiredDays) - 1 );
+				
+				startDate.setMonth( 0 );
+				startDate.setDate( 1 );
+			}
+			else if( expiredPeriodType == "BiMonthly" )
+			{
+				startDate.setMonth( startDate.getMonth() - 2 );
+				startDate.setDate( startDate.getDate() - eval(expiredDays) - 1 );
+				
+				var month = startDate.getMonth();
+				month = ( month % 2 == 0 ) ? 1 : 2;
+				startDate.setMonth( startDate.getMonth() +  month );
+				startDate.setDate( 1 );
+			}
+			else if( expiredPeriodType == "SixMonthly" )
+			{
+				startDate.setMonth( startDate.getMonth() - 6 );
+				startDate.setDate( startDate.getDate() - eval(expiredDays) - 1 );
+				
+				var month = startDate.getMonth() + 1;
+				if( month >= 7 )
+				{
+					startDate.setMonth( 0 );
+				}
+				else
+				{
+					startDate.setMonth( 6 );
+				}
+				startDate.setDate( 1 );
+			}
+			// April-September 2004
+			else if( expiredPeriodType == "SixMonthlyApril" )
+			{
+				startDate.setMonth( startDate.getMonth() - 12 );
+				startDate.setDate( startDate.getDate() - eval(expiredDays) - 1 );
+				
+				var month = startDate.getMonth() + 1;
+				// Next period : April, This year
+				if( month < 4 )
+				{
+					startDate.setMonth( 3 );
+					startDate.setFullYear( startDate.getFullYear() - 1 );
+				}
+				// Next period : Oct, This year
+				else if( month >= 4 && month <= 9)
+				{
+					startDate.setMonth( 9 ); 
+					startDate.setFullYear( startDate.getFullYear() - 1 );
+				}
+				// Next period : April, Next year
+				else if( month > 9 )
+				{
+					startDate.setMonth( 3 );
+				}
+				
+				startDate.setDate( 1 );
+			}
+			// Apr 2004-Mar 2005
+			else if( expiredPeriodType == "FinancialApril" )
+			{
+				startDate.setMonth( startDate.getMonth() - 12 );
+				startDate.setDate( startDate.getDate() - eval(expiredDays) - 1 );
+				
+				var month = startDate.getMonth();
+				if( month < 3 )
+				{
+					startDate.setFullYear( startDate.getFullYear() - 1 ); // Next year
+				}
+				
+				startDate.setMonth( 3 );// April
+				startDate.setDate( 1 );
+			}
+			// July 2004-June 2005
+			else if( expiredPeriodType == "FinancialJuly" )
+			{
+				startDate.setMonth( startDate.getMonth() - 12 );
+				startDate.setDate( startDate.getDate() - eval(expiredDays) - 1 );
+				
+				var month = startDate.getMonth();
+				if( month < 6 )
+				{
+					startDate.setFullYear( startDate.getFullYear() - 1 ); // Next year
+				}
+				
+				startDate.setMonth( 6 );// July
+				startDate.setDate( 1 );
+			}
+			// Oct 2004-Sep 2005
+			else if( expiredPeriodType == "FinancialOct" )
+			{
+				startDate.setMonth( startDate.getMonth() - 12 );
+				startDate.setDate( startDate.getDate() - eval(expiredDays) - 1 );
+				
+				var month = startDate.getMonth() + 1;
+				if( month < 10 )
+				{
+					startDate.setFullYear( startDate.getFullYear() - 1 ); // Next year
+				}
+				
+				startDate.setMonth( 9 );// Oct
+				startDate.setDate( 1 );
+			}
 			
 			
 		}
 		
-		return {
-				"expiredDate" : expiredDate
-				,"validMinDate" : startDate
-			}
+		return startDate;
 		
 	};
+	
 	
 	
 	// -------------------------------------------------------------------------------------------------------

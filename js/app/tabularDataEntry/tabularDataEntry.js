@@ -28,6 +28,7 @@ function TabularDataEntry( _orgUnitSelectionTreePopup )
 	// ProgramRule
 	me.programRule = new ProgramRule( me );
 
+	me.dataElementOrguUnitPopup = new DataElementOrguUnitPopup( me );
 
 	// --------------------------
 	// Method Calls From Child Object to each other

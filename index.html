@@ -98,6 +98,7 @@
 	<script src="js/app/tabularDataEntry/settingForm.js"></script>
 	<script src="js/app/tabularDataEntry/orgUnitSelectionTreePopup.js"></script>
 	<script src="js/app/tabularDataEntry/orgUnitMapPopup.js"></script>
+	<script src="js/app/tabularDataEntry/dataElementOrguUnitPopup.js"></script>
 	<script src="js/app/tabularDataEntry/period/weekly.js"></script>
 	<script src="js/app/tabularDataEntry/period/monthly.js"></script>
 	<script src="js/app/tabularDataEntry/util/appUtil.js"></script>
@@ -202,7 +203,7 @@
 				_TabularDEObj = new TabularDataEntry( _orgUnitSelectionTreePopup );
 				
 				_matrixOrgunitPeriod = new MatrixOrgunitPeriod( _orgUnitSelectionTreePopup, _TabularDEObj );
-
+				
 				_appInitialized = true;
 			} 
 		
@@ -378,7 +379,7 @@
 					</td>
 					<td style="color: White;">Specific Period</td>
 					<td>	
-						| <a href="" id="settingFormOpen" style="color: White;" data-l10n-id="setting">Setting</a> | <a href="https://docs.google.com/document/d/1S6WD_oYdewVWFvsDnr1CL8yM2easN5mDc7j8QWI09Sw" target="_blank" style="color: White;">v <span id="currentVersion">1.56</span></a>
+						| <a href="" id="settingFormOpen" style="color: White;" data-l10n-id="setting">Setting</a> | <a href="https://docs.google.com/document/d/1S6WD_oYdewVWFvsDnr1CL8yM2easN5mDc7j8QWI09Sw" target="_blank" style="color: White;">v <span id="currentVersion">1.57</span></a>
 						| <button type="button" id="closeButton" class="button" style="font-size: 11px;"><span data-l10n-id="close" nameid="closeButton">Close</span></button>
 					</td>
 				</tr>
@@ -536,6 +537,44 @@
 
 		</div>
 
+		<div id="orgUnit_DataElementForm" style="display:none">
+			<table class="listTable" style="width:100%">
+				<tbody id="villageByHeathCenterTb">
+					<tr>
+						<td>
+							<input type="radio" name="deOrgUnitSelectorOption" checked value="villageByHeathCenter"> <span data-l10n-id="villageByHeathCenter"></span>
+						</td>
+						<td>
+							<select id="deOrgunitList" style="width:200px"></select>
+						</td>
+					</tr>
+				</tbody>
+				<tbody id="villageByOULevelTb">
+					<tr>
+						<td colspan="2">
+							<input type="radio" name="deOrgUnitSelectorOption" value="villageByOULevel"> <span data-l10n-id="villageByOULevel"></span>
+						</td>
+					</tr>
+					<tr>
+						<td data-l10n-id="province"></td>
+						<td><select id="deProvinceList" style="width:200px"></select></td>
+					</tr>
+					<tr>
+						<td data-l10n-id="district"></td>
+						<td><select id="deDistritList" style="width:200px"></select></td>
+					</tr>
+					<tr>
+						<td data-l10n-id="commune"></td>
+						<td><select id="deCommuneList" style="width:200px"></select></td>
+					</tr>
+					<tr>
+						<td data-l10n-id="village"></td>
+						<td><select id="deVillageList" style="width:200px"></select></td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		
 		<br>
 
 		<!--
