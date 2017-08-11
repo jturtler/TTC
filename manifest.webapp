@@ -1,7 +1,7 @@
 {
 	"version":"1.57"
-	,"name":"Tabular Tracker Capture"
-	,"description":"Tabular Tracker Capture"
+	,"name":"Tabular Tracker Capture - DEV"
+	,"description":"Tabular Tracker Capture - DEV"
 	,"icons":{"16":null,"48":"img/icons/icon.png","128":null}
 	,"developer":{"url":"","name":"James Chang","company":null,"email":null}
 	,"launch_path":"index.html"

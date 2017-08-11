@@ -151,13 +151,17 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 			
 			var startDateStr = $.format.date( startDate, "yyyyMMdd" );
 			var endDateStr = $.format.date( endDate, "yyyyMMdd" );
-			var validMinDateStr = $.format.date( validEventDateRange.startDate, "yyyyMMdd" );
+			var validMinDateStr;
+			if( validEventDateRange.startDate != undefined )
+			{
+				validMinDateStr = $.format.date( validEventDateRange.startDate, "yyyyMMdd" );
+			}
 			var todayStr = Util.formatDate( $.format.date( today, _dateFormat_YYYYMMDD ) ).split("-").join("");
 		
 	
 			var defaultDate = $.format.date( startDate, _dateFormat_YYYYMMDD );
 			
-			if( startDateStr < validMinDateStr )
+			if( validEventDateRange.startDate !== undefined && startDateStr < validMinDateStr )
 			{
 				defaultDate = $.format.date( validEventDateRange.startDate, _dateFormat_YYYYMMDD );
 			}
@@ -307,8 +311,6 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 		
 		var relativePeriod = new RelativePeriod();
 		var todayExpiredDateRange = relativePeriod.calExpiredDateRange( selectedProgramOption.attr("peType"), selectedProgramOption.attr("expiryDays") );
-		var todayExpiredDateStr = Util.formatDate( $.format.date( todayExpiredDateRange.expiredDate, _dateFormat_YYYYMMDD ) ).split("-").join("");
-		var todayValidMinDateStr = Util.formatDate( $.format.date( todayExpiredDateRange.validMinDate, _dateFormat_YYYYMMDD ) ).split("-").join("");
 		
 		var expiredDate = todayExpiredDateRange.expiredDate;	
 		var validMinDate = todayExpiredDateRange.validMinDate;

@@ -294,10 +294,7 @@ function RelativePeriod()
 	{
 		var expiredDate = me.calExpiredDate( expiredPeriodType, expiredDays );
 		var startDate = me.calStartDateByEventDateAndPeriodType( expiredDate, expiredPeriodType, expiredDays );
-	console.log({
-				"expiredDate" : expiredDate
-				,"validMinDate" : startDate
-			});	
+		
 		return {
 				"expiredDate" : expiredDate
 				,"validMinDate" : startDate
@@ -308,7 +305,7 @@ function RelativePeriod()
 	{
 		var expiredDate;
 		
-		if( expiredPeriodType != undefined && expiredPeriodType != "" )
+		if( expiredPeriodType !== "undefined" && expiredPeriodType != "" )
 		{
 			var expiredDate = new Date();
 			var startDate = new Date();
@@ -436,7 +433,7 @@ function RelativePeriod()
 	{
 		var startDate;
 		
-		if( expiredPeriodType != undefined && expiredPeriodType != "" )
+		if( eventDate != undefined && expiredPeriodType != undefined && expiredPeriodType != "" )
 		{
 			var startDate = new Date( eventDate );
 		
