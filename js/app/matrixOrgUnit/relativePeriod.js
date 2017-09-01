@@ -275,19 +275,24 @@ function RelativePeriod()
 	
 	me.lockDataFormByEventDate = function( eventDateStr, expiredPeriodType, expiredDays )
 	{
-		var expiredDateRange = me.calExpiredDateRange( expiredPeriodType, eval( expiredDays ) );		
-		var validMinDateStr = me.formatDateObj_YYYYMMDD( expiredDateRange.validMinDate );
-		var expiredDateStr = me.formatDateObj_YYYYMMDD( expiredDateRange.expiredDate );
-		
-		
-		if( validMinDateStr >=eventDateStr && eventDateStr <= expiredDateStr )
+		if( expiredPeriodType !== "undefined" && expiredPeriodType !== "" )
 		{
-			return me.SIGN_OPEN_FORM;
+			var expiredDateRange = me.calExpiredDateRange( expiredPeriodType, eval( expiredDays ) );
+			var validMinDateStr = me.formatDateObj_YYYYMMDD( expiredDateRange.validMinDate );
+			var expiredDateStr = me.formatDateObj_YYYYMMDD( expiredDateRange.expiredDate );
+			
+			
+			if( validMinDateStr >=eventDateStr && eventDateStr <= expiredDateStr )
+			{
+				return me.SIGN_OPEN_FORM;
+			}
+			else
+			{
+				return me.SIGN_FULL_LOCK_FORM;
+			}
 		}
-		else
-		{
-			return me.SIGN_FULL_LOCK_FORM;
-		}
+		
+		return me.SIGN_OPEN_FORM;
 	};
 		
 	me.calExpiredDateRange = function( expiredPeriodType, expiredDays )

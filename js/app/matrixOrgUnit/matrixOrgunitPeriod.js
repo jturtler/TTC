@@ -8,7 +8,7 @@ function MatrixOrgunitPeriod( _orgUnitSelectionTreePopup, _TabularDEObj )
 	me.PARAMS_PERIOD_TYPE_CODE = "@PARAMS_PERIOD_TYPE_CODE";
 	
 	me._queryURL_matrixOrgUnitAndPeriod = _queryURL_api + "sqlViews/OGFjqZDohJF/data.json?var=periodType:" + me.PARAMS_PERIOD_TYPE_CODE + "&var=programId:" + me.PARAMS_PROGRAMID + "&var=ouParentId:" + me.PARAMS_ORGUNITID;
-	me._queryURL_orgUnitChildren = _queryURL_api + "organisationUnits/" + me.PARAMS_ORGUNITID + ".json?fields=children[id,name]&filter=children.programs.id:eq:" + me.PARAMS_PROGRAMID;
+	me._queryURL_orgUnitChildren = _queryURL_api + "organisationUnits/" + me.PARAMS_ORGUNITID + ".json?fields=children[id,name,programs[id,name]]";
 	
 	me.orgUnitSelectionTreePopup = _orgUnitSelectionTreePopup;
 	me.TabularDEObj = _TabularDEObj;
@@ -20,6 +20,8 @@ function MatrixOrgunitPeriod( _orgUnitSelectionTreePopup, _TabularDEObj )
 	me.matrixDataLoaded = false;
 	me.matrixData;
 	
+	me.settingConsoleTag = $("#settingConsole");
+	me.backToMatrixTag = $("#backToMatrix");
 	
 	me.specificPeriodChkTag = $("#specificPeriodChk");
 	me.specificPeriodSectionTag = $("#specificPeriodSection");
@@ -63,6 +65,17 @@ function MatrixOrgunitPeriod( _orgUnitSelectionTreePopup, _TabularDEObj )
 				me.specificPeriodSectionTag.show("fast");
 				
 				me.TabularDEObj.orgUnitSelectionTreePopup.selectOrgunitOnTree( me.TabularDEObj.searchPanel.getOrgUnitId() );
+				
+				
+				// Disable for control form
+				Util.disableTag( me.settingConsoleTag.find("input,select"), false );
+				
+				// Show Back button and enable [Back To Matrix] button
+				me.backToMatrixTag.hide();
+				
+				// Reset [Specific Period] form
+				me.TabularDEObj.searchPanel.resetSetting_OrgUnitAndBelow();
+				me.TabularDEObj.searchPanel.setVisibility_Section( me.TabularDEObj.searchPanel.orgUnitRowTag, true );
 			}
 			else
 			{
@@ -70,6 +83,11 @@ function MatrixOrgunitPeriod( _orgUnitSelectionTreePopup, _TabularDEObj )
 				me.ouMatrixSectionTag.show("fast");
 				
 				me.orgUnitSelectionTreePopup.selectOrgunitOnTree( me.searchMatrixOrgUnit.getOrgUnitId() );
+				
+				me.specificPeriodSectionTag.hide();
+				
+				// Reset [Matrix] form
+				me.searchMatrixOrgUnit.setRootOrgUnitAsDefault();
 			}
 		});
 		
@@ -154,6 +172,11 @@ function MatrixOrgunitPeriod( _orgUnitSelectionTreePopup, _TabularDEObj )
 			}			
 		});
 	
+		me.backToMatrixTag.click( function(){
+			me.specificPeriodSectionTag.hide();
+			me.ouMatrixSectionTag.show("fast");
+		});
+		
 	};
 	
 	
@@ -169,14 +192,24 @@ function MatrixOrgunitPeriod( _orgUnitSelectionTreePopup, _TabularDEObj )
 		
 		var url = me._queryURL_orgUnitChildren;
 		url = url.replace( me.PARAMS_ORGUNITID, parentOuId );
-		url = url.replace( me.PARAMS_PROGRAMID, programId );
 		
 		RESTUtil.getAsynchData( url
 			, function( jsonData )
 			{
-				me.ouChildrenLoaded = true;
-				me.ouChildrenList = jsonData.children;
+				var programId = me.programListTag.val();
+				me.ouChildrenList = [];
+				for( var i in jsonData.children )
+				{
+					var orgUnit = jsonData.children[i];
+					var programs = orgUnit.programs;
+					var searched = Util.findItemFromList( programs, "id", programId );
+					if( searched !== undefined  )
+					{
+						me.ouChildrenList.push( orgUnit );
+					}
+				}
 				
+				me.ouChildrenLoaded = true;
 				me.afterLoadMatrix();
 				
 			}
@@ -298,14 +331,24 @@ function MatrixOrgunitPeriod( _orgUnitSelectionTreePopup, _TabularDEObj )
 	{
 		cellTag.click( function(){
 			
+			// Disable for control form
+			Util.disableTag( me.settingConsoleTag.find("input,select"), true );
+			
+			// Show Back button and enable [Back To Matrix] button
+			me.backToMatrixTag.show();
+			Util.disableTag( me.backToMatrixTag, false );
+			
+			
+			// Load TEI/Event list
 			var keys = cellTag.attr("key").split("_");
 			var ouName = cellTag.closest("tr").find("td:first").html();
 			var ouId = keys[0];
 			var periodCode = keys[1];
 			
-			
 			var jsonOuData = {"name": ouName, "id": ouId};
+			// me.TabularDEObj.searchPanel.onOrgUnitSelect( jsonOuData );
 			me.TabularDEObj.searchPanel.setOrgUnitTags( jsonOuData );
+			
 						
 			me.TabularDEObj.searchPanel.programManager.loadProgramList( ouId, function(){
 				
@@ -324,7 +367,7 @@ function MatrixOrgunitPeriod( _orgUnitSelectionTreePopup, _TabularDEObj )
 					
 					me.TabularDEObj.searchPanel.defaultRetrievalRowTag.show();
 					me.TabularDEObj.searchPanel.performDataRetrieval( function(){
-						me.specificPeriodChkTag.prop( "checked", true );
+						// me.specificPeriodChkTag.prop( "checked", true );
 						me.ouMatrixSectionTag.hide();
 						me.specificPeriodSectionTag.show("fast");
 

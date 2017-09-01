@@ -106,11 +106,11 @@ function SearchPanel( TabularDEObj )
 			}
 			else
 			{
-				$.get( me.queryURL_OrgUnit + orgUnitId + '/parents.json', function( json_data )
+				$.get( me.queryURL_OrgUnit + orgUnitId + '/parents.json', function( organisationUnits )
 				{
-					if ( json_data.organisationUnits !== undefined )
+					if ( organisationUnits !== undefined )
 					{
-						$.each( json_data.organisationUnits, function( i, item )
+						$.each( organisationUnits, function( i, item )
 						{
 							if ( item.level == countryLevel )
 							{
@@ -909,6 +909,8 @@ function SearchPanel( TabularDEObj )
 				
 				if( exeFunc != undefined ) exeFunc();
 			});
+			
+			me.TabularDEObj.retrieveAndPopulateDataSetValuesIfAny();
 
 		}
 		else
@@ -920,6 +922,8 @@ function SearchPanel( TabularDEObj )
 				
 				if( exeFunc != undefined ) exeFunc();
 			});
+			
+			me.TabularDEObj.dataSetValues.resetDataSetForm();
 		}
 
 

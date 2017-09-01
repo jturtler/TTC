@@ -9,6 +9,7 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 
 	me.mainEventTableTag =  $( '#mainTable_Event' );
 	me.mainEventSectionTag =  $( '#mainSection_Event' );
+	me.dataSetDivTag =  $( '#dataSetDiv' );
 
 
 	me.attr_EventRowNo = "eventrowno";
@@ -136,6 +137,36 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 		//   - Initially, event date is empty and program stage is disabled.
 		//   - When event date is selected, enable program stage and set focus on that stage.
 		
+		
+		// For program, set is as display only. 
+		Util.selectOption_WithOptionalInsert( eventProgram, programId, me.TabularDEObj.getProgramList_Full() );
+		eventProgram.hide();
+		eventProgramDiv.show().html( eventProgram.find( 'option:selected' ).text() );
+
+
+		// Populate Stage list.
+		if( Util.checkValue( eventProgram.val() ) )
+		{
+			me.TabularDEObj.populateProgramStages( eventStage, eventProgram.val() );
+
+
+			// If MEwR case, see if person has done stage list.
+			// If there is, remove them from the programStage selection.
+			if ( trPerson !== undefined )
+			{
+				var doneStages = trPerson.attr( me.TabularDEObj.personList.attr_doneStages );
+
+				me.removeFromStageList( eventStage, doneStages );
+			}
+
+			// Disable the ProgramStage - Initially
+			Util.disableTag( eventStage, true );					
+		}
+
+		// Set the event button Disable - initially
+		me.setEventCreateButtonEnable( trCurrent );
+
+		
 		// Check if an event can be created in the pass
 		me.TabularDEObj.settingForm.getSettingData( function( settingData ){
 			
@@ -195,34 +226,6 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 		});
 		
 	
-
-		// For program, set is as display only. 
-		Util.selectOption_WithOptionalInsert( eventProgram, programId, me.TabularDEObj.getProgramList_Full() );
-		eventProgram.hide();
-		eventProgramDiv.show().html( eventProgram.find( 'option:selected' ).text() );
-
-
-		// Populate Stage list.
-		if( Util.checkValue( eventProgram.val() ) )
-		{
-			me.TabularDEObj.populateProgramStages( eventStage, eventProgram.val() );
-
-
-			// If MEwR case, see if person has done stage list.
-			// If there is, remove them from the programStage selection.
-			if ( trPerson !== undefined )
-			{
-				var doneStages = trPerson.attr( me.TabularDEObj.personList.attr_doneStages );
-
-				me.removeFromStageList( eventStage, doneStages );
-			}
-
-			// Disable the ProgramStage - Initially
-			Util.disableTag( eventStage, true );					
-		}
-
-		// Set the event button Disable - initially
-		me.setEventCreateButtonEnable( trCurrent );
 
 
 		// On stage change, check stage value and event date value.

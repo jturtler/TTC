@@ -55,6 +55,23 @@ RESTUtil.submitData_Text = function( url, jsonData, successFunc, failFunc )
 	});
 }
 
+
+RESTUtil.submitAggData_Text = function( url, data, successFunc, failFunc )
+{		
+	$.ajax({
+	  type: "POST",
+	  url: url + "?" + data,
+	  contentType: "text/plain; charset=utf-8",
+	  success: function( msg ) {
+		  successFunc();
+		},
+	  error: function( msg ) {
+		  failFunc( msg );
+		}			   
+	});
+}
+
+
 RESTUtil.submitData_URL = function( url, successFunc, failFunc )
 {		
 	$.ajax({

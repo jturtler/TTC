@@ -32,7 +32,7 @@ DHISUtil.preRetrieve_UserInfo = function()
 
 DHISUtil.retrieveUserInfo = function( runFunc )
 {
-	RESTUtil.retrieveManager.retrieveData( _queryURL_me + '.json?fields=*,userCredentials[*,userRoles[id,name]]'
+	RESTUtil.retrieveManager.retrieveData( _queryURL_me + '.json?fields=*,userCredentials[*,userRoles[id,name]],organisationUnits[id,name]'
 	, function( json_data ) 
 	{
 		if ( runFunc !== undefined ) runFunc( json_data );

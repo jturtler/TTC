@@ -19,6 +19,8 @@ function SearchMatrixOrgUnit( MatrixObj )
 		
 	// OrgUnit Selection Tree Popup
 	me.orgUnitSelectionTreePopup = me.MatrixObj.orgUnitSelectionTreePopup;
+	
+	me.rootData;
 			
 	// ----------------------------------------------------------------------
 	// On Init Setup Method	
@@ -33,13 +35,24 @@ function SearchMatrixOrgUnit( MatrixObj )
 		// Set OrgUnit Auto Selection
 		me.setUp_OrgUnitAutoSelection( me.orgUnitNameTag );
 		
-		me.retrieveUserAccessOrgUnits( function()
+		me.retrieveUserAccessOrgUnits( function( json_data )
 		{
 			Util.paintAttention( me.orgUnitNameTag );
 			me.orgUnitNameTag.focus();
+			
+			if( json_data.organisationUnits.length == 1 )
+			{
+				me.rootData = json_data.organisationUnits[0];
+				me.setRootOrgUnitAsDefault();
+			}
 		});
 		
 		me.setUp_orgUnitTreePopup( me.onOrgUnitSelect );
+	};
+	
+	me.setRootOrgUnitAsDefault = function()
+	{
+		me.onOrgUnitSelect( me.rootData );
 	};
 	
 	me.setUp_Events = function()
@@ -93,7 +106,7 @@ function SearchMatrixOrgUnit( MatrixObj )
 		DHISUtil.retrieveUserInfo( function( json_data )
 		{
 			me.userAccessableOrgUnits = json_data.organisationUnits;
-			execFunc();
+			execFunc( json_data );
 		});					
 	};
 			

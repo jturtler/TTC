@@ -99,6 +99,7 @@
 	<script src="js/app/tabularDataEntry/orgUnitSelectionTreePopup.js"></script>
 	<script src="js/app/tabularDataEntry/orgUnitMapPopup.js"></script>
 	<script src="js/app/tabularDataEntry/dataElementOrguUnitPopup.js"></script>
+	<script src="js/app/tabularDataEntry/dataSetValues.js"></script>
 	<script src="js/app/orgunit/orgUnitHierarchy.js"></script>
 	<script src="js/app/tabularDataEntry/period/weekly.js"></script>
 	<script src="js/app/tabularDataEntry/period/monthly.js"></script>
@@ -349,6 +350,7 @@
 			</tr>
 			
 			
+			<!-- Tracker data element -->
 			<tr>
 				<td colspan="2" data-l10n-id="settings_programRules" style="font-weight: bold;font-size: 13px;width: 180px;"></td>
 			</tr>
@@ -362,6 +364,20 @@
 				</td>
 			</tr>
 			
+			
+			<!-- Aggregate data element -->
+			<tr>
+				<td colspan="2" data-l10n-id="settings_dataSets" style="font-weight: bold;font-size: 13px;width: 180px;"></td>
+			</tr>
+			<tr>
+				<td data-l10n-id="settings_orgUnitGroup"></td>
+				<td data-l10n-id="settings_hideDEs"></td>
+			</tr>
+			<tr>
+				<td colspan="2">
+					<button id="addDataSetRuleBtn" data-l10n-id="settings_addDataSetRule"></button>
+				</td>
+			</tr>
 		</table>
 	</div>
 
@@ -380,7 +396,7 @@
 					</td>
 					<td style="color: White;">Specific Period</td>
 					<td>	
-						| <a href="" id="settingFormOpen" style="color: White;" data-l10n-id="setting">Setting</a> | <a href="https://docs.google.com/document/d/1S6WD_oYdewVWFvsDnr1CL8yM2easN5mDc7j8QWI09Sw" target="_blank" style="color: White;">v <span id="currentVersion">1.57</span></a>
+						| <a href="" id="settingFormOpen" style="color: White;" data-l10n-id="setting">Setting</a> | <a href="https://docs.google.com/document/d/1S6WD_oYdewVWFvsDnr1CL8yM2easN5mDc7j8QWI09Sw" target="_blank" style="color: White;">v <span id="currentVersion">1.60</span></a>
 						| <button type="button" id="closeButton" class="button" style="font-size: 11px;"><span data-l10n-id="close" nameid="closeButton">Close</span></button>
 					</td>
 				</tr>
@@ -465,6 +481,7 @@
 
 							<td id="defaultRetrievalRow" style="display:none; vertical-align:middle; padding-left:5px;">
 								<button type="button" id="executeRetrieval" class="BlueButton" style="width: 50px;" ><span data-l10n-id="executeRetrieval" nameId='executeRetrieval'></span></button>
+								<button type="button" id="backToMatrix" class="BlueButton" style="width: 50px;display:none;" ><span data-l10n-id="backToMatrix"></span></button>
 							</td>
 
 						  </tr>
@@ -535,6 +552,10 @@
 			</table>
 
 			<button type='button' class='personEvent_addNewRow BlueButton' style="margin-top:4px;"><span data-l10n-id="addEvent" nameId='AddNewEventRow'></span></button>
+			
+			<br><br>
+			
+			<table id="dataSetForm" style="display:none"></table>
 
 		</div>
 

@@ -28,6 +28,7 @@ function SettingForm()
 	me.lockEditingAndCreateEventTag = $( '#lockEditingAndCreateEvent' );
 	me.lockEditingPreviousEventTag = $( '#lockEditingPreviousEvent' );
 	me.addProgramRuleBtnTag = $("#addProgramRuleBtn");
+	me.addDataSetRuleBtnTag = $("#addDataSetRuleBtn");
 
 
 	me.width = 600;
@@ -37,7 +38,7 @@ function SettingForm()
 
 	me.queryURL_orgUnitLevels = _queryURL_api + 'organisationUnitLevels.json?paging=false&fields=id,name,level';
 	me.queryURL_orgUnitGroups = _queryURL_api + 'organisationUnitGroups.json?paging=false&fields=id,name';
-	me.queryURL_trackedDataElements = _queryURL_api + 'dataElements.json?paging=false&fields=id,name&filter=domainType:eq:TRACKER';
+	me.queryURL_trackedDataElements = _queryURL_api + 'dataElements.json?paging=false&fields=id,name,domainType'; // TRACKER
 
 	me.settingData;
 	me.ouGroupList = [];
@@ -91,7 +92,7 @@ function SettingForm()
 					json_SettingData.lockEditingAndCreateEvent = me.lockEditingAndCreateEventTag.prop("checked");
 					json_SettingData.allowCreateFutureEvent = me.allowCreateFutureEventTag.prop("checked");
 					
-					// Remove the last settings for OU Group list
+					// Tracker data elements in OU Group list
 					json_SettingData.orgUnitGroups = [];
 					me.dialogFormTag.find(".ouGroupList").each( function(){
 						var ouGroupId = $( this ).val();
@@ -114,6 +115,32 @@ function SettingForm()
 							json_SettingData.orgUnitGroups.push( ouGroupSetting );
 						}
 					});
+					
+					
+					// Aggregate data elements in OU Group list
+					json_SettingData.aggOrgUnitGroups = [];
+					me.dialogFormTag.find(".aggOuGroupList").each( function(){
+						var ouGroupId = $( this ).val();
+						
+						var deList = [];
+						var deListTag = $( this ).closest("tr").find("select.deList");
+						deListTag.each( function(){
+							var deId = $(this).val();
+							if( deId !== "" )
+							{
+								deList.push( deId );
+							}
+						});
+						
+						if( deList.length > 0 )
+						{
+							var ouGroupSetting = {};
+							ouGroupSetting.ouGroupId = ouGroupId;
+							ouGroupSetting.deList = deList;
+							json_SettingData.aggOrgUnitGroups.push( ouGroupSetting );
+						}
+					});
+					
 					
 					
 					DBSetting.saveSettingValue( me.dbSettingName, json_SettingData
@@ -189,7 +216,7 @@ function SettingForm()
 				me.allowCreateFutureEventTag.prop( "checked", me.settingData.allowCreateFutureEvent );
 			}
 			
-			// Remove the last settings for OU Group list
+			// Traker data element in OU Group list
 			me.dialogFormTag.find(".ouGroupList").closest("tr").remove();
 			if( me.settingData.orgUnitGroups != undefined )
 			{
@@ -197,15 +224,31 @@ function SettingForm()
 				{
 					var ouGroupSetting = me.settingData.orgUnitGroups[i];
 					var deList =  ouGroupSetting.deList;
-					var ouGroupRowTag = me.addOrgUnitGroupRow( ouGroupSetting.ouGroupId, deList[0] );
+					var ouGroupRowTag = me.addTrackerOrgUnitGroupRow( ouGroupSetting.ouGroupId, deList[0] );
 					var deListCellTag = ouGroupRowTag.find("select.deList").closest("td");
 					for( var j=1; j<deList.length; j++ )
 					{
-						me.addMoreDEListTag( deListCellTag, deList[j] );
+						me.addMoreDEListTag( deListCellTag, deList[j], "TRACKER" );
 					}
 				}
 			}
 			
+			// Aggregate data element in OU Group list
+			me.dialogFormTag.find(".aggOuGroupList").closest("tr").remove();
+			if( me.settingData.aggOrgUnitGroups != undefined )
+			{
+				for( var i in me.settingData.aggOrgUnitGroups )
+				{
+					var ouGroupSetting = me.settingData.aggOrgUnitGroups[i];
+					var deList =  ouGroupSetting.deList;
+					var ouGroupRowTag = me.addAggOrgUnitGroupRow( ouGroupSetting.ouGroupId, deList[0] );
+					var deListCellTag = ouGroupRowTag.find("select.deList").closest("td");
+					for( var j=1; j<deList.length; j++ )
+					{
+						me.addMoreDEListTag( deListCellTag, deList[j], "AGGREGATE" );
+					}
+				}
+			}
 		}
 	}
 
@@ -391,7 +434,7 @@ function SettingForm()
 		});
 	};
 
-	me.loadTrackedDataElementList = function()
+	me.loadDataElementList = function()
 	{
 		RESTUtil.getAsynchData( me.queryURL_trackedDataElements
 		, function( json_Data )
@@ -410,13 +453,13 @@ function SettingForm()
 	{
 		if( me.loadedOUGroups && me.loadedDataElements )
 		{
-			me.addOrgUnitGroupRow();
+			me.addTrackerOrgUnitGroupRow();
 		}
 	};
 	
-	me.addMoreDEListTag = function( deListCellTag, selectedDEId )
+	me.addMoreDEListTag = function( deListCellTag, selectedDEId, domainType )
 	{
-		var deTag = me.generateDataElementListTag();
+		var deTag = me.generateDataElementListTag( domainType );
 		if( selectedDEId != undefined )
 		{
 			deTag.val( selectedDEId );
@@ -439,15 +482,15 @@ function SettingForm()
 	{
 		deTag.remove();
 		removeBtnTag.remove();
-	}
+	};
 	
-	me.addOrgUnitGroupRow = function( selectedOuId, selectedDEId )
+	me.addTrackerOrgUnitGroupRow = function( selectedOuId, selectedDEId )
 	{
 		// -----------------------------------------------------------------------
 		// First column
 		
 		// STEP 1. Generate program list tag
-		var ouGroupTag = me.generateOuGroupListTag();
+		var ouGroupTag = me.generateOuGroupListTag( "ouGroupList" );
 		if( selectedOuId != undefined )
 		{
 			ouGroupTag.val( selectedOuId );
@@ -460,8 +503,8 @@ function SettingForm()
 		// -----------------------------------------------------------------------
 		// Second column
 		
-		// STEP 3. Generate data element list tag
-		var deTag = me.generateDataElementListTag();
+		// STEP 3. Generate TRACKER data element list tag
+		var deTag = me.generateDataElementListTag( "TRACKER" );
 		if( selectedDEId != undefined )
 		{
 			deTag.val( selectedDEId );
@@ -473,13 +516,13 @@ function SettingForm()
 		// STEP 5. Create and add [Add more] button for data element selector in second column
 		var addMoreDEBtnTag = $("<button class='addMoreDE'>[+]</button>");
 		addMoreDEBtnTag.click( function(){
-			me.addMoreDEListTag( secondColTag );
+			me.addMoreDEListTag( secondColTag, undefined, "TRACKER" );
 		});
 		secondColTag.append("<br>");
 		secondColTag.append( addMoreDEBtnTag );	
 		
 		// STEP 6. Add one data element selector in second column 
-		me.addMoreDEListTag( secondColTag, selectedDEId );
+		me.addMoreDEListTag( secondColTag, selectedDEId, "TRACKER" );
 		
 		// -----------------------------------------------------------------------
 		// Add two columns into table
@@ -493,9 +536,62 @@ function SettingForm()
 		return groupRowTag;
 	};
 	
-	me.generateOuGroupListTag = function()
+	
+	me.addAggOrgUnitGroupRow = function( selectedOuId, selectedDEId )
 	{
-		var listTag = $( "<select class='ouGroupList' style='width:200px;'></select>" );
+		// -----------------------------------------------------------------------
+		// First column
+		
+		// STEP 1. Generate program list tag
+		var ouGroupTag = me.generateOuGroupListTag( "aggOuGroupList" );
+		if( selectedOuId != undefined )
+		{
+			ouGroupTag.val( selectedOuId );
+		}
+		
+		// STEP 2. Add the OUGroup to first column
+		var firstColTag = $("<td></td>");
+		firstColTag.append( ouGroupTag );
+		
+		// -----------------------------------------------------------------------
+		// Second column
+		
+		// STEP 3. Generate AGGREGATE data element list tag
+		var deTag = me.generateDataElementListTag( "AGGREGATE" );
+		if( selectedDEId != undefined )
+		{
+			deTag.val( selectedDEId );
+		}
+		
+		// STEP 4. Create second column
+		var secondColTag = $("<td></td>");
+		
+		// STEP 5. Create and add [Add more] button for data element selector in second column
+		var addMoreDEBtnTag = $("<button class='addMoreDE'>[+]</button>");
+		addMoreDEBtnTag.click( function(){
+			me.addMoreDEListTag( secondColTag, undefined, "AGGREGATE" );
+		});
+		secondColTag.append("<br>");
+		secondColTag.append( addMoreDEBtnTag );	
+		
+		// STEP 6. Add one data element selector in second column 
+		me.addMoreDEListTag( secondColTag, selectedDEId, "AGGREGATE" );
+		
+		// -----------------------------------------------------------------------
+		// Add two columns into table
+		
+		var groupRowTag = $("<tr></tr>");
+		groupRowTag.append( firstColTag );
+		groupRowTag.append( secondColTag );
+
+		me.addDataSetRuleBtnTag.closest("tr").before( groupRowTag );
+		
+		return groupRowTag;
+	};
+	
+	me.generateOuGroupListTag = function( clazzName )
+	{
+		var listTag = $( "<select class='" + clazzName + "' style='width:200px;'></select>" );
 		listTag.append( '<option value="">' + l10n.get('selectOrgunitGroup') + '</option>' );
 
 		var list = Util.sortByKey( me.ouGroupList, "name" );
@@ -510,7 +606,7 @@ function SettingForm()
 	
 	};
 				
-	me.generateDataElementListTag = function()
+	me.generateDataElementListTag = function( domainType )
 	{
 		var listTag = $( "<select class='deList' style='width:200px;'></select>" );
 		listTag.append( '<option value="">' + l10n.get('selectDataElement') + '</option>' );
@@ -518,8 +614,10 @@ function SettingForm()
 		var list = Util.sortByKey( me.dataElementList, "name" );
 
 		$.each( list, function( i, item ) {
-
-			listTag.append( $( '<option></option>' ).attr( "value", item.id ).text( item.name ) );
+			if( item.domainType == domainType )
+			{
+				listTag.append( $( '<option></option>' ).attr( "value", item.id ).text( item.name ) );
+			}
 		});
 		
 		return listTag;
@@ -531,12 +629,16 @@ function SettingForm()
 		me.setOrgUnitList( me.countryLevelTag );
 		
 		me.loadOrgUnitGroupList();
-		me.loadTrackedDataElementList();
+		me.loadDataElementList();
 		
 		me.FormPopupSetup();
 		
 		me.addProgramRuleBtnTag.click( function(){
-			me.addOrgUnitGroupRow();
+			me.addTrackerOrgUnitGroupRow();
+		});
+		
+		me.addDataSetRuleBtnTag.click( function(){
+			me.addAggOrgUnitGroupRow();
 		});
 	}
 

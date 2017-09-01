@@ -194,7 +194,8 @@ function PersonDialogForm( TabularDEObj )
 								}
 								else
 								{																					
-									var personId = returnData.response.reference;
+									// var personId = returnData.response.reference;
+									var personId = returnData.response.importSummaries[0].reference;
 
 									if ( Util.checkDefined( personId ) )
 									{
@@ -578,6 +579,15 @@ function PersonDialogForm( TabularDEObj )
 		else if( valueType == "TRUE_ONLY" || valueType == "TRACKER_ASSOCIATE" )
 		{
 			attributeControl = trCurrent.find( ".checkbox" ).attr( _view, _view_Yes ).prop( 'checked', value );
+		}
+		else if( valueType == "AGE" )
+		{
+			attributeControl = trCurrent.find( ".textbox" ).val( value ).attr( _view, _view_Yes );
+			PersonUtil.setTagTypeValidation( attributeControl, "NUMBER" );
+		}
+		else if( valueType == "URL" )
+		{
+			attributeControl = trCurrent.find( ".textbox" ).val( value ).attr( _view, _view_Yes );
 		}
 		else
 		{

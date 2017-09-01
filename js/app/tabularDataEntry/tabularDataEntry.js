@@ -29,6 +29,8 @@ function TabularDataEntry( _orgUnitSelectionTreePopup )
 	me.programRule = new ProgramRule( me );
 
 	me.dataElementOrguUnitPopup = new DataElementOrguUnitPopup( me );
+	
+	me.dataSetValues = new DataSetValues( me );
 
 	// --------------------------
 	// Method Calls From Child Object to each other
@@ -196,7 +198,12 @@ function TabularDataEntry( _orgUnitSelectionTreePopup )
 	{
 		return me.personList.personEvent.retrieveAndPopulateEvents( tableCurrent, execFunc );
 	}
-
+	
+	me.retrieveAndPopulateDataSetValuesIfAny = function()
+	{
+		return me.dataSetValues.generateAndPopulateDataSetForm();
+	}
+	
 	me.getMainPersonTableTag = function()
 	{
 		return me.personList.mainPersonTableTag;

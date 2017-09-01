@@ -191,7 +191,7 @@ Util.findItemFromList = function( listData, searchProperty, searchValue )
 		if ( item[ searchProperty ] == searchValue )
 		{
 			foundData = item;
-			return false;
+			return foundData;
 		}
 	});
 
@@ -665,6 +665,11 @@ Util.setupDateRangePicker = function( ctrl, onSelectFunc, dateFormat, minDate, m
 		,maxDate: maxDate
 		,minDate: minDate
 	});
+	
+	if( ctrl.val() != "" )
+	{
+		onSelectFunc();
+	}
 }
 
 Util.pageHScroll = function( option )

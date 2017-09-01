@@ -101,7 +101,7 @@ function DataInMemory()
 
 	me.retrieveProgramStageList = function( runFunc )
 	{
-		me.retrieveFromMemory( me.programStageList_Full, 'id', 'programStageFull', _queryURL_ProgramStages + '.json?paging=false&fields=id,name,displayName,description,repeatable,captureCoordinates,program[id,name],programStageDataElements[compulsory,sortOrder,allowFutureDate,dataElement[id,name,formName]]'
+		me.retrieveFromMemory( me.programStageList_Full, 'id', 'programStageFull', _queryURL_ProgramStages + '.json?paging=false&fields=id,name,displayName,description,repeatable,captureCoordinates,program[id,name],programStageDataElements[compulsory,sortOrder,allowFutureDate,dataElement[id,name,formName]],attributeValues[attribute[id],value]'
 			, function( json_programStageList )
 			{
 				if ( runFunc !== undefined )
@@ -136,8 +136,7 @@ function DataInMemory()
 			);
 		}
 	}
-
-
+	
 	// --- Each data retrieval method
 	// ---------------------------------------
 
