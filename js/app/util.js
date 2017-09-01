@@ -8,31 +8,6 @@ function Util() {}
 Util.disableTag = function( tag, isDisable )
 {
 	tag.prop('disabled', isDisable);
-	
-	for( var i=0; i<tag.length; i++ )
-	{
-		var element = $(tag[i]);
-		if( isDisable )
-		{
-			element.css( 'background-color', '#FAFAFA' ).css( 'cursor', 'auto' );
-			if( element.prop( "tagName" ) == 'BUTTON' && element.find("span").length > 0  )
-			{
-				element.find("span").css( 'color', 'gray' );
-			}
-			else
-			{
-				element.css( 'color', 'gray' );
-			}
-		}
-		else
-		{
-			element.css( 'background-color', 'white' ).css( 'cursor', '' ).css( 'color', '' );
-			if( element.prop( "tagName" ) == 'BUTTON' && element.find("span").length > 0  )
-			{
-				element.find("span").css( 'color', '' );
-			}
-		}
-	}
 }
 
 Util.sortByKey = function( array, key, noCase, emptyStringLast ) {
@@ -191,7 +166,7 @@ Util.findItemFromList = function( listData, searchProperty, searchValue )
 		if ( item[ searchProperty ] == searchValue )
 		{
 			foundData = item;
-			return foundData;
+			return false;
 		}
 	});
 
@@ -483,18 +458,6 @@ Util.checkCalendarDateStrFormat = function( inputStr )
 	}
 }
 
-Util.convertDateObjectToStr = function( dateObj )
-{
-	var year = dateObj.getFullYear();
-	var month = dateObj.getMonth() + 1;
-	month = ( month < 10 ) ? "0" + month : "" + month;
-	
-	var dayInMonth = dateObj.getDate();
-	dayInMonth = ( dayInMonth < 10 ) ? "0" + dayInMonth : dayInMonth;
-	
-	return year + "-" + month + "-" + dayInMonth;
-}
-
 // -------
 // Date Formatting Related
 
@@ -573,6 +536,7 @@ Util.formatDate_LongDesc = function( date )
 // Date Formatting Related
 // -------
 
+
 Util.setupDatePicker = function( ctrl, onSelectFunc, dateFormat, type )
 {
 	if ( !Util.checkValue( dateFormat ) )
@@ -587,7 +551,6 @@ Util.setupDatePicker = function( ctrl, onSelectFunc, dateFormat, type )
 	}
 
 	var maxDate = null;
-	var minDate = null;
 	var yearRangeStr = "";
 	var yearRangeStr = "";
 	var currentYear = (new Date()).getFullYear();
@@ -600,15 +563,6 @@ Util.setupDatePicker = function( ctrl, onSelectFunc, dateFormat, type )
 	else if ( type !== undefined && type == "upToToday" )
 	{
 		yearRangeStr = '' + (currentYear - 15) + ':' + currentYear;
-		maxDate = 0;
-	}
-	else if ( type !== undefined && type == "futureOnly" )
-	{
-		minDate = 0;
-	}
-	else if ( type !== undefined && type == "todayOnly" )
-	{
-		minDate = 0;
 		maxDate = 0;
 	}
 	else
@@ -633,43 +587,7 @@ Util.setupDatePicker = function( ctrl, onSelectFunc, dateFormat, type )
 		,changeYear: true
 		,yearRange: yearRangeStr
 		,maxDate: maxDate
-		,minDate: minDate
 	});
-}
-
-
-Util.setupDateRangePicker = function( ctrl, onSelectFunc, dateFormat, minDate, maxDate )
-{
-	if ( !Util.checkValue( dateFormat ) )
-	{
-		dateFormat = _dateFormat_Picker_YYMMDD;
-	}
-
-	if ( !Util.checkDefined( onSelectFunc ) )
-	{
-		onSelectFunc = function() {}
-		//{ $( this ).focus(); }
-	}
-	
-	var currentYear = (new Date()).getFullYear();
-	var yearRangeStr = '' + (currentYear - 15) + ':' + (currentYear + 2);
-
-	// set Datepickers
-	ctrl.datepicker( 
-	{
-		onSelect: onSelectFunc
-		,dateFormat: dateFormat 
-		,changeMonth: true
-		,changeYear: true
-		,yearRange: yearRangeStr
-		,maxDate: maxDate
-		,minDate: minDate
-	});
-	
-	if( ctrl.val() != "" )
-	{
-		onSelectFunc();
-	}
 }
 
 Util.pageHScroll = function( option )
@@ -702,66 +620,3 @@ $.fn.outerHTML = function(){
           return contents;
     })(this[0]));
 }
-
-
-
-// ---------------------------------------
-// --- App block/unblock ---
-
-function MsgManager() {}
-		
-MsgManager.cssBlock_Body = { 
-	border: 'none'
-	,padding: '15px'
-	,backgroundColor: '#000'
-	,'-webkit-border-radius': '10px'
-	,'-moz-border-radius': '10px'
-	,opacity: .5
-	,color: '#fff'
-	,width: '200px'
-};
-
-MsgManager.appBlock = function( msg )
-{
-	if ( !Util.checkValue( msg ) ) msg = "Processing..";
-
-	FormBlock.block( true, msg, MsgManager.cssBlock_Body );
-}
-
-MsgManager.appUnblock = function()
-{
-	FormBlock.block( false );
-}
-
-
-// --- Messaging ---
-MsgManager.divMsgAreaTag;
-MsgManager.spanMsgAreaCloseTag;
-MsgManager.btnMsgAreaCloseTag;
-MsgManager.spanMsgAreaTextTag;
-
-MsgManager.initialSetup = function()
-{
-	MsgManager.divMsgAreaTag = $( '#divMsgArea' );
-	MsgManager.spanMsgAreaCloseTag = $( '#spanMsgAreaClose' );
-	MsgManager.btnMsgAreaCloseTag = $( '#btnMsgAreaClose' );
-	MsgManager.spanMsgAreaTextTag = $( '#spanMsgAreaText' );
-		
-
-	MsgManager.btnMsgAreaCloseTag.click( function()
-	{
-		MsgManager.divMsgAreaTag.hide( 'fast' );
-	});
-}
-
-MsgManager.msgAreaShow = function( msg )
-{
-	MsgManager.divMsgAreaTag.hide( 'fast' );
-	MsgManager.spanMsgAreaTextTag.text( '' );
-
-	MsgManager.spanMsgAreaTextTag.text( msg );
-	MsgManager.divMsgAreaTag.show( 'medium' );
-
-	console.log( ' -- Msg: ' + msg );
-}
-
