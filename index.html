@@ -648,11 +648,11 @@
 					}
 					else
 					{
-						$.get( me.queryURL_OrgUnit + orgUnitId + '/parents.json', function( json_data )
+						$.get( me.queryURL_OrgUnit + orgUnitId + '/parents.json', function( organisationUnits )
 						{
-							if ( json_data.organisationUnits !== undefined )
+							if ( organisationUnits !== undefined )
 							{
-								$.each( json_data.organisationUnits, function( i, item )
+								$.each( organisationUnits, function( i, item )
 								{
 									if ( item.level == countryLevel )
 									{
@@ -3346,6 +3346,7 @@
 
 			me.eventCreate_SubmitData = function( json_Data, trCurrent, successFunc )
 			{
+				json_Data.deleted = false;
 				RESTUtil.submitData( json_Data, _queryURL_EventSubmit, "POST"
 					, function( returnData )
 					{
@@ -4041,7 +4042,7 @@
 									});
 								}
 							}
-							else if( valType == "TEXT" || valType == "USERNAME" || valType == "LETTER" || valType == "PHONE_NUMBER" || valType == "EMAIL" || valType == "DATETIME" || valType == "FILE_RESOURCE" || valType == "COORDINATE" )
+							else if( valType == "TEXT" || valType == "USERNAME" || valType == "LETTER" || valType == "PHONE_NUMBER" || valType == "EMAIL" || valType == "DATETIME" || valType == "FILE_RESOURCE" || valType == "COORDINATE" || valType == "URL" )
 							{
 								var controlTag = me.setAndGetControlTag( tdTag, ".textbox" );
 							}
@@ -4053,9 +4054,10 @@
 							{
 								var controlTag = me.setAndGetControlTag( tdTag, ".textbox" ).attr( "size", "5" );
 							}
-							else if ( valType == "NUMBER" || valType == "PERCENTAGE" )
+							else if ( valType == "NUMBER" || valType == "PERCENTAGE" || valType == "AGE" )
 							{
 								var controlTag = me.setAndGetControlTag( tdTag, ".textbox" ).attr( "size", "8" );
+								PersonUtil.setTagTypeValidation( controlTag, "NUMBER" );
 							}
 							else if( valType == "DATE" )
 							{
@@ -4295,9 +4297,15 @@
 						
 						if ( successAction !== undefined ) successAction();
 					}
-					, function()
+					, function( err )
 					{
-						alert( $( 'span.msg_EventUpdateFailed' ).text() );
+						var message = $( 'span.msg_EventUpdateFailed' ).text();
+						var response = err.responseJSON.response;
+						if( response != undefined && response.conflicts != undefined )
+						{
+							message += ".\nERROR : " + response.conflicts[0].value;
+						}
+						alert( message );
 					}
 				);
 				
@@ -4332,12 +4340,18 @@
 							
 							if ( successAction !== undefined ) successAction();
 						}
-						, function()
+						, function( err )
 						{
 							tag.attr( "status", "failed" );
 							Util.paintWarning( tag );
-
-							alert( $( 'span.msg_EventUpdateFailed' ).text() );
+							
+							var message = $( 'span.msg_EventUpdateFailed' ).text();
+							var response = err.responseJSON.response;
+							if( response != undefined && response.conflicts != undefined )
+							{
+								message += ".\nERROR : " + response.conflicts[0].value;
+							}
+							alert( message );
 						}
 						);
 					}	
@@ -6070,7 +6084,7 @@
 										}
 										else
 										{																					
-											var personId = returnData.response.reference;
+											var personId = returnData.response.importSummaries[0].reference;
 
 											if ( Util.checkDefined( personId ) )
 											{
@@ -6423,7 +6437,7 @@
 
 					cntrDropdown.val( value );
 				}
-				else if( valueType == "TEXT" || valueType == "LONG_TEXT" || valueType == "NUMBER" || valueType == "LETTER" || valueType == "PHONE_NUMBER" || valueType == "EMAIL"  || valueType == "USERNAME" )
+				else if( valueType == "TEXT" || valueType == "LONG_TEXT" || valueType == "NUMBER" || valueType == "LETTER" || valueType == "PHONE_NUMBER" || valueType == "EMAIL"  || valueType == "USERNAME" || valueType == "URL" )
 				{
 					// TODO: For now, have 'username' display as textbox <-- should be user listing
 					attributeControl = trCurrent.find( ".textbox" ).val( value ).attr( _view, _view_Yes );
@@ -6454,6 +6468,13 @@
 				else if( valueType == "TRUE_ONLY" || valueType == "TRACKER_ASSOCIATE" )
 				{
 					attributeControl = trCurrent.find( ".checkbox" ).attr( _view, _view_Yes ).prop( 'checked', value );
+				}
+				else if( valueType == "AGE" )
+				{
+					// TODO: For now, have 'username' display as textbox <-- should be user listing
+					attributeControl = trCurrent.find( ".textbox" ).val( value ).attr( _view, _view_Yes );
+
+					PersonUtil.setTagTypeValidation( attributeControl, "NUMBER" );
 				}
 				else
 				{
