@@ -21,7 +21,7 @@ function DataSetValues( TabularDEObj )
 	me.PARAM_PERIOD = "@PARAM_PERIOD";
 	me.PARAM_ORGUNIT_ID = "@PARAM_ORGUNIT_ID";
 	
-	me._query_dataSet = _queryURL_api + "dataSets/" + me.PARAM_DATASET_ID + ".json?fields=dataSetElements[dataElement[id,formName,categoryCombo[id,categoryOptionCombos[id,name]]]]";
+	me._query_dataSet = _queryURL_api + "dataSets/" + me.PARAM_DATASET_ID + ".json?fields=dataSetElements[dataElement[id,formName,valueType,categoryCombo[id,categoryOptionCombos[id,name]]]]";
 	me._query_dataValues = _queryURL_api + "dataValueSets.json?period=" + me.PARAM_PERIOD + "&orgUnit=" + me.PARAM_ORGUNIT_ID + "&dataSet=" + me.PARAM_DATASET_ID;
 	me._queryUrl_dataValueSave = _queryURL_api + 'dataValues';
 
@@ -50,33 +50,8 @@ function DataSetValues( TabularDEObj )
 					// STEP 1. Generate header if any. Headers are categoryCombos
 					me.generateTablesByCategoryCombos( jsonDataSet.dataSetElements, hiddenDEList );
 					
-					/* var headerTag = $("<tr></tr>");
-					headerTag.append("<td></td>");
 					
-					for( var i in jsonDataSet.dataSetElements )
-					{
-						if( hiddenDEList.indexOf( jsonDataSet.dataSetElements[i].dataElement.id ) < 0 )
-						{
-							var optionCombos = jsonDataSet.dataSetElements[i].dataElement.categoryCombo.categoryOptionCombos;
-							
-							for( var j in optionCombos )
-							{
-								if( headerTag.find("th[optComboId='" + optionCombos[j].id + "']").length == 0 )
-								{
-									headerTag.append("<th optComboId='" + optionCombos[j].id + "'>" + optionCombos[j].name + "</th>");
-								}
-								
-							}
-						}
-					}
-					
-					// STEP 2. Add the header if there is any data element links to catCombo
-					if( headerTag.find("th").length > 0 )
-					{
-						me.dataSetFormTag.append( headerTag );
-					} */
-					
-					// STEP 3. Generate data element cells
+					// STEP 2. Generate data element cells
 					for( var i in jsonDataSet.dataSetElements )
 					{
 						var de = jsonDataSet.dataSetElements[i].dataElement;
@@ -100,8 +75,7 @@ function DataSetValues( TabularDEObj )
 					}
 					
 					
-					
-					// STEP 4. Generate data element INPUT fields
+					// STEP 3. Generate data element INPUT fields
 					for( var i in jsonDataSet.dataSetElements )
 					{
 						var de = jsonDataSet.dataSetElements[i].dataElement;
@@ -110,13 +84,22 @@ function DataSetValues( TabularDEObj )
 						for( var j in optionCombos )
 						{
 							var key = de.id + "-" + optionCombos[j].id + "-val";
-							me.dataSetFormTag.find("td[deId='" + key + "']").append("<input type='text' deId='" + key + "' >");
+							var inputTag = $("<input valType='" + de.valueType + "' type='text' deId='" + key + "' >");
+							if( de.valueType == "DATE" )
+							{
+								Util.setupDatePicker( inputTag, function(){
+									var keys = inputTag.attr("deId").split("-");
+									me.saveDataValue( keys[0], keys[1], orgUnitId, periodId, inputTag, de.valueType );
+								} );
+							}
+							
+							me.dataSetFormTag.find("td[deId='" + key + "']").append(inputTag);
 						}
 						
 					}
 					
 					
-					// STEP 5. Populate data values
+					// STEP 4. Populate data values
 					me.loadDataValues( periodId, orgUnitId, dataSetId, function( dataValueSet ){
 						var dataValues = dataValueSet.dataValues;
 						if( dataValues !== undefined )
@@ -124,15 +107,23 @@ function DataSetValues( TabularDEObj )
 							for( var i in dataValueSet.dataValues )
 							{
 								var dataValue = dataValues[i];
+								var value = dataValue.value;
 								var key = dataValue.dataElement + "-" + dataValue.categoryOptionCombo + "-val";
-								me.dataSetFormTag.find("input[deId='" + key + "']").val( dataValue.value );
+								
+								var inputTag = me.dataSetFormTag.find("input[deId='" + key + "']");
+								if( inputTag.attr("valType") == "DATE" )
+								{
+									value = Util.formatDateBack( value );
+								}
+								
+								inputTag.val( value );
 							}
 						}
 						
 						me.dataSetFormTag.show();
 					});
 					
-					// STEP 6. Add event for data element fields
+					// STEP 5. Add event for data element fields
 					me.setup_Events_DataElementFields( orgUnitId, periodId );	
 				});
 				
@@ -143,28 +134,29 @@ function DataSetValues( TabularDEObj )
 	
 	me.generateTablesByCategoryCombos = function( dataSetElements, hiddenDEList )
 	{
-		var tbody = $("<tbody></tbody>");
+		var tbody = $("<tbody style='display:block;border-top:8px solid #fff;'></tbody>");
 		var headerTag = $("<tr></tr>");
+		var categoryComboId = false;
 		for( var i in dataSetElements )
 		{
 			if( hiddenDEList.indexOf( dataSetElements[i].dataElement.id ) < 0 )
 			{
-				var categoryCombo = dataSetElements[i].dataElement.categoryCombo;
-				
+				categoryCombo = dataSetElements[i].dataElement.categoryCombo;
+				categoryComboId = categoryCombo.id;
 				if( me.dataSetFormTag.find("[categoryComboId='" + categoryCombo.id + "']").length == 0 )
 				{
-					if(  headerTag.find("th").length > 0 )
+					if( headerTag.find("th").length > 0 )
 					{
 						tbody.append( headerTag );
 						me.dataSetFormTag.append( tbody );
 						headerTag = $("<tr></tr>");
 					}
 					
-					tbody = $("<tbody categoryComboId='" + categoryCombo.id + "'></tbody>");
+					tbody = $("<tbody  style='display:block;border-top:8px solid #fff;' categoryComboId='" + categoryCombo.id + "'></tbody>");
 				}
 				
 				var optionCombos = categoryCombo.categoryOptionCombos;
-				headerTag.append("<td></td>");
+				headerTag.append("<td style='width:150px;'></td>");
 				for( var j in optionCombos )
 				{
 					if( headerTag.find("th[optComboId='" + optionCombos[j].id + "']").length == 0 )
@@ -174,6 +166,12 @@ function DataSetValues( TabularDEObj )
 					
 				}
 			}
+		}
+		
+		if( me.dataSetFormTag.find("[categoryComboId='" + categoryComboId + "']").length == 0 )
+		{
+			tbody.append( headerTag );
+			me.dataSetFormTag.append( tbody );
 		}
 		
 	};
@@ -287,9 +285,18 @@ function DataSetValues( TabularDEObj )
 		});
 	};
 	
-	me.saveDataValue = function( deId, optComboId, ouId, peId, inputTag )
+	me.saveDataValue = function( deId, optComboId, ouId, peId, inputTag, valueType )
 	{
-		var data =  "de=" + deId + "&co=" + optComboId + "&ou=" + ouId + "&pe=" + peId + "&value=" + inputTag.val();
+		if( valueType !== undefined && valueType == "DATE" )
+		{
+			value = Util.getDateStr_FromYYYYMMDD( inputTag.val() );
+		}
+		else
+		{
+			value = inputTag.val();
+		}
+		
+		var data =  "de=" + deId + "&co=" + optComboId + "&ou=" + ouId + "&pe=" + peId + "&value=" + value;
 		
 		RESTUtil.submitAggData_Text( me._queryUrl_dataValueSave, data, function(){
 			Util.paintLightGreen( inputTag );

@@ -559,6 +559,42 @@ Util.getDate_FromYYYYMMDD = function( strDate )
 }
 
 
+Util.getDateStr_FromYYYYMMDD = function( strDate )
+{
+	var dateStr;
+
+	if ( Util.checkValue( strDate ) )
+	{
+		var year = strDate.substring(0, 4);
+		var month = strDate.substring(5, 7);
+		var date = strDate.substring(8, 10);
+
+		dateStr = year + "-" + month + "-" + date;
+	}
+
+	return dateStr;
+}
+
+/**
+* Convert DATE string ( 2017-12-10 ) to string ( 10/12/2017 )
+**/
+Util.getDateStr_DDMMYYYY = function( strDate )
+{
+	var dateStr;
+
+	if ( Util.checkValue( strDate ) )
+	{
+		var year = strDate.substring(0, 4);
+		var month = strDate.substring(5, 7);
+		var date = strDate.substring(8, 10);
+
+		dateStr = date + "/" + month + "/" + year;
+	}
+
+	return dateStr;
+}
+
+
 Util.getDateStrYYYYMMDD_FromDate = function( date )
 {
 	return $.format.date( date, _dateFormat_YYYYMMDD);

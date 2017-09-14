@@ -387,20 +387,9 @@ function MatrixOrgunitPeriod( _orgUnitSelectionTreePopup, _TabularDEObj )
 		for( var i=0; i<periodList.length; i++ )
 		{
 			var lockFormSign = me.relativePeriod.lockDataFormByPeriod( periodList[i].code, selectedProgram.attr("peType"), selectedProgram.attr("expiryDays") );
-			var lockFormColor = "";
-			if( lockFormSign == me.relativePeriod.SIGN_FULL_LOCK_FORM  )
-			{
-				lockFormColor = "";
-			}
-			else if( lockFormSign == me.relativePeriod.SIGN_PART_LOCK_FORM
-				|| lockFormSign == me.relativePeriod.SIGN_OPEN_FORM )
-			{
-				lockFormColor = "red";
-			}
 			
 			var dataCellTags = me.matrixOuDataTag.find("[key$='" + periodList[i].code + "']");
-			dataCellTags.find("span.status").html( lockFormSign );
-			dataCellTags.find("span.status").css( "color", lockFormColor );
+			dataCellTags.find("span.status").append( me.relativePeriod.convertLockSignFormToTag( lockFormSign ) );
 		}
 	};
 	

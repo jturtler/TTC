@@ -38,14 +38,15 @@ function SettingForm()
 
 	me.queryURL_orgUnitLevels = _queryURL_api + 'organisationUnitLevels.json?paging=false&fields=id,name,level';
 	me.queryURL_orgUnitGroups = _queryURL_api + 'organisationUnitGroups.json?paging=false&fields=id,name';
-	me.queryURL_trackedDataElements = _queryURL_api + 'dataElements.json?paging=false&fields=id,name,domainType'; // TRACKER
+	me.queryURL_trackedDataElements = _queryURL_api + 'dataElements.json?paging=false&fields=id,name,domainType,dataSetElements[dataSet[id]]'; // TRACKER
+	me.queryURL_aggregateDataElements = _queryURL_api + 'dataSets/XURYYYvxH9z.json?fields=dataSetElements[dataElement[id,name,domainType]]'; // AGGEGATE
 
 	me.settingData;
 	me.ouGroupList = [];
 	me.dataElementList = [];
 	me.loadedOUGroups = false;
-	me.loadedDataElements = false;
-	
+	me.loadedTrackerDataElements = false;
+	me.loadedAggDataElements = false;
 	
 	me.FormPopupSetup = function()
 	{
@@ -434,13 +435,13 @@ function SettingForm()
 		});
 	};
 
-	me.loadDataElementList = function()
+	me.loadTrackerDataElementList = function()
 	{
 		RESTUtil.getAsynchData( me.queryURL_trackedDataElements
 		, function( json_Data )
 		{
-			me.dataElementList = json_Data.dataElements;
-			me.loadedDataElements = true;
+			me.trackerDataElementList = Util.sortByKey( json_Data.dataElements, "name" );
+			me.loadedTrackerDataElements = true;
 			me.afterLoadedMetaData();
 		}
 		, function() 
@@ -449,9 +450,31 @@ function SettingForm()
 		});
 	};
 
+	me.loadAggDataElementList = function()
+	{
+		RESTUtil.getAsynchData( me.queryURL_aggregateDataElements
+		, function( json_Data )
+		{
+			me.aggDataElementList = [];
+			for( var i in json_Data.dataSetElements )
+			{
+				me.aggDataElementList.push( json_Data.dataSetElements[i].dataElement );
+			}
+			
+			me.aggDataElementList = Util.sortByKey( me.aggDataElementList, "name" );
+			me.loadedAggDataElements = true;
+			me.afterLoadedMetaData();
+		}
+		, function() 
+		{  
+			alert( $( 'span.msg_SettingData_OrgUnitLevelNotFound' ).text() );
+		});
+	};
+	
+	
 	me.afterLoadedMetaData = function()
 	{
-		if( me.loadedOUGroups && me.loadedDataElements )
+		if( me.loadedOUGroups && me.loadedTrackerDataElements && me.loadedAggDataElements )
 		{
 			me.addTrackerOrgUnitGroupRow();
 		}
@@ -602,7 +625,6 @@ function SettingForm()
 		});
 		
 		return listTag;
-	me.dataElementList = [];
 	
 	};
 				
@@ -611,8 +633,14 @@ function SettingForm()
 		var listTag = $( "<select class='deList' style='width:200px;'></select>" );
 		listTag.append( '<option value="">' + l10n.get('selectDataElement') + '</option>' );
 
-		var list = Util.sortByKey( me.dataElementList, "name" );
-
+		var list;
+		if( domainType == "TRACKER" ){
+			list = me.trackerDataElementList;
+		}
+		else if( domainType == "AGGREGATE" ){
+			list = me.aggDataElementList;
+		}
+		
 		$.each( list, function( i, item ) {
 			if( item.domainType == domainType )
 			{
@@ -629,7 +657,8 @@ function SettingForm()
 		me.setOrgUnitList( me.countryLevelTag );
 		
 		me.loadOrgUnitGroupList();
-		me.loadDataElementList();
+		me.loadAggDataElementList();
+		me.loadTrackerDataElementList();
 		
 		me.FormPopupSetup();
 		

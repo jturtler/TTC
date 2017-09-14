@@ -8,7 +8,7 @@ function DataElementOrguUnitPopup( _TabularDEObj )
 	me.inputGPSTag;
 	
 	me.PARAM_ORGUNITID = "@PARAM_ORGUNITID";
-	me._queryURL_orgUnit_L5 = _queryURL_api + "organisationUnits/" + me.PARAM_ORGUNITID + ".json?fields=id,name,code,level&includeDescendants=true&filter=level:eq:5";
+	me._queryURL_orgUnit_L5 = _queryURL_api + "organisationUnits/" + me.PARAM_ORGUNITID + ".json?fields=id,name,code,level,coordinates&includeDescendants=true&filter=level:eq:5";
 		
 	me.dialogFormTag = $("#orgUnit_DataElementForm");
 	
@@ -77,31 +77,48 @@ function DataElementOrguUnitPopup( _TabularDEObj )
 				
 				var villageObj;
 				var villageCode = "no found";
-				var coordinator = "0,0";
+				var coordinates = "0,0";
 				var searchVillageCode = "";
 
 				var ouOptionSelected = $("[name='deOrgUnitSelectorOption']:checked").val();
 				if( ouOptionSelected == 'villageByHeathCenter' )
 				{
-					searchVillageCode = me.deOrgunitListTag.val()
+					searchVillageCode = me.deOrgunitListTag.val();
+					var ouCoordinates = me.deOrgunitListTag.find("option:selected").attr("coordinates");
+					if( ouCoordinates != undefined )
+					{
+						coordinates = ouCoordinates;
+					}
 				}
 				else
 				{
 					searchVillageCode = me.deVillageListTag.val();
 				}
 				
-				// Find the village
-				var villageFound = me.findVillageByCode( searchVillageCode );
-					
-				if( villageFound.villageObj !== undefined )
+				var villageCode = "";
+				if( coordinates !== undefined )
 				{
-					villageCode = villageFound.villageObj.code;
-					coordinator = villageFound.villageObj.coordinates.replace("[", "").replace("]", "");
+					villageCode = searchVillageCode;
+					coordinates = coordinates.replace("[", "").replace("]", "");
+				}
+				else
+				{
+					// Find the village
+					villageFound = me.findVillageByCode( searchVillageCode );
+					if( villageFound.villageObj !== undefined )
+					{
+						villageCode = villageFound.villageObj.code;
+						coordinates = villageFound.villageObj.coordinates.replace("[", "").replace("]", "");
+					}
+					else
+					{
+						coordinates = "";
+					}
 				}
 				
 				me.inputCodeTag.val( villageCode );
 				me.inputCodeTag.change();
-				me.inputGPSTag.val( coordinator );
+				me.inputGPSTag.val( coordinates );
 				me.inputGPSTag.change();
 				
 				$( this ).dialog( "close" );
@@ -132,13 +149,13 @@ function DataElementOrguUnitPopup( _TabularDEObj )
 		me.deOrgunitListTag.val( searchCode );
 		if( me.deOrgunitListTag.val() != "" )
 		{
-			me.villageByHeathCenterOptionTag.prop( "checked", false );
-			me.villageByOULevelTag.prop( "checked", true );
+			me.villageByHeathCenterOptionTag.prop( "checked", true );
+			me.villageByOULevelTag.prop( "checked", false );
 		}
 		else
 		{
-			me.villageByHeathCenterOptionTag.prop( "checked", true );
-			me.villageByOULevelTag.prop( "checked", false );
+			me.villageByHeathCenterOptionTag.prop( "checked", false );
+			me.villageByOULevelTag.prop( "checked", true );
 		}
 		
 		me.deOrgUnitSelectorOptionOnChange();
@@ -312,7 +329,10 @@ function DataElementOrguUnitPopup( _TabularDEObj )
 				for( var i in jsonData.organisationUnits )
 				{
 					var item = jsonData.organisationUnits[i];
-					me.deOrgunitListTag.append( $( '<option></option>' ).attr( "value", item.code ).text( item.name ) );
+					me.deOrgunitListTag.append( $( '<option></option>' )
+					.attr( "value", item.code )
+					.attr( "coordinates", item.coordinates )
+					.text( item.name ) );
 				}
 				
 				Util.disableTag( me.deOrgunitListTag, false );	

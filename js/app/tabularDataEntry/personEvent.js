@@ -183,9 +183,11 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 			var startDateStr = $.format.date( startDate, "yyyyMMdd" );
 			var endDateStr = $.format.date( endDate, "yyyyMMdd" );
 			var validMinDateStr;
+			var validEndDateStr;
 			if( validEventDateRange.startDate != undefined )
 			{
 				validMinDateStr = $.format.date( validEventDateRange.startDate, "yyyyMMdd" );
+				validEndDateStr = $.format.date( validEventDateRange.endDate, "yyyyMMdd" );
 			}
 			var todayStr = Util.formatDate( $.format.date( today, _dateFormat_YYYYMMDD ) ).split("-").join("");
 		
@@ -200,6 +202,10 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 			if( startDateStr <= todayStr && todayStr <= endDateStr )
 			{
 				eventDate.val( $.format.date( new Date(), _dateFormat_YYYYMMDD ) );
+			}
+			else if( validEndDateStr <= startDateStr )
+			{
+				eventDate.val( $.format.date( validEventDateRange.startDate, _dateFormat_YYYYMMDD ) );
 			}
 			else
 			{
@@ -1730,7 +1736,7 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 
 		if ( item_event.eventDate !== undefined )
 		{
-			eventDate.val( Util.formatDateBack( item_event.eventDate ) );
+			//eventDate.val( Util.formatDateBack( item_event.eventDate ) );
 		}
 		
 		// Select Program/ProgramStages <-- if not in select option, add one.
