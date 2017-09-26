@@ -242,7 +242,7 @@ function RelativePeriod()
 		var todayStr = me.formatDateObj_YYYYMMDD( new Date() );
 		
 		
-		if( expiredRangeDate.expiredDate == undefined )
+		if( expiredPeriodType == "" )
 		{
 			if( todayStr > endDateStr || ( todayStr >= startDateStr && todayStr <= endDateStr ) )
 			{
@@ -319,7 +319,11 @@ function RelativePeriod()
 	me.calExpiredDateRange = function( startPeriodDate, expiredPeriodType, expiredDays )
 	{
 		var expiredDate = me.calExpiredDate( startPeriodDate, expiredPeriodType, expiredDays );
-		var startDate = me.calStartDateByEventDateAndPeriodType( startPeriodDate, expiredDate, expiredPeriodType, expiredDays ); 
+		var startDate;
+		if( expiredPeriodType !== "undefined" && expiredPeriodType !== "" )
+		{
+			startDate = me.calStartDateByEventDateAndPeriodType( startPeriodDate, expiredDate, expiredPeriodType, expiredDays ); 
+		}
 		
 		return {
 				"expiredDate" : expiredDate
