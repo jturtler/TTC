@@ -498,7 +498,6 @@ Util.convertDateObjectToStr = function( dateObj )
 // -------
 // Date Formatting Related
 
-
 Util.addZero = function( i )
 {
     if (i < 10) {

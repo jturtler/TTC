@@ -75,6 +75,7 @@ function SearchMatrixOrgUnit( MatrixObj )
 	{
 		me.orgUnitNameTag.val( orgUnit.name );
 		me.orgUnitSelectedId = orgUnit.id;
+		me.orgUnitSelected = orgUnit;
 
 		Util.paintClear( me.orgUnitNameTag );
 	};
@@ -84,6 +85,10 @@ function SearchMatrixOrgUnit( MatrixObj )
 		return me.orgUnitSelectedId;
 	};
 	
+	me.getOrgUnit = function()
+	{
+		return me.orgUnitSelected;
+	};
 	
 	me.clear_OrgUnitData = function()
 	{

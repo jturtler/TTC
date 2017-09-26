@@ -130,6 +130,7 @@ function SearchPanel( TabularDEObj )
 		me.retrieveOrgunitGroupList( orgUnit.id, function( json_ouGroupList ){
 			me.orgUnitNameTag.val( orgUnit.name );
 			me.orgUnitSelectedId = orgUnit.id;
+			me.orgUnitSelected = orgUnit;
 			me.orgUnitGroupIdList = json_ouGroupList;
 			
 			if( returnFunc !== undefined ) returnFunc();
@@ -144,6 +145,11 @@ function SearchPanel( TabularDEObj )
 		return me.orgUnitSelectedId;
 	}
 
+	me.getOrgUnit = function()
+	{
+		return me.orgUnitSelected;
+	};
+	
 	me.hasOrgUnitGroup = function( ouGroupId )
 	{
 		var searched = Util.findItemFromList( me.orgUnitGroupIdList, "id", ouGroupId );

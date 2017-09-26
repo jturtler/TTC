@@ -19,14 +19,12 @@ function SettingForm()
 	
 	me.mainPersonSectionTag =  $( '#mainSection_Person' );
 	me.mainSectionEventTag =  $( '#mainSection_Event' );
+	me.matrixOuDataDivTag = $( '#matrixOuDataDiv' );
 	
 	me.searchResultMsgRowTag = $( '#searchResultMsgRow' );
 
 	// Event settings
 	
-	me.allowCreateFutureEventTag = $( '#allowCreateFutureEvent' );
-	me.lockEditingAndCreateEventTag = $( '#lockEditingAndCreateEvent' );
-	me.lockEditingPreviousEventTag = $( '#lockEditingPreviousEvent' );
 	me.addProgramRuleBtnTag = $("#addProgramRuleBtn");
 	me.addDataSetRuleBtnTag = $("#addDataSetRuleBtn");
 
@@ -87,11 +85,6 @@ function SettingForm()
 					{
 						json_SettingData.incompleteActionUserRole = me.incompleteActionUserRoleTag.val();
 					}
-
-	
-					json_SettingData.lockEditingPreviousEvent = me.lockEditingPreviousEventTag.prop("checked");
-					json_SettingData.lockEditingAndCreateEvent = me.lockEditingAndCreateEventTag.prop("checked");
-					json_SettingData.allowCreateFutureEvent = me.allowCreateFutureEventTag.prop("checked");
 					
 					// Tracker data elements in OU Group list
 					json_SettingData.orgUnitGroups = [];
@@ -153,6 +146,7 @@ function SettingForm()
 						me.searchResultMsgRowTag.hide();
 						me.mainPersonSectionTag.hide("fast");
 						me.mainSectionEventTag.hide("fast");
+						me.matrixOuDataDivTag.hide("fast");
 					}
 					, function()
 					{
@@ -200,21 +194,6 @@ function SettingForm()
 			if ( me.settingData.incompleteActionUserRole !== undefined )
 			{
 				me.incompleteActionUserRoleTag.val( me.settingData.incompleteActionUserRole );
-			}
-			
-			if ( me.settingData.lockEditingPreviousEvent !== undefined )
-			{
-				me.lockEditingPreviousEventTag.prop( "checked", me.settingData.lockEditingPreviousEvent );
-			}
-			
-			if ( me.settingData.lockEditingAndCreateEvent !== undefined )
-			{
-				me.lockEditingAndCreateEventTag.prop( "checked", me.settingData.lockEditingAndCreateEvent );
-			}
-			
-			if ( me.settingData.allowCreateFutureEvent !== undefined )
-			{
-				me.allowCreateFutureEventTag.prop( "checked", me.settingData.allowCreateFutureEvent );
 			}
 			
 			// Traker data element in OU Group list

@@ -167,71 +167,80 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 		me.setEventCreateButtonEnable( trCurrent );
 
 		
-		// Check if an event can be created in the pass
-		me.TabularDEObj.settingForm.getSettingData( function( settingData ){
+		// Create DATE range for eventDate picker
 			
-			var validEventDateRange = me.getValidEventDateRange( settingData );
-			
-			
-			// Set start data for the new event date as default value of matrix period selected if any
-			// In case the range date of matrix period includes today, then set today as default value.
-			
-			var startDate = me.TabularDEObj.getDefaultStartDate();
-			var endDate = me.TabularDEObj.getDefaultEndDate();
-			var today = new Date();
-			
-			var startDateStr = $.format.date( startDate, "yyyyMMdd" );
-			var endDateStr = $.format.date( endDate, "yyyyMMdd" );
-			var validMinDateStr;
-			var validEndDateStr;
-			if( validEventDateRange.startDate != undefined )
-			{
-				validMinDateStr = $.format.date( validEventDateRange.startDate, "yyyyMMdd" );
-				validEndDateStr = $.format.date( validEventDateRange.endDate, "yyyyMMdd" );
-			}
-			var todayStr = Util.formatDate( $.format.date( today, _dateFormat_YYYYMMDD ) ).split("-").join("");
+		var validEventDateRange = me.getValidEventDateRange();
 		
+		// Set start data for the new event date as default value of matrix period selected if any
+		// In case the range date of matrix period includes today, then set today as default value.
+		
+		var startDate = me.TabularDEObj.getDefaultStartDate();
+		var endDate = me.TabularDEObj.getDefaultEndDate();
+		var today = new Date();
+		
+		var startDateStr = $.format.date( startDate, "yyyyMMdd" );
+		var endDateStr = $.format.date( endDate, "yyyyMMdd" );
+		var todayStr = $.format.date( today, "yyyyMMdd" );
+		
+		var validMinDateStr;
+		var validEndDateStr;
+		if( validEventDateRange.startDate != undefined )
+		{
+			validMinDateStr = $.format.date( validEventDateRange.startDate, "yyyyMMdd" );
+			validEndDateStr = $.format.date( validEventDateRange.endDate, "yyyyMMdd" );
+		}
 	
-			var defaultDate = $.format.date( startDate, _dateFormat_YYYYMMDD );
-			
-			if( validEventDateRange.startDate !== undefined && startDateStr < validMinDateStr )
+
+		var defaultDate = $.format.date( startDate, _dateFormat_YYYYMMDD );
+		if( validEventDateRange.startDate !== undefined && startDateStr < validMinDateStr )
+		{
+			if( validMinDateStr >= startDateStr && validMinDateStr <= endDateStr )
 			{
 				defaultDate = $.format.date( validEventDateRange.startDate, _dateFormat_YYYYMMDD );
 			}
-			
-			if( startDateStr <= todayStr && todayStr <= endDateStr )
-			{
-				eventDate.val( $.format.date( new Date(), _dateFormat_YYYYMMDD ) );
-			}
-			else if( validEndDateStr <= startDateStr )
-			{
-				eventDate.val( $.format.date( validEventDateRange.startDate, _dateFormat_YYYYMMDD ) );
-			}
 			else
 			{
-				eventDate.val( defaultDate );
+				defaultDate = "";
 			}
-			
-			Util.setupDateRangePicker( eventDate
-				, function() 
-				{ 
-					Util.disableTag( eventStage, true );
-
-					if ( Util.checkCalendarDateStrFormat( eventDate.val() ) ) Util.disableTag( eventStage, false );
-
-					me.setEventCreateButtonEnable( trCurrent );
-
-					( me.TabularDEObj.isCase_SEwoR() ) ? eventCreateTag.focus() : eventStage.focus(); 
-
-				}
-				, undefined
-				,validEventDateRange.startDate
-				,validEventDateRange.endDate
-			);
-
-		});
+		}
 		
-	
+		if( startDateStr <= todayStr && todayStr <= endDateStr )
+		{
+			eventDate.val( $.format.date( new Date(), _dateFormat_YYYYMMDD ) );
+		}
+		else if( validEndDateStr <= startDateStr )
+		{
+			eventDate.val( $.format.date( validEventDateRange.startDate, _dateFormat_YYYYMMDD ) );
+		}
+		else
+		{
+			eventDate.val( defaultDate );
+		}
+		
+		var minDate = validEventDateRange.startDate;
+		var maxDate = today;
+		
+		Util.setupDateRangePicker( eventDate
+			, function() 
+			{ 
+				// STEP 1. Check if the selected event date is in the range			
+				me.checkDateEventOutOfDateRange( eventDate );
+				
+				// STEP 2.		
+				
+				Util.disableTag( eventStage, true );
+
+				if ( Util.checkCalendarDateStrFormat( eventDate.val() ) ) Util.disableTag( eventStage, false );
+
+				me.setEventCreateButtonEnable( trCurrent );
+
+				( me.TabularDEObj.isCase_SEwoR() ) ? eventCreateTag.focus() : eventStage.focus(); 
+
+			}
+			, undefined
+			,minDate
+			,maxDate
+		);
 
 
 		// On stage change, check stage value and event date value.
@@ -254,13 +263,12 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 
 
 		eventCreateTag.click( function() 
-		{					
+		{	
 			var programStageSelected = eventStage.val();
 
 			// Check eventDate and eventStage value
 			if ( Util.checkCalendarDateStrFormat( eventDate.val() ) && programStageSelected != ''  )
 			{
-
 				// 1. Generate the event and put the event id into the ..
 				me.eventCreate( trCurrent
 				, function( eventId, eventStatus )
@@ -308,10 +316,30 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 
 		// Return the reference to the first control, so that it can be focused after the row generate.
 		return eventDate;
-	}
+	};
 	
 	
-	me.getValidEventDateRange = function( settingData )
+	me.checkDateEventOutOfDateRange = function( eventDateTag )
+	{
+		var startDate = me.TabularDEObj.getDefaultStartDate();
+		var endDate = me.TabularDEObj.getDefaultEndDate();
+		var eventDate = eventDateTag.val();
+		
+		var startDateStr = $.format.date( startDate, "yyyyMMdd" );
+		var endDateStr = $.format.date( endDate, "yyyyMMdd" );
+		var eventDateStr = eventDate.split("/").join("");
+		
+		var eventDateColTag = eventDateTag.closest("td");
+		eventDateColTag.find("span.warning").remove();
+			
+		if( eventDateStr < startDateStr || eventDateStr > endDateStr )
+		{
+			var warningMsg = l10n.get( 'eventDataOutOfRange' );
+			eventDateColTag.append("<span class='warning' style='color:red;font-size: 8px;font-style: italic;'>*** " + warningMsg + "</span>");
+		}
+	};
+	
+	me.getValidEventDateRange = function()
 	{
 		var selectedProgramOption = me.TabularDEObj.searchPanel.defaultProgramTag.find("option:selected");
 		var today = new Date();
@@ -319,35 +347,12 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 		// Setup expiredDate and expiredDate based today
 		
 		var relativePeriod = new RelativePeriod();
-		var todayExpiredDateRange = relativePeriod.calExpiredDateRange( selectedProgramOption.attr("peType"), selectedProgramOption.attr("expiryDays") );
-		
-		var expiredDate = todayExpiredDateRange.expiredDate;	
-		var validMinDate = todayExpiredDateRange.validMinDate;
-		
-		
-		// Today Only
-		if( ( settingData.allowCreateFutureEvent != undefined && !settingData.allowCreateFutureEvent ) 
-			&& ( settingData.lockEditingAndCreateEvent != undefined && settingData.lockEditingAndCreateEvent ) )
-		{
-			expiredDate = today;
-			validMinDate = today;
-		}
-		//upToToday
-		else if( ( settingData.allowCreateFutureEvent != undefined && !settingData.allowCreateFutureEvent )
-		 && ( settingData.lockEditingAndCreateEvent != undefined && !settingData.lockEditingAndCreateEvent ) )
-		{
-			expiredDate = today;
-		}
-		// futureOnly
-		else if( ( settingData.allowCreateFutureEvent != undefined && settingData.allowCreateFutureEvent)
-			&& ( settingData.lockEditingAndCreateEvent != undefined && settingData.lockEditingAndCreateEvent ) )
-		{	
-			validMinDate = today;
-		}
+		// var startDate = me.TabularDEObj.getDefaultStartDate();
+		var todayExpiredDateRange = relativePeriod.calExpiredDateRange( today, selectedProgramOption.attr("peType"), selectedProgramOption.attr("expiryDays") );
 		
 		return {
-			"startDate": validMinDate
-			,"endDate": expiredDate
+			"startDate": todayExpiredDateRange.validMinDate
+			,"endDate": today
 		}
 		
 	};
@@ -1688,34 +1693,28 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 			});
 		}
 		
+		
 		// Check if this event should be disabled ( belongs to the settings )
-		me.TabularDEObj.settingForm.getSettingData( function( settingData ){
-			for( var i in json_Events ){
-				var event = json_Events[i];
-				if ( event.eventDate !== undefined )
+		for( var i in json_Events ){
+			var event = json_Events[i];
+			if ( event.eventDate !== undefined )
+			{
+				var relativePeriod = new RelativePeriod();
+				var eventDate = event.eventDate;
+				
+				var programSelected = me.TabularDEObj.searchPanel.defaultProgramTag.find("option:selected");
+				var expiredPeriodType = programSelected.attr("peType");
+				var expiryDays = programSelected.attr("expiryDays");
+				
+				var lockFormSign = relativePeriod.lockDataFormByEventDate( eventDate, expiredPeriodType, expiryDays );
+				if( lockFormSign == relativePeriod.SIGN_FULL_LOCK_FORM  )
 				{
-					if( ( settingData.lockEditingPreviousEvent != undefined && eval( settingData.lockEditingPreviousEvent ) ) 
-						|| ( settingData.lockEditingAndCreateEvent != undefined && eval( settingData.lockEditingAndCreateEvent ) )  )
-					{
-						var relativePeriod = new RelativePeriod();
-						var eventDate = event.eventDate;
-						
-						var programSelected = me.TabularDEObj.searchPanel.defaultProgramTag.find("option:selected");
-						var expiredPeriodType = programSelected.attr("peType");
-						var expiryDays = programSelected.attr("expiryDays");
-						
-						var lockFormSign = relativePeriod.lockDataFormByEventDate( eventDate, expiredPeriodType, expiryDays );
-						if( lockFormSign == relativePeriod.SIGN_FULL_LOCK_FORM  )
-						{
-							item_EventTable.find("tr[uid='" + event.event + "']").find("input,select").each( function(){
-								Util.disableTag( $(this), true );
-							});
-						}
-					}
+					item_EventTable.find("tr[uid='" + event.event + "']").find("input,select").each( function(){
+						Util.disableTag( $(this), true );
+					});
 				}
 			}
-			
-		});
+		}
 		
 	}
 
@@ -1736,7 +1735,10 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 
 		if ( item_event.eventDate !== undefined )
 		{
-			//eventDate.val( Util.formatDateBack( item_event.eventDate ) );
+			eventDate.val( Util.formatDateBack( item_event.eventDate ) );
+			
+			// Check if the selected event date is in the range			
+			me.checkDateEventOutOfDateRange( eventDate );
 		}
 		
 		// Select Program/ProgramStages <-- if not in select option, add one.

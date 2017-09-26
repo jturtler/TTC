@@ -67,7 +67,7 @@ function OrgUnitSelectionTreePopup()
 	me.selectOrgunitOnTree = function( ouId )
 	{
 		$("#selectionTree").find("a.selected").removeClass("selected");
-		$("#selectionTree").find( "#oustOrgUnit" + ouId ).find("a").addClass("selected");
+		$($("#selectionTree").find( "#oustOrgUnit" + ouId ).children()[1]).addClass("selected");
 	};
 	
 

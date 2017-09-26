@@ -47,11 +47,14 @@ function MatrixOrgunitPeriod( _orgUnitSelectionTreePopup, _TabularDEObj )
 
 	me.initialSetup = function()
 	{	
-		me.relativePeriod = new RelativePeriod();
-		me.searchMatrixOrgUnit = new SearchMatrixOrgUnit( me );
+		me.TabularDEObj.settingForm.getSettingData( function( settingData ){
 		
-		Util.disableTag( me.matrixExecuteRetrievalTag, true );
-		me.setUp_Events();
+			me.relativePeriod = new RelativePeriod( settingData );
+			me.searchMatrixOrgUnit = new SearchMatrixOrgUnit( me );
+			
+			Util.disableTag( me.matrixExecuteRetrievalTag, true );
+			me.setUp_Events();
+		});
 	};
 	
 	
@@ -64,7 +67,8 @@ function MatrixOrgunitPeriod( _orgUnitSelectionTreePopup, _TabularDEObj )
 				me.ouMatrixSectionTag.hide();
 				me.specificPeriodSectionTag.show("fast");
 				
-				me.TabularDEObj.orgUnitSelectionTreePopup.selectOrgunitOnTree( me.TabularDEObj.searchPanel.getOrgUnitId() );
+				var orgUnitId = me.TabularDEObj.searchPanel.getOrgUnitId();
+				me.TabularDEObj.orgUnitSelectionTreePopup.selectOrgunitOnTree( orgUnitId );
 				
 				
 				// Disable for control form
@@ -76,18 +80,33 @@ function MatrixOrgunitPeriod( _orgUnitSelectionTreePopup, _TabularDEObj )
 				// Reset [Specific Period] form
 				me.TabularDEObj.searchPanel.resetSetting_OrgUnitAndBelow();
 				me.TabularDEObj.searchPanel.setVisibility_Section( me.TabularDEObj.searchPanel.orgUnitRowTag, true );
+				
+				// Reset [Matrix] form
+				if( orgUnitId != undefined )
+				{
+					me.TabularDEObj.searchPanel.onOrgUnitSelect( me.searchPanel.getOrgUnit() );
+				}
 			}
 			else
 			{
 				me.specificPeriodSectionTag.hide();
 				me.ouMatrixSectionTag.show("fast");
+				Util.disableTag( me.matrixExecuteRetrievalTag, false );
 				
-				me.orgUnitSelectionTreePopup.selectOrgunitOnTree( me.searchMatrixOrgUnit.getOrgUnitId() );
+				var orgUnitId = me.searchMatrixOrgUnit.getOrgUnitId();
+				me.orgUnitSelectionTreePopup.selectOrgunitOnTree( orgUnitId );
 				
 				me.specificPeriodSectionTag.hide();
 				
 				// Reset [Matrix] form
-				me.searchMatrixOrgUnit.setRootOrgUnitAsDefault();
+				if( orgUnitId != undefined )
+				{
+					me.searchMatrixOrgUnit.onOrgUnitSelect( me.searchMatrixOrgUnit.getOrgUnit() );
+				}
+				else
+				{
+					me.searchMatrixOrgUnit.setRootOrgUnitAsDefault();
+				}
 			}
 		});
 		
@@ -331,53 +350,57 @@ function MatrixOrgunitPeriod( _orgUnitSelectionTreePopup, _TabularDEObj )
 	{
 		cellTag.click( function(){
 			
-			// Disable for control form
-			Util.disableTag( me.settingConsoleTag.find("input,select"), true );
-			
-			// Show Back button and enable [Back To Matrix] button
-			me.backToMatrixTag.show();
-			Util.disableTag( me.backToMatrixTag, false );
-			
-			
-			// Load TEI/Event list
-			var keys = cellTag.attr("key").split("_");
-			var ouName = cellTag.closest("tr").find("td:first").html();
-			var ouId = keys[0];
-			var periodCode = keys[1];
-			
-			var jsonOuData = {"name": ouName, "id": ouId};
-			// me.TabularDEObj.searchPanel.onOrgUnitSelect( jsonOuData );
-			me.TabularDEObj.searchPanel.setOrgUnitTags( jsonOuData );
-			
+			var status = cellTag.find("span.status").attr("status");
+			var value = cellTag.find("span.value").html();
+			if( status != me.relativePeriod.SIGN_FULL_LOCK_FORM 
+				|| ( status == me.relativePeriod.SIGN_FULL_LOCK_FORM && value != "" ) )
+			{
+					// Disable for control form
+				Util.disableTag( me.settingConsoleTag.find("input,select"), true );
+				
+				// Show Back button and enable [Back To Matrix] button
+				me.backToMatrixTag.show();
+				Util.disableTag( me.backToMatrixTag, false );
+				
+				
+				// Load TEI/Event list
+				var keys = cellTag.attr("key").split("_");
+				var ouName = cellTag.closest("tr").find("td:first").html();
+				var ouId = keys[0];
+				var periodCode = keys[1];
+				
+				var jsonOuData = {"name": ouName, "id": ouId};
+				// me.TabularDEObj.searchPanel.onOrgUnitSelect( jsonOuData );
+				me.TabularDEObj.searchPanel.setOrgUnitTags( jsonOuData );
+				
+				me.TabularDEObj.searchPanel.programManager.loadProgramList( ouId, function(){
+					
+					me.TabularDEObj.searchPanel.programManager.defaultProgramTag.val( me.programListTag.val() );
+					me.TabularDEObj.searchPanel.programTagOnChange( function(){
 						
-			me.TabularDEObj.searchPanel.programManager.loadProgramList( ouId, function(){
-				
-				me.TabularDEObj.searchPanel.programManager.defaultProgramTag.val( me.programListTag.val() );
-				me.TabularDEObj.searchPanel.programTagOnChange( function(){
-					
-					me.TabularDEObj.searchPanel.defaultProgramRowTag.show();
-					
-					$( "input[type='radio'][name='period'][value='custom']" ).prop("checked", true);
-					$( "input[type='radio'][name='period'][value='custom']" ).click();
-					var dateRange = me.relativePeriod.getDateRangeOfPeriod( periodCode );
-					me.TabularDEObj.searchPanel.defaultDateFromTag.val( $.format.date( dateRange.startDate, _dateFormat_YYYYMMDD ) );
-					me.TabularDEObj.searchPanel.defaultDateToTag.val( $.format.date( dateRange.endDate, _dateFormat_YYYYMMDD ) );
-					me.TabularDEObj.searchPanel.defaultDateRowTag.show();
-					$( '#defaultDatePeriod' ).show();
-					
-					me.TabularDEObj.searchPanel.defaultRetrievalRowTag.show();
-					me.TabularDEObj.searchPanel.performDataRetrieval( function(){
-						// me.specificPeriodChkTag.prop( "checked", true );
-						me.ouMatrixSectionTag.hide();
-						me.specificPeriodSectionTag.show("fast");
+						me.TabularDEObj.searchPanel.defaultProgramRowTag.show();
+						
+						$( "input[type='radio'][name='period'][value='custom']" ).prop("checked", true);
+						$( "input[type='radio'][name='period'][value='custom']" ).click();
+						var dateRange = me.relativePeriod.getDateRangeOfPeriod( periodCode );
+						me.TabularDEObj.searchPanel.defaultDateFromTag.val( $.format.date( dateRange.startDate, _dateFormat_YYYYMMDD ) );
+						me.TabularDEObj.searchPanel.defaultDateToTag.val( $.format.date( dateRange.endDate, _dateFormat_YYYYMMDD ) );
+						me.TabularDEObj.searchPanel.defaultDateRowTag.show();
+						$( '#defaultDatePeriod' ).show();
+						
+						me.TabularDEObj.searchPanel.defaultRetrievalRowTag.show();
+						me.TabularDEObj.searchPanel.performDataRetrieval( function(){
+							// me.specificPeriodChkTag.prop( "checked", true );
+							me.ouMatrixSectionTag.hide();
+							me.specificPeriodSectionTag.show("fast");
 
-						// Scroll left end
-						AppUtil.pageHScroll( "Left" );
+							// Scroll left end
+							AppUtil.pageHScroll( "Left" );
+						});
 					});
+					
 				});
-				
-			});
-			
+			}
 		});
 	};
 	
@@ -390,6 +413,7 @@ function MatrixOrgunitPeriod( _orgUnitSelectionTreePopup, _TabularDEObj )
 			
 			var dataCellTags = me.matrixOuDataTag.find("[key$='" + periodList[i].code + "']");
 			dataCellTags.find("span.status").append( me.relativePeriod.convertLockSignFormToTag( lockFormSign ) );
+			dataCellTags.find("span.status").attr("status", lockFormSign );
 		}
 	};
 	

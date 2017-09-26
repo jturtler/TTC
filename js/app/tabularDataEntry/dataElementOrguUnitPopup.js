@@ -93,6 +93,8 @@ function DataElementOrguUnitPopup( _TabularDEObj )
 				else
 				{
 					searchVillageCode = me.deVillageListTag.val();
+					var jsonData = JSON.parse( me.deVillageListTag.find("option:selected").attr("jsonData") );
+					coordinates = jsonData.coordinates;
 				}
 				
 				var villageCode = "";
