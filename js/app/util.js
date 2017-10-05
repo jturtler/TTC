@@ -739,6 +739,28 @@ $.fn.outerHTML = function(){
 }
 
 
+// -- Quick Loading Message Util Class/Methods
+// -------------------------------------------
+
+function FormBlock() {}
+
+FormBlock.block = function( block, msg, cssSetting, tag )
+{
+	var msgAndStyle = { message: msg, css: cssSetting };
+
+	if ( tag === undefined )
+	{
+		if ( block ) $.blockUI( msgAndStyle );
+		else $.unblockUI();
+	}
+	else
+	{
+		if ( block ) tag.block( msgAndStyle );
+		else tag.unblock();
+	}
+}
+
+
 
 // ---------------------------------------
 // --- App block/unblock ---

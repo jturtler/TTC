@@ -95,6 +95,7 @@
 	<script src="js/app/tabularDataEntry/dataInMemory.js"></script>
 	<script src="js/app/tabularDataEntry/programRule.js"></script>
 	<script src="js/app/tabularDataEntry/personDialogForm.js"></script>
+	<script src="js/app/settings/userSecurityManager.js"></script>
 	<script src="js/app/tabularDataEntry/settingForm.js"></script>
 	<script src="js/app/tabularDataEntry/orgUnitSelectionTreePopup.js"></script>
 	<script src="js/app/tabularDataEntry/orgUnitMapPopup.js"></script>
@@ -153,6 +154,7 @@
 		var _orgUnitSelectionTreePopup;
 		var _TabularDEObj;
 		var _matrixOrgunitPeriod;
+		var _settingForm;
 
 		var _weekStartDate;
 		var _weekEndDate;
@@ -205,6 +207,9 @@
 				_TabularDEObj = new TabularDataEntry( _orgUnitSelectionTreePopup );
 				
 				_matrixOrgunitPeriod = new MatrixOrgunitPeriod( _orgUnitSelectionTreePopup, _TabularDEObj );
+				
+				// App Setting Form Popup
+				_settingForm = new SettingForm( _TabularDEObj, _matrixOrgunitPeriod );
 				
 				_appInitialized = true;
 			} 
@@ -319,50 +324,76 @@
 
 	<div id="settingDialogForm" class="ui-widget" style="margin:0;padding:0;display:none;">
 		<b><span data-l10n-id="appSetting" nameId='SettingFormTitle'></span></b>
-		<br>
-		<br>
-		<table id="setting_Table" class="listTable" style="width:95%;">
-			<tr>
-				<td data-l10n-id="countryLevel"> <span title='Compulsory' class='mandatory'>*</span></td><td><select id="countryLevels"></select></td>
-			</tr>
-			<tr id="trLatestVersion" style="display: none;">
-				<td data-l10n-id="latestVersion"></td><td><input id="latestVersion" type="Text" size="5" /></td>
-			</tr>
-			<tr id="trIncompleteActionUserRole" style="display: none;">
-				<td data-l10n-id="incompleteActionUserRole"></td><td><input id="incompleteActionUserRole" type="Text" size="20" /></td>
-			</tr>
-			
-			
-			
-			<!-- Tracker data element -->
-			<tr>
-				<td colspan="2" data-l10n-id="settings_programRules" style="font-weight: bold;font-size: 13px;width: 180px;"></td>
-			</tr>
-			<tr>
-				<td data-l10n-id="settings_orgUnitGroup"></td>
-				<td data-l10n-id="settings_hideDEs"></td>
-			</tr>
-			<tr>
-				<td colspan="2">
-					<button id="addProgramRuleBtn" data-l10n-id="settings_addMoreProgramRule"></button>
-				</td>
-			</tr>
-			
-			
-			<!-- Aggregate data element -->
-			<tr>
-				<td colspan="2" data-l10n-id="settings_dataSets" style="font-weight: bold;font-size: 13px;width: 180px;"></td>
-			</tr>
-			<tr>
-				<td data-l10n-id="settings_orgUnitGroup"></td>
-				<td data-l10n-id="settings_hideDEs"></td>
-			</tr>
-			<tr>
-				<td colspan="2">
-					<button id="addDataSetRuleBtn" data-l10n-id="settings_addDataSetRule"></button>
-				</td>
-			</tr>
-		</table>
+		
+		<div id="settingDialogTabs">
+		  <ul>
+			<li><a href="#tabs-1" data-l10n-id="settings_general">General</a></li>
+			<li><a href="#tabs-2" data-l10n-id="settings_programRules">Program Rules</a></li>
+			<li><a href="#tabs-3" data-l10n-id="settings_dataSets">Data Sets</a></li>
+		  </ul>
+		  <div id="tabs-1">
+			<table id="setting_Table" class="listTable" style="width:95%;">
+				<tr>
+					<td data-l10n-id="countryLevel"> <span title='Compulsory' class='mandatory'>*</span></td><td><select id="countryLevels"></select></td>
+				</tr>
+				<tr id="trLatestVersion" style="display: none;">
+					<td data-l10n-id="latestVersion"></td><td><input id="latestVersion" type="Text" size="5" /></td>
+				</tr>
+				<tr id="trIncompleteActionUserRole" style="display: none;">
+					<td data-l10n-id="incompleteActionUserRole"></td><td><input id="incompleteActionUserRole" type="Text" size="20" /></td>
+				</tr>
+				<tr>
+					<td data-l10n-id="defaultModeSetting"> 
+						<span title='Compulsory' class='mandatory'>*</span>
+					</td>
+					<td>
+						<select id="specificPeriodMode">
+							<option value="true" selected data-l10n-id="specificPeriodMode"></option>
+							<option value="false" data-l10n-id="matrixMode"></option>
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<td data-l10n-id="matrixPeriodSetting"> 
+						<span title='Compulsory' class='mandatory'>*</span>
+					</td>
+					<td>
+						<input type="checkbox" id="thisYearMonthsPeriod" value="thisYearMonthsPeriod" checked> <span data-l10n-id="thisYearMonthsPeriod"><br>
+						<input type="checkbox" id="last12MonthsPeriod" value="last12MonthsPeriod" checked> <span data-l10n-id="last12MonthsPeriod"><br>
+						<input type="checkbox" id="last12WeeksPeriod" value="last12WeeksPeriod" checked> <span data-l10n-id="last12WeeksPeriod"><br>
+						<input type="checkbox" id="last12QuartersPeriod" value="last12QuartersPeriod" checked> <span data-l10n-id="last12QuartersPeriod"><br>
+						<span id="matrixPeriodSettingMsg" data-l10n-id="matrixPeriodSettingMsg" style="display:none;color:red;font-size: 9px; font-style: italic;"></span>
+					</td>
+				</tr>
+			</table>
+		  </div>
+		  <div id="tabs-2">
+			<table class="listTable" style="width:95%;">
+				<tr>
+					<td data-l10n-id="settings_orgUnitGroup"></td>
+					<td  data-l10n-id="settings_hideDEs"></td>
+				</tr>
+				<tr>
+					<td colspan="2">
+						<button id="addProgramRuleBtn" data-l10n-id="settings_addMoreProgramRule"></button>
+					</td>
+				</tr>
+			</table>
+		  </div>
+		  <div id="tabs-3">
+			<table class="listTable" style="width:95%;">
+				<tr>
+					<td data-l10n-id="settings_orgUnitGroup"></td>
+					<td data-l10n-id="settings_hideDEs"></td>
+				</tr>
+				<tr>
+					<td colspan="2">
+						<button id="addDataSetRuleBtn" data-l10n-id="settings_addDataSetRule"></button>
+					</td>
+				</tr>
+			</table>
+		  </div>
+		</div>
 	</div>
 
 	<div id="header">
@@ -371,16 +402,18 @@
 		<div id="headerRightSideControls">
 			<table>
 				<tr>
-					<td style="color: White;">Matrix </td>
+					<td style="color: White;" data-l10n-id="matrixMode">Matrix </td>
 					<td>
 						<label class="switch">
-						  <input type="checkbox" id="specificPeriodChk">
+						  <input type="checkbox" id="specificPeriodChk" checked>
 						  <span class="slider round"></span>
 						</label>
 					</td>
-					<td style="color: White;">Specific Period</td>
+					<td style="color: White;" data-l10n-id="specificPeriodMode">Specific Period</td>
 					<td>	
-						| <a href="" id="settingFormOpen" style="color: White;" data-l10n-id="setting">Setting</a> | <a href="https://docs.google.com/document/d/1S6WD_oYdewVWFvsDnr1CL8yM2easN5mDc7j8QWI09Sw" target="_blank" style="color: White;">v <span id="currentVersion">1.61</span></a>
+						<span id="settingLink" style="display:none;">
+							| <a href="" id="settingFormOpen" style="color: White;" data-l10n-id="setting">Setting</a> | <a href="https://docs.google.com/document/d/1S6WD_oYdewVWFvsDnr1CL8yM2easN5mDc7j8QWI09Sw" target="_blank" style="color: White;">v <span id="currentVersion">1.62</span></a>
+						</span>
 						| <button type="button" id="closeButton" class="button" style="font-size: 11px;"><span data-l10n-id="close" nameid="closeButton">Close</span></button>
 					</td>
 				</tr>
@@ -393,7 +426,7 @@
 		<span id="spanMsgAreaText"></span>
 	</div>
 
-	<div id="specificPeriodSection" style="display:none;margin-top:38px;">		
+	<div id="specificPeriodSection" style="display:block;margin-top:38px;">		
 
 		<table border="0" cellpadding="0" cellspacing="0" width="100%">
 			<tr>
@@ -644,7 +677,7 @@
 </body>
 
 
-	<div id="ouMatrixSection" style="display:block;margin-top:38px;">		
+	<div id="ouMatrixSection" style="display:none;margin-top:38px;">		
 
 		<table border="0" cellpadding="0" cellspacing="0" width="100%">
 			<tr>
@@ -696,18 +729,17 @@
 							</td>
 
 							<td>
-								<table>
+								<table id="matrixPeriodTb">
 								<tr>
 								  <td class="consoleTitle">	
 									<span data-l10n-id="searchPeriod" nameId='Period'></span>
 								  </td>
 								  <td style="white-space: nowrap;">
-
 									<select id="matrixPeriod">
-										<option value="thisYearMonths_MONTH">This Year months</option>
-										<option value="last12Months_MONTH">Last 12 months</option>
-										<option value="last12Weeks_WEEK">Last 12 weeks</option>
-										<option value="last12Quarters_QUARTER">Last 12 Quarters</option>
+										<option value="thisYearMonths_MONTH" dataVal="thisYearMonthsPeriod" data-l10n-id="thisYearMonthsPeriod">This Year months</option>
+										<option value="last12Months_MONTH" dataVal="last12MonthsPeriod" data-l10n-id="last12MonthsPeriod">Last 12 months</option>
+										<option value="last12Weeks_WEEK" dataVal="last12WeeksPeriod" data-l10n-id="last12WeeksPeriod">Last 12 weeks</option>
+										<option value="last12Quarters_QUARTER" dataVal="last12QuartersPeriod" data-l10n-id="last12QuartersPeriod">Last 12 Quarters</option>
 									</select>
 								  </td>
 								</tr>

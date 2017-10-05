@@ -179,7 +179,7 @@ function DataSetValues( TabularDEObj )
 	me.getHiddenDataElementsInSettings = function( returnFunc )
 	{
 		var deList = [];
-		me.TabularDEObj.settingForm.getSettingData( function( settingData ){
+		_settingForm.getSettingData( function( settingData ){
 			if( settingData.aggOrgUnitGroups != undefined )
 			{
 				for( var i in settingData.aggOrgUnitGroups )

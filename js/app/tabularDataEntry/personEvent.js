@@ -1787,7 +1787,7 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 	me.getHiddenDataElementsInSettings = function( returnFunc )
 	{
 		var deList = [];
-		me.TabularDEObj.settingForm.getSettingData( function( settingData ){
+		_settingForm.getSettingData( function( settingData ){
 			if( settingData.orgUnitGroups != undefined )
 			{
 				for( var i in settingData.orgUnitGroups )

@@ -72,19 +72,17 @@ RESTUtil.submitAggData_Text = function( url, data, successFunc, failFunc )
 }
 
 
-RESTUtil.submitData_URL = function( url, successFunc, failFunc )
+RESTUtil.submitData_URL = function( submitType, url, jsonData, successFunc, failFunc )
 {		
 	$.ajax({
-	  type: "POST",
-	  url: url,
-	  //data: JSON.stringify( jsonData ),
-	  contentType: "text/plain; charset=utf-8",
-	  success: function( msg ) {
-		  successFunc();
-		},
-	  error: function( msg ) {
-		  failFunc();
-		}			   
+		type: submitType
+		,url: url
+		,data: JSON.stringify( jsonData )
+		,datatype: "json"
+		,contentType: "application/json; charset=utf-8"
+		,async: true
+		,success: successFunc
+		,error: failFunc
 	});
 }
 

@@ -10,7 +10,7 @@ function TabularDataEntry( _orgUnitSelectionTreePopup )
 	me.orgUnitSelectionTreePopup = _orgUnitSelectionTreePopup;
 	
 	// App Setting Form Popup
-	me.settingForm = new SettingForm();
+	// me.settingForm = new SettingForm();
 
 	// Data in memory access
 	me.dataInMemory = new DataInMemory();
@@ -39,12 +39,12 @@ function TabularDataEntry( _orgUnitSelectionTreePopup )
 
 	me.getCountryLevel = function()
 	{
-		return me.settingForm.getCountryLevel();
+		return _settingForm.getCountryLevel();
 	}
 
 	me.checkIncompleteAction_UserRole = function( runFunc )
 	{
-		me.settingForm.checkIncompleteAction_UserRole( runFunc );
+		_settingForm.checkIncompleteAction_UserRole( runFunc );
 	}
 
 
@@ -295,7 +295,7 @@ function TabularDataEntry( _orgUnitSelectionTreePopup )
 
 		$( '#settingFormOpen' ).click( function()
 		{
-			me.settingForm.openForm();
+			_settingForm.openForm();
 
 			return false;
 		});
@@ -309,7 +309,7 @@ function TabularDataEntry( _orgUnitSelectionTreePopup )
 		me.setupTopSection();
 
 		// get Setting Data to keep in memory and check for required setting data for this app.
-		me.settingForm.loadSettingDataInitially_AndCheckRequired();
+		// me.settingForm.loadSettingDataInitially_AndCheckRequired();
 
 		// Hide the person list.
 		me.searchPanel.setVisibility_MainSectionDiv( false );

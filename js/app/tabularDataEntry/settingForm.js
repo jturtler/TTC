@@ -1,13 +1,37 @@
 
 //		- Used for popup Setting Form
 
-function SettingForm()
+function SettingForm( _TabularDEObj, _matrixObj )
 {
 	var me = this;
+	me.TabularDEObj = _TabularDEObj;
+	me.matrixObj = _matrixObj;
 
+	me.searchMatrixOrgUnit = me.matrixObj.searchMatrixOrgUnit;
+	me.orgUnitSelectionTreePopup = me.matrixObj.orgUnitSelectionTreePopup;
+	
 	me.dialogFormTag = $( "#settingDialogForm" );
-
+	
+	me.specificPeriodChkTag = $("#specificPeriodChk");
+	me.specificPeriodSectionTag = $("#specificPeriodSection");
+	me.ouMatrixSectionTag = $("#ouMatrixSection");
+	me.settingConsoleTag = $("#settingConsole");
+	me.backToMatrixTag = $("#backToMatrix");
+	me.matrixExecuteRetrievalTag = $("#matrixExecuteRetrieval");
+	
+	
+	me.settingLinkTag = $("#settingLink");
+	
 	me.countryLevelTag = $( '#countryLevels' );
+	me.specificPeriodModeTag = $( '#specificPeriodMode' );
+	me.matrixPeriodTbTag = $("#matrixPeriodTb");
+	
+	me.thisYearMonthsPeriodTag = $( '#thisYearMonthsPeriod' );
+	me.last12MonthsPeriodTag = $( '#last12MonthsPeriod' );
+	me.last12WeeksPeriodTag = $( '#last12WeeksPeriod' );
+	me.last12QuartersPeriodTag = $( '#last12QuartersPeriod' );
+	me.matrixPeriodSettingMsgTag = $( '#matrixPeriodSettingMsg' );
+	me.matrixPeriodTag = $("#matrixPeriod");
 
 	me.currentVersionTag = $( '#currentVersion' );
 	me.trLatestVersionTag = $( '#trLatestVersion' );
@@ -57,10 +81,23 @@ function SettingForm()
 		  ,modal: true				
 		  ,buttons: {
 			"Save": function() {
+				
 				var dialogForm = $( this );
-
-				// Check the value and 
+				
+				// Check mandatory values
 				var checkFail = false;
+				
+				// Check matrix periods
+				if( !me.checkMandatoryMatrixPeriod() )
+				{
+					me.matrixPeriodSettingMsgTag.show();
+					checkFail = true;
+				}
+				else
+				{
+					me.matrixPeriodSettingMsgTag.hide();
+				}
+				
 				
 				if ( me.countryLevelTag.val() == "" )
 				{
@@ -70,7 +107,6 @@ function SettingForm()
 
 				if ( !checkFail )
 				{
-
 					var json_SettingData = ( me.settingData !== undefined ) ? me.settingData : { 'countryLevel': '' } ; 
 
 					json_SettingData.countryLevel = me.countryLevelTag.val();
@@ -85,6 +121,15 @@ function SettingForm()
 					{
 						json_SettingData.incompleteActionUserRole = me.incompleteActionUserRoleTag.val();
 					}
+					
+					// Matrix periods
+					me.settingData.specialPeriodMode = me.specificPeriodModeTag.val();
+					
+					// Matrix periods
+					me.settingData.thisYearMonthsPeriod = me.thisYearMonthsPeriodTag.prop("checked");
+					me.settingData.last12MonthsPeriod = me.last12MonthsPeriodTag.prop("checked");
+					me.settingData.last12WeeksPeriod = me.last12WeeksPeriodTag.prop("checked");
+					me.settingData.last12QuartersPeriod = me.last12QuartersPeriodTag.prop("checked");
 					
 					// Tracker data elements in OU Group list
 					json_SettingData.orgUnitGroups = [];
@@ -147,6 +192,8 @@ function SettingForm()
 						me.mainPersonSectionTag.hide("fast");
 						me.mainSectionEventTag.hide("fast");
 						me.matrixOuDataDivTag.hide("fast");
+						
+						me.populateMatrixPeriodSetting();
 					}
 					, function()
 					{
@@ -163,7 +210,14 @@ function SettingForm()
 		});		
 	}
 
-
+	me.checkMandatoryMatrixPeriod = function()
+	{
+		return( me.thisYearMonthsPeriodTag.prop( "checked" ) 
+			|| me.last12MonthsPeriodTag.prop( "checked" ) 
+			|| me.last12WeeksPeriodTag.prop( "checked" ) 
+			|| me.last12QuartersPeriodTag.prop( "checked" ) );
+	}
+	
 	me.openForm = function( status )
 	{
 		if ( status !== undefined && status == 'AtStart' )
@@ -195,6 +249,18 @@ function SettingForm()
 			{
 				me.incompleteActionUserRoleTag.val( me.settingData.incompleteActionUserRole );
 			}
+			
+			// Set Default Mode : Matrix/Special Period
+			if ( me.settingData.specialPeriodMode !== undefined )
+			{
+				me.specificPeriodChkTag.prop("checked", eval( me.settingData.specialPeriodMode ) );
+				me.specificPeriodModeTag.val( me.settingData.specialPeriodMode );
+				me.viewModeOnChange();
+			}
+			
+			// Set Matrix period options
+			me.populateMatrixPeriodSetting();
+			
 			
 			// Traker data element in OU Group list
 			me.dialogFormTag.find(".ouGroupList").closest("tr").remove();
@@ -231,7 +297,77 @@ function SettingForm()
 			}
 		}
 	}
+	
+	me.populateMatrixPeriodSetting = function()
+	{
+		var peCount = 0;
+		if( me.settingData.thisYearMonthsPeriod == undefined 
+			&& me.settingData.last12MonthsPeriod == undefined 
+			&& me.settingData.last12WeeksPeriod == undefined 
+			&& me.settingData.last12QuartersPeriod == undefined )
+		{
+			me.thisYearMonthsPeriodTag.prop( "checked", true );
+			me.last12MonthsPeriodTag.prop( "checked", true );
+			me.last12WeeksPeriodTag.prop( "checked", true );
+			me.last12QuartersPeriodTag.prop( "checked", true );
+			
+			me.matrixPeriodTag.find("option").show();
+		}
+		else
+		{
+			me.thisYearMonthsPeriodTag.prop( "checked", false );
+			me.last12MonthsPeriodTag.prop( "checked", false );
+			me.last12WeeksPeriodTag.prop( "checked", false );
+			me.last12QuartersPeriodTag.prop( "checked", false );
+			me.matrixPeriodTag.find("option").hide();
+			me.matrixPeriodTag.val("");
+		}
+		
 
+		if( me.settingData.last12QuartersPeriod != undefined && me.settingData.last12QuartersPeriod )
+		{
+			me.last12QuartersPeriodTag.prop("checked", true );
+			me.matrixPeriodTag.find("option[dataVal='last12QuartersPeriod']").show();
+			me.matrixPeriodTag.val("last12Quarters_QUARTER");
+			peCount++;
+		}
+		
+		if( me.settingData.last12WeeksPeriod != undefined && me.settingData.last12WeeksPeriod )
+		{
+			me.last12WeeksPeriodTag.prop("checked", true );
+			me.matrixPeriodTag.find("option[dataVal='last12WeeksPeriod']").show();
+			me.matrixPeriodTag.val("last12Weeks_WEEK");
+			peCount++;
+		}
+		
+		if( me.settingData.last12MonthsPeriod != undefined && me.settingData.last12MonthsPeriod )
+		{
+			me.last12MonthsPeriodTag.prop("checked", true );
+			me.matrixPeriodTag.find("option[dataVal='last12MonthsPeriod']").show();
+			
+			me.matrixPeriodTag.val("last12Months_MONTH");
+			peCount++;
+		}
+		
+		if( me.settingData.thisYearMonthsPeriod != undefined && me.settingData.thisYearMonthsPeriod )
+		{
+			me.thisYearMonthsPeriodTag.prop("checked", true );
+			me.matrixPeriodTag.find("option[dataVal='thisYearMonthsPeriod']").show();
+			me.matrixPeriodTag.val("thisYearMonths_MONTH");
+			peCount++;
+		}
+		
+		
+		if( peCount == 1 )
+		{
+			me.matrixPeriodTbTag.hide();
+		}
+		else
+		{
+			me.matrixPeriodTbTag.show();
+		}
+	}
+	
 	me.getSettingData = function( execFunc )
 	{
 		if ( me.settingData !== undefined )
@@ -456,6 +592,9 @@ function SettingForm()
 		if( me.loadedOUGroups && me.loadedTrackerDataElements && me.loadedAggDataElements )
 		{
 			me.addTrackerOrgUnitGroupRow();
+			me.populateSettingData();
+			
+			MsgManager.appUnblock();
 		}
 	};
 	
@@ -633,28 +772,104 @@ function SettingForm()
 	// Initial Setup Call
 	me.initialSetup = function()
 	{
-		me.setOrgUnitList( me.countryLevelTag );
+		MsgManager.appBlock("Configuration ...");
+		$( "#settingDialogTabs" ).tabs();
 		
-		me.loadOrgUnitGroupList();
-		me.loadAggDataElementList();
-		me.loadTrackerDataElementList();
+		me.specificPeriodChkTag.change( function(){
+			 me.viewModeOnChange();
+		} );
+		me.loadSettingDataInitially_AndCheckRequired();
 		
-		me.FormPopupSetup();
 		
-		me.addProgramRuleBtnTag.click( function(){
-			me.addTrackerOrgUnitGroupRow();
+		var userSecurityManager = new UserSecurityManager();
+		userSecurityManager.performSetup( function(){
+			
+			var authorities = userSecurityManager.getUserPermission_Authorities();
+			if( authorities.Settings_Edit )
+			{
+				me.settingLinkTag.show();
+			}
+			else
+			{
+				me.settingLinkTag.hide();
+			}
+			
+			me.setOrgUnitList( me.countryLevelTag );
+		
+			me.loadOrgUnitGroupList();
+			me.loadAggDataElementList();
+			me.loadTrackerDataElementList();
+			
+			me.FormPopupSetup();
+			
+			me.addProgramRuleBtnTag.click( function(){
+				me.addTrackerOrgUnitGroupRow();
+			});
+			
+			me.addDataSetRuleBtnTag.click( function(){
+				me.addAggOrgUnitGroupRow();
+			});
 		});
 		
-		me.addDataSetRuleBtnTag.click( function(){
-			me.addAggOrgUnitGroupRow();
-		});
-	}
-
+	};
+	
+	
 	// --------------------------
 	// Run methods
 
 	// Initial Run Call
 	me.initialSetup();
+	
+	// Change the Views
+	me.viewModeOnChange = function()
+	{
+		if( me.specificPeriodChkTag.prop( "checked" ) )
+		{
+			me.ouMatrixSectionTag.hide();
+			me.specificPeriodSectionTag.show("fast");
+			
+			var orgUnitId = me.TabularDEObj.searchPanel.getOrgUnitId();
+			me.TabularDEObj.orgUnitSelectionTreePopup.selectOrgunitOnTree( orgUnitId );
+			
+			
+			// Disable for control form
+			Util.disableTag( me.settingConsoleTag.find("input,select"), false );
+			
+			// Show Back button and enable [Back To Matrix] button
+			me.backToMatrixTag.hide();
+			
+			// Reset [Specific Period] form
+			me.TabularDEObj.searchPanel.resetSetting_OrgUnitAndBelow();
+			me.TabularDEObj.searchPanel.setVisibility_Section( me.TabularDEObj.searchPanel.orgUnitRowTag, true );
+			
+			// Reset [Matrix] form
+			if( orgUnitId != undefined )
+			{
+				me.TabularDEObj.searchPanel.onOrgUnitSelect( me.searchPanel.getOrgUnit() );
+			}
+		}
+		else
+		{
+			me.specificPeriodSectionTag.hide();
+			me.ouMatrixSectionTag.show("fast");
+			Util.disableTag( me.matrixExecuteRetrievalTag, false );
+			
+			var orgUnitId = me.searchMatrixOrgUnit.getOrgUnitId();
+			me.orgUnitSelectionTreePopup.selectOrgunitOnTree( orgUnitId );
+			
+			me.specificPeriodSectionTag.hide();
+			
+			// Reset [Matrix] form
+			if( orgUnitId != undefined )
+			{
+				me.searchMatrixOrgUnit.onOrgUnitSelect( me.searchMatrixOrgUnit.getOrgUnit() );
+			}
+			else
+			{
+				me.searchMatrixOrgUnit.setRootOrgUnitAsDefault();
+			}
+		}
+	}
 
 }
 

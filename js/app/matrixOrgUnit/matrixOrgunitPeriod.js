@@ -47,69 +47,15 @@ function MatrixOrgunitPeriod( _orgUnitSelectionTreePopup, _TabularDEObj )
 
 	me.initialSetup = function()
 	{	
-		me.TabularDEObj.settingForm.getSettingData( function( settingData ){
-		
-			me.relativePeriod = new RelativePeriod( settingData );
-			me.searchMatrixOrgUnit = new SearchMatrixOrgUnit( me );
+		me.searchMatrixOrgUnit = new SearchMatrixOrgUnit( me );
 			
-			Util.disableTag( me.matrixExecuteRetrievalTag, true );
-			me.setUp_Events();
-		});
+		Util.disableTag( me.matrixExecuteRetrievalTag, true );
+		me.setUp_Events();
 	};
 	
 	
 	me.setUp_Events = function()
 	{
-		// Change the Views
-		me.specificPeriodChkTag.change( function(){
-			if( me.specificPeriodChkTag.prop( "checked" ) )
-			{
-				me.ouMatrixSectionTag.hide();
-				me.specificPeriodSectionTag.show("fast");
-				
-				var orgUnitId = me.TabularDEObj.searchPanel.getOrgUnitId();
-				me.TabularDEObj.orgUnitSelectionTreePopup.selectOrgunitOnTree( orgUnitId );
-				
-				
-				// Disable for control form
-				Util.disableTag( me.settingConsoleTag.find("input,select"), false );
-				
-				// Show Back button and enable [Back To Matrix] button
-				me.backToMatrixTag.hide();
-				
-				// Reset [Specific Period] form
-				me.TabularDEObj.searchPanel.resetSetting_OrgUnitAndBelow();
-				me.TabularDEObj.searchPanel.setVisibility_Section( me.TabularDEObj.searchPanel.orgUnitRowTag, true );
-				
-				// Reset [Matrix] form
-				if( orgUnitId != undefined )
-				{
-					me.TabularDEObj.searchPanel.onOrgUnitSelect( me.searchPanel.getOrgUnit() );
-				}
-			}
-			else
-			{
-				me.specificPeriodSectionTag.hide();
-				me.ouMatrixSectionTag.show("fast");
-				Util.disableTag( me.matrixExecuteRetrievalTag, false );
-				
-				var orgUnitId = me.searchMatrixOrgUnit.getOrgUnitId();
-				me.orgUnitSelectionTreePopup.selectOrgunitOnTree( orgUnitId );
-				
-				me.specificPeriodSectionTag.hide();
-				
-				// Reset [Matrix] form
-				if( orgUnitId != undefined )
-				{
-					me.searchMatrixOrgUnit.onOrgUnitSelect( me.searchMatrixOrgUnit.getOrgUnit() );
-				}
-				else
-				{
-					me.searchMatrixOrgUnit.setRootOrgUnitAsDefault();
-				}
-			}
-		});
-		
 		// Period type change
 		me.matrixPeriodTag.change( function(){
 			
@@ -129,38 +75,41 @@ function MatrixOrgunitPeriod( _orgUnitSelectionTreePopup, _TabularDEObj )
 		// Run button
 		me.matrixExecuteRetrievalTag.click( function(){
 			
-			var parentOuId = me.searchMatrixOrgUnit.getOrgUnitId(); 
-			var programId = me.programListTag.val();
-			if( parentOuId !== undefined && parentOuId != "" && programId !== "" )
-			{
-				Util.disableTag( me.matrixExecuteRetrievalTag, true );
-				me.matrixOuDataTag.html("");
-				
-				me.ouChildrenLoaded = false;
-				me.matrixDataLoaded = false;
-				
-				me.loadOrgUnitChildren();
-				me.loadMatrixData();
-				
-				var selectedProgram = me.programListTag.find("option:selected");
-				
-				var completeExpiryDays = selectedProgram.attr("completeExpiryDays");
-				completeExpiryDays = ( completeExpiryDays === undefined || completeExpiryDays == "" ) ? "--" : completeExpiryDays;
-				var expiryPeriodType = selectedProgram.attr("peType");
-				expiryPeriodType = ( expiryPeriodType === undefined || expiryPeriodType == "" ) ?  "--" : expiryPeriodType;
-				
-				me.completeEventExpireDaysTag.html( completeExpiryDays );
-				me.expiryPeriodTypeTag.html( expiryPeriodType );
-				me.expiryDaysTag.html( selectedProgram.attr("expiryDays") );
-			}
-			else if( parentOuId == undefined || parentOuId == "" )
-			{
-				alert("Please select an orgUnit.");
-			}
-			else if( programId == "" )
-			{
-				alert("Please select a program.");
-			}
+			_settingForm.getSettingData( function( settingData ){
+				me.relativePeriod = new RelativePeriod( settingData );
+				var parentOuId = me.searchMatrixOrgUnit.getOrgUnitId(); 
+				var programId = me.programListTag.val();
+				if( parentOuId !== undefined && parentOuId != "" && programId !== "" )
+				{
+					Util.disableTag( me.matrixExecuteRetrievalTag, true );
+					me.matrixOuDataTag.html("");
+					
+					me.ouChildrenLoaded = false;
+					me.matrixDataLoaded = false;
+					
+					me.loadOrgUnitChildren();
+					me.loadMatrixData();
+					
+					var selectedProgram = me.programListTag.find("option:selected");
+					
+					var completeExpiryDays = selectedProgram.attr("completeExpiryDays");
+					completeExpiryDays = ( completeExpiryDays === undefined || completeExpiryDays == "" ) ? "--" : completeExpiryDays;
+					var expiryPeriodType = selectedProgram.attr("peType");
+					expiryPeriodType = ( expiryPeriodType === undefined || expiryPeriodType == "" ) ?  "--" : expiryPeriodType;
+					
+					me.completeEventExpireDaysTag.html( completeExpiryDays );
+					me.expiryPeriodTypeTag.html( expiryPeriodType );
+					me.expiryDaysTag.html( selectedProgram.attr("expiryDays") );
+				}
+				else if( parentOuId == undefined || parentOuId == "" )
+				{
+					alert("Please select an orgUnit.");
+				}
+				else if( programId == "" )
+				{
+					alert("Please select a program.");
+				}
+			});
 		});
 		
 		me.matrixPrevPeriodTag.click( function(){
