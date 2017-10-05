@@ -648,11 +648,12 @@
 					}
 					else
 					{
-						$.get( me.queryURL_OrgUnit + orgUnitId + '/parents.json', function( json_data )
+						// CHANGED: Oct 5, 2017
+						$.get( me.queryURL_OrgUnit + orgUnitId + '.json?fields=ancestors[id,name,level]', function( json_data )
 						{
-							if ( json_data.organisationUnits !== undefined )
+							if ( json_data.ancestors !== undefined )
 							{
-								$.each( json_data.organisationUnits, function( i, item )
+								$.each( json_data.ancestors, function( i, item )
 								{
 									if ( item.level == countryLevel )
 									{
@@ -667,10 +668,10 @@
 				}
 			}
 			
-			me.setOrgUnitTags = function( orgUnit ) 
+			me.setOrgUnitTags = function( orgUnitId, orgUnitName ) 
 			{
-				me.orgUnitNameTag.val( orgUnit.name );
-				me.orgUnitSelectedId = orgUnit.id;
+				me.orgUnitNameTag.val( orgUnitName );
+				me.orgUnitSelectedId = orgUnitId;
 
 				Util.paintClear( me.orgUnitNameTag );
 			}
@@ -1026,11 +1027,10 @@
 					me.resetSetting_ProgramAndBelow();
 				}
 
-
 				var orgUnitId = orgUnit.id;
 
 				// Set OrgUnit
-				me.setOrgUnitTags( orgUnit );
+				me.setOrgUnitTags( orgUnit.id, orgUnit.name );
 
 
 				me.setVisibility_Section( me.defaultProgramRowTag, true );
@@ -1040,7 +1040,6 @@
 				me.programManager.loadProgramList( orgUnitId );
 
 
-				// Set the country orgUnit <--- Send object...
 				me.setCountryId( orgUnitId, orgUnit.parents );
 				
 
@@ -8108,7 +8107,7 @@
 		<img id="headerBanner" src="img/logo_banner.png" style="cursor:pointer" title="View home page">
 		<span id="headerText" style="cursor:pointer" title="View home page"></span>
 		<div id="headerRightSideControls">
-				<a href='' id='settingFormOpen' style="color: White;" data-l10n-id="setting"></a> | <a href="https://docs.google.com/document/d/1S6WD_oYdewVWFvsDnr1CL8yM2easN5mDc7j8QWI09Sw" target="_blank" style="color: White;">v <span id="currentVersion">1.53</span></a>
+				<a href='' id='settingFormOpen' style="color: White;" data-l10n-id="setting"></a> | <a href="https://docs.google.com/document/d/1S6WD_oYdewVWFvsDnr1CL8yM2easN5mDc7j8QWI09Sw" target="_blank" style="color: White;">v <span id="currentVersion">1.54</span></a>
 				| <button type="button" id="closeButton" class="button" style="font-size: 11px;"><span data-l10n-id="close" nameId='closeButton'></span></button>
 		</div>
 	</div>
