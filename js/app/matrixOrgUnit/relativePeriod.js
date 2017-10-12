@@ -128,11 +128,11 @@ function RelativePeriod()
 		{
 			curr.setDate( curr.getDate() - 7 );
 			var weekIdx = me.getWeekNumber( curr );
-		
+			var shortYear = ( "" + curr.getFullYear() ).substring(2,4);
 			periodList.push( 
 				{
 					"code": curr.getFullYear() + "W" + weekIdx
-					,"name": "Week " + weekIdx + " " + curr.getFullYear()
+					,"name": "w" + weekIdx + "/" + shortYear
 				});
 		}
 		

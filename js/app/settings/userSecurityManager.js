@@ -11,6 +11,7 @@ function UserSecurityManager()
 	me.queryURL_userRoleList = _queryURL_api + "userRoles.json?paging=false&fields=id,name,authorities";
 	
 	me.roleName_EditSettings = "_App_TTC_Admin";
+	me.roleJson = { "name": me.roleName_EditSettings, authorities:["F_SYSTEM_SETTING"], "description":"Controls access to TTC setting menu - role automatically created by TTC on first run" };
 	
 	// -----------------------------------------------------
 
@@ -150,9 +151,7 @@ function UserSecurityManager()
 	
 	me.createEditSettingsUserRole = function( returnFunc )
 	{
-		var jsonData = { "name": me.roleName_EditSettings, authorities:["F_SYSTEM_SETTING"] };
-		
-		RESTUtil.submitData_URL( "POST", me.queryURL_createUserGroup, jsonData, function(){
+		RESTUtil.submitData_URL( "POST", me.queryURL_createUserGroup, me.roleJson, function(){
 			returnFunc();
 		})
 	};
@@ -160,9 +159,7 @@ function UserSecurityManager()
 	
 	me.updateEditSettingsUserRole = function( id, returnFunc )
 	{
-		var jsonData = { "name": me.roleName_EditSettings, authorities:["F_SYSTEM_SETTING"] };
-		
-		RESTUtil.submitData_URL( "PUT", me.queryURL_createUserGroup + "/" + id, jsonData, function(){
+		RESTUtil.submitData_URL( "PUT", me.queryURL_createUserGroup + "/" + id, me.roleJson, function(){
 			returnFunc();
 		})
 	};

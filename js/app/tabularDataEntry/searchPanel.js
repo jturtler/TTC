@@ -106,11 +106,11 @@ function SearchPanel( TabularDEObj )
 			}
 			else
 			{
-				$.get( me.queryURL_OrgUnit + orgUnitId + '/parents.json', function( organisationUnits )
+				$.get( me.queryURL_OrgUnit + orgUnitId + '.json?fields=ancestors[id,name,level]', function( json_data )
 				{
-					if ( organisationUnits !== undefined )
+					if ( json_data.ancestors !== undefined )
 					{
-						$.each( organisationUnits, function( i, item )
+						$.each( json_data.ancestors, function( i, item )
 						{
 							if ( item.level == countryLevel )
 							{

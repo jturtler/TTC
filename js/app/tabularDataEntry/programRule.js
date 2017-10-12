@@ -523,7 +523,7 @@ function ProgramRule( TabularDEObj )
 			}
 			else
 			{
-				flag = false;
+				condition = "true";
 			}
 		}
 		

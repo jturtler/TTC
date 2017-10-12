@@ -567,10 +567,11 @@ function SettingForm( _TabularDEObj, _matrixObj )
 
 	me.loadAggDataElementList = function()
 	{
+		me.aggDataElementList = [];
+		
 		RESTUtil.getAsynchData( me.queryURL_aggregateDataElements
 		, function( json_Data )
 		{
-			me.aggDataElementList = [];
 			for( var i in json_Data.dataSetElements )
 			{
 				me.aggDataElementList.push( json_Data.dataSetElements[i].dataElement );
@@ -582,7 +583,8 @@ function SettingForm( _TabularDEObj, _matrixObj )
 		}
 		, function() 
 		{  
-			alert( $( 'span.msg_SettingData_OrgUnitLevelNotFound' ).text() );
+			me.loadedAggDataElements = true;
+			me.afterLoadedMetaData();
 		});
 	};
 	

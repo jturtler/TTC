@@ -143,6 +143,7 @@ function MatrixOrgunitPeriod( _orgUnitSelectionTreePopup, _TabularDEObj )
 		me.backToMatrixTag.click( function(){
 			me.specificPeriodSectionTag.hide();
 			me.ouMatrixSectionTag.show("fast");
+			me.matrixExecuteRetrievalTag.click();
 		});
 		
 	};
@@ -177,6 +178,7 @@ function MatrixOrgunitPeriod( _orgUnitSelectionTreePopup, _TabularDEObj )
 					}
 				}
 				
+				me.ouChildrenList = Util.sortByKey( me.ouChildrenList, "name" );
 				me.ouChildrenLoaded = true;
 				me.afterLoadMatrix();
 				

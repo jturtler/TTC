@@ -330,12 +330,12 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 		var eventDateStr = eventDate.split("/").join("");
 		
 		var eventDateColTag = eventDateTag.closest("td");
-		eventDateColTag.find("span.warning").remove();
+		eventDateColTag.find("div.warning").remove();
 			
 		if( eventDateStr < startDateStr || eventDateStr > endDateStr )
 		{
 			var warningMsg = l10n.get( 'eventDataOutOfRange' );
-			eventDateColTag.append("<span class='warning' style='color:red;font-size: 8px;font-style: italic;'>*** " + warningMsg + "</span>");
+			eventDateColTag.append("<div class='warning' style='color:red;font-size: 8px;font-style: italic;line-height: 12px;'>*** " + warningMsg + "</div>");
 		}
 	};
 	
