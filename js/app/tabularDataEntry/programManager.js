@@ -127,7 +127,7 @@ function ProgramManager( TabularDEObj, defaultProgramTag )
 		if ( me.programList !== undefined )
 		{
 			$.each( me.programList, function( i, item ) {
-				selectTag.append("<option value='" + item.id + "' peType='" + item.expiryPeriodType + "' expiryDays='" + item.expiryDays + "'>" + item.name + "</option>");
+				selectTag.append("<option value='" + item.id + "' peType='" + item.expiryPeriodType + "' expiryDays='" + item.expiryDays + "' completeEventsExpiryDays='" + item.completeEventsExpiryDays + "'>" + item.name + "</option>");
 			});
 		}
 	}
@@ -215,7 +215,7 @@ function ProgramManager( TabularDEObj, defaultProgramTag )
 	{
 		//var queryUrl = _queryURL_ProgramList + '?paging=false&fields=id,name,programType&';
 
-		var queryUrl = _queryURL_OrgUnit + "/" + orgUnitId + ".json?fields=id,programs[id,name,programType,expiryPeriodType,expiryDays]";
+		var queryUrl = _queryURL_OrgUnit + "/" + orgUnitId + ".json?fields=id,programs[id,name,programType,expiryPeriodType,expiryDays,completeEventsExpiryDays]";
 
 
 		RESTUtil.getAsynchData( queryUrl, function ( json_ProgramList )

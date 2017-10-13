@@ -844,10 +844,10 @@ function SettingForm( _TabularDEObj, _matrixObj )
 			me.TabularDEObj.searchPanel.resetSetting_OrgUnitAndBelow();
 			me.TabularDEObj.searchPanel.setVisibility_Section( me.TabularDEObj.searchPanel.orgUnitRowTag, true );
 			
-			// Reset [Matrix] form
+			// Reset orgUnit seletor
 			if( orgUnitId != undefined )
 			{
-				me.TabularDEObj.searchPanel.onOrgUnitSelect( me.searchPanel.getOrgUnit() );
+				me.TabularDEObj.searchPanel.onOrgUnitSelect( me.TabularDEObj.searchPanel.getOrgUnit() );
 			}
 		}
 		else

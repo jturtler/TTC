@@ -15,7 +15,9 @@ function DataSetValues( TabularDEObj )
 	me.dataSetFormTag =  $( '#dataSetForm' );
 	
 	
+	me.catOptionCombo_default = "HllvX50cXC0";
 	me.attr_dataSetLinkId = "LAN7Ddg3u7w";
+	
 	
 	me.PARAM_DATASET_ID = "@PARAM_DATASET_ID";
 	me.PARAM_PERIOD = "@PARAM_PERIOD";
@@ -85,13 +87,12 @@ function DataSetValues( TabularDEObj )
 						{
 							var key = de.id + "-" + optionCombos[j].id + "-val";
 							var inputTag = $("<input valType='" + de.valueType + "' type='text' deId='" + key + "' >");
-							if( de.valueType == "DATE" )
+							/* if( de.valueType == "DATE" )
 							{
 								Util.setupDatePicker( inputTag, function(){
-									var keys = inputTag.attr("deId").split("-");
-									me.saveDataValue( keys[0], keys[1], orgUnitId, periodId, inputTag, de.valueType );
+								//	me.saveDataValue( orgUnitId, periodId, inputTag );
 								} );
-							}
+							} */
 							
 							me.dataSetFormTag.find("td[deId='" + key + "']").append(inputTag);
 						}
@@ -131,7 +132,6 @@ function DataSetValues( TabularDEObj )
 		}
 	};
 	
-	
 	me.generateTablesByCategoryCombos = function( dataSetElements, hiddenDEList )
 	{
 		var tbody = $("<tbody style='display:block;border-top:8px solid #fff;'></tbody>");
@@ -145,33 +145,31 @@ function DataSetValues( TabularDEObj )
 				categoryComboId = categoryCombo.id;
 				if( me.dataSetFormTag.find("[categoryComboId='" + categoryCombo.id + "']").length == 0 )
 				{
-					if( headerTag.find("th").length > 0 )
-					{
-						tbody.append( headerTag );
-						me.dataSetFormTag.append( tbody );
-						headerTag = $("<tr></tr>");
-					}
-					
+					headerTag = $("<tr></tr>");
 					tbody = $("<tbody  style='display:block;border-top:8px solid #fff;' categoryComboId='" + categoryCombo.id + "'></tbody>");
-				}
+					tbody.append( headerTag );
+					me.dataSetFormTag.append( tbody );
 				
-				var optionCombos = categoryCombo.categoryOptionCombos;
-				headerTag.append("<td style='width:150px;'></td>");
-				for( var j in optionCombos )
-				{
-					if( headerTag.find("th[optComboId='" + optionCombos[j].id + "']").length == 0 )
+					var optionCombos = categoryCombo.categoryOptionCombos;
+					headerTag.append("<td style='width:150px;'></td>");
+					for( var j in optionCombos )
 					{
-						headerTag.append("<th optComboId='" + optionCombos[j].id + "'>" + optionCombos[j].name + "</th>");
+						if( headerTag.find("th[optComboId='" + optionCombos[j].id + "']").length == 0 )
+						{
+							if( optionCombos[j].id == me.catOptionCombo_default )
+							{
+								headerTag.append("<th optComboId='" + optionCombos[j].id + "' style='padding:10px;'></th>");
+							}
+							else
+							{
+								headerTag.append("<th optComboId='" + optionCombos[j].id + "'>" + optionCombos[j].name + "</th>");
+							}
+							
+						}
+						
 					}
-					
 				}
 			}
-		}
-		
-		if( me.dataSetFormTag.find("[categoryComboId='" + categoryComboId + "']").length == 0 )
-		{
-			tbody.append( headerTag );
-			me.dataSetFormTag.append( tbody );
 		}
 		
 	};
@@ -278,15 +276,28 @@ function DataSetValues( TabularDEObj )
 	{
 		me.dataSetFormTag.find("input,select").each( function(){
 			var inputTag = $(this);
-			inputTag.change( function(){
-				var keys = inputTag.attr("deId").split("-");
-				me.saveDataValue( keys[0], keys[1], ouId, peId, inputTag );
-			});
+			if( inputTag.attr("valType") !== "DATE" )
+			{
+				inputTag.change( function(){
+					me.saveDataValue( ouId, peId, inputTag );
+				});
+			}
+			else
+			{
+				Util.setupDatePicker( inputTag, function(){
+					me.saveDataValue( ouId, peId, inputTag );
+				} );
+			}
 		});
 	};
 	
-	me.saveDataValue = function( deId, optComboId, ouId, peId, inputTag, valueType )
+	me.saveDataValue = function( ouId, peId, inputTag )
 	{
+		var keys = inputTag.attr("deId").split("-");
+		var deId = keys[0];
+		var optComboId = keys[1];
+		var valueType = inputTag.attr("valType");
+		
 		if( valueType !== undefined && valueType == "DATE" )
 		{
 			value = Util.getDateStr_FromYYYYMMDD( inputTag.val() );

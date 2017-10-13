@@ -1705,8 +1705,10 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 				var programSelected = me.TabularDEObj.searchPanel.defaultProgramTag.find("option:selected");
 				var expiredPeriodType = programSelected.attr("peType");
 				var expiryDays = programSelected.attr("expiryDays");
+				var completeEventsExpiryDays = programSelected.attr("completeEventsExpiryDays");
+				var eventStatus = event.status;
 				
-				var lockFormSign = relativePeriod.lockDataFormByEventDate( eventDate, expiredPeriodType, expiryDays );
+				var lockFormSign = relativePeriod.lockDataFormByEventDate( event, expiredPeriodType, expiryDays );
 				if( lockFormSign == relativePeriod.SIGN_FULL_LOCK_FORM  )
 				{
 					item_EventTable.find("tr[uid='" + event.event + "']").find("input,select").each( function(){

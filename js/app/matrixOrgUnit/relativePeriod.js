@@ -275,6 +275,7 @@ function RelativePeriod()
 		}
 	};
 	
+	
 	me.convertLockSignFormToTag = function( lockSign )
 	{
 		if( lockSign == me.SIGN_OPEN_FORM )
@@ -292,18 +293,23 @@ function RelativePeriod()
 	};
 	
 	
-	me.lockDataFormByEventDate = function( eventDateStr, expiredPeriodType, expiredDays )
+	me.lockDataFormByEventDate = function( event, expiredPeriodType, expiredDays )
 	{
-		if( expiredPeriodType !== "undefined" && expiredPeriodType !== "" )
-		{
-			var eventDate = Util.getDate_FromYYYYMMDD( eventDateStr );
+		var todayStr = me.formatDateObj_YYYYMMDD( new Date() );
+		var eventDate = Util.getDate_FromYYYYMMDD( event.eventDate );
+		var dateStr = me.formatDateObj_YYYYMMDD( eventDate );
 			
-			var expiredDateRange = me.calExpiredDateRange( eventDate, expiredPeriodType, eval( expiredDays ) );
+		if( dateStr > todayStr)
+		{
+			return me.SIGN_FULL_LOCK_FORM;
+		}
+		else if( expiredPeriodType !== "undefined" && expiredPeriodType !== "" )
+		{
+			var expiredDateRange = me.calExpiredDateRange( new Date(), expiredPeriodType, eval( expiredDays ) );
 			var validMinDateStr = me.formatDateObj_YYYYMMDD( expiredDateRange.validMinDate );
 			var expiredDateStr = me.formatDateObj_YYYYMMDD( expiredDateRange.expiredDate );
 			
-			
-			if( validMinDateStr >= eventDateStr && eventDateStr <= expiredDateStr )
+			if( dateStr <= todayStr && validMinDateStr <= dateStr && dateStr <= expiredDateStr )
 			{
 				return me.SIGN_OPEN_FORM;
 			}
@@ -582,7 +588,6 @@ function RelativePeriod()
 	};
 	
 	
-	
 	// -------------------------------------------------------------------------------------------------------
 	// Generate startDate and endDate by period code
 	
@@ -661,7 +666,6 @@ function RelativePeriod()
 		}
 	}
 	
-		
 	// -------------------------------------------------------------------------------------------------------
 	// Supportive methods
 	
