@@ -12,6 +12,7 @@ function SearchPanel( TabularDEObj )
 	me.queryURL_OrgUnitNameQuery = _queryURL_api + 'organisationUnits.json?paging=false&fields=name,id,level,parents[id,name,level],ancestors[id,name,level]&filter=name:ilike:';
 	
 	// Tages..
+	me.specialPeriodFooterTag = $( '#specialPeriodFooter' );
 	me.orgUnitMapSmall_DivTag = $( '#orgUnitMapSmall' );
 	me.orgUnitRowTag = $( '#orgUnitRow' );
 	me.orgUnitNameTag = $( '#orgUnitName' );	// Default OrgUnit Search By Name in [Tabular] function
@@ -133,9 +134,34 @@ function SearchPanel( TabularDEObj )
 			me.orgUnitSelected = orgUnit;
 			me.orgUnitGroupIdList = json_ouGroupList;
 			
-			if( returnFunc !== undefined ) returnFunc();
+			// if( returnFunc !== undefined ) returnFunc();
 			
-			Util.paintClear( me.orgUnitNameTag );
+			var orgUnitId = orgUnit.id;
+			me.setVisibility_Section( me.defaultProgramRowTag, true );
+
+
+			// Re-retrieve the programManager based on the orgUnit
+			me.programManager.loadProgramList( orgUnitId, function(){
+				// Set the country orgUnit <--- Send object...
+				me.setCountryId( orgUnitId, orgUnit.parents );
+				
+
+				// Notify person count in the org unit
+				me.displayOrgUnitPersonCount( orgUnitId );
+
+				
+				// Setup the orgUnit Map
+				me.setUp_OrgUnitMap( orgUnitId );
+
+
+				me.defaultProgramTag.focus();
+				
+				Util.paintClear( me.orgUnitNameTag );
+				
+				
+				if( returnFunc !== undefined ) returnFunc();
+			} );
+			
 		});
 		
 	}
@@ -300,14 +326,14 @@ function SearchPanel( TabularDEObj )
 
 		if ( programId != '' )
 		{
-			RESTUtil.getAsynchData( _queryURL_Program + programId + '.json?fields=id,programTrackedEntityAttributes[displayInList,allowFutureDate,mandatory,trackedEntityAttribute[id,name]]'
+			RESTUtil.getAsynchData( _queryURL_Program + programId + '.json?fields=id,programTrackedEntityAttributes[displayInList,allowFutureDate,mandatory,trackedEntityAttribute[id,displayName]]'
 				, function( json_Program )
 				{
 					if ( json_Program.programTrackedEntityAttributes !== undefined )
 					{
 						$.each( json_Program.programTrackedEntityAttributes, function( i_attribute, item_attribute ) 
 						{
-							programTrackedEntityAttributes.push( { "id": item_attribute.trackedEntityAttribute.id, "name": item_attribute.trackedEntityAttribute.name, "mandatory": item_attribute.mandatory, "displayInList": item_attribute.displayInList } );
+							programTrackedEntityAttributes.push( { "id": item_attribute.trackedEntityAttribute.id, "name": item_attribute.trackedEntityAttribute.displayName, "mandatory": item_attribute.mandatory, "displayInList": item_attribute.displayInList } );
 						});
 					}
 
@@ -337,6 +363,11 @@ function SearchPanel( TabularDEObj )
 		return _queryURL_EventQuery + '&programStatus=' + me.programStatusListTag.val();
 	}
 
+	me.getEnrollmentQueryBaseUrl = function()
+	{
+		return _queryURL_Enrollments + '&fields=:all&paging=false';
+	}
+	
 	me.getTEIFromEventQueryBaseUrl = function()
 	{
 		return _queryURL_TEIFromEventQuery + '&programStatus=' + me.programStatusListTag.val();
@@ -515,29 +546,7 @@ function SearchPanel( TabularDEObj )
 		var orgUnitId = orgUnit.id;
 
 		// Set OrgUnit
-		me.setOrgUnitTags( orgUnit, function(){
-			
-			me.setVisibility_Section( me.defaultProgramRowTag, true );
-
-
-			// Re-retrieve the programManager based on the orgUnit
-			me.programManager.loadProgramList( orgUnitId );
-
-
-			// Set the country orgUnit <--- Send object...
-			me.setCountryId( orgUnitId, orgUnit.parents );
-			
-
-			// Notify person count in the org unit
-			me.displayOrgUnitPersonCount( orgUnitId );
-
-			
-			// Setup the orgUnit Map
-			me.setUp_OrgUnitMap( orgUnitId );
-
-
-			me.defaultProgramTag.focus();
-		} );
+		me.setOrgUnitTags( orgUnit );
 	}
 
 	// On reset orgunit, we need to remove the map from image, etc..
@@ -564,6 +573,7 @@ function SearchPanel( TabularDEObj )
 
 					mapUrl += '&markers=size:tiny%7Ccolor:blue%7Clabel:S%7C' + latitude + ',' + longitude;
 
+					//key = AIzaSyA37AeZefV-Zp5G25rJZheXg-NNpnlrRwc
 					mapUrl += '&center=' + latitude + ',' + longitude;
 
 					// Set the map info
@@ -572,7 +582,6 @@ function SearchPanel( TabularDEObj )
 					me.orgUnitMapSmall_DivTag.show( '600' );
 				}
 			}
-
 		}
 		, function() 
 		{
@@ -905,11 +914,24 @@ function SearchPanel( TabularDEObj )
 	{
 		me.resetMainDataRelated();
 	
+		var programSelected = me.defaultProgramTag.find("option:selected");
+		var expiredPeriodType = programSelected.attr("peType");
+		var expiryDays = programSelected.attr("expiryDays");
+		var completeEventsExpiryDays = programSelected.attr("completeEventsExpiryDays");
+			
+		
+		completeEventsExpiryDays = ( completeEventsExpiryDays === "undefined" || completeEventsExpiryDays == "" ) ? "--" : completeEventsExpiryDays;
+		expiredPeriodType = ( expiredPeriodType === "undefined" || expiredPeriodType == "" ) ?  "--" : expiredPeriodType;
+					
+		me.specialPeriodFooterTag.find("span.expiryPeriodType").html( expiredPeriodType );
+		me.specialPeriodFooterTag.find("span.expiryDays").html( expiryDays );
+		me.specialPeriodFooterTag.find("span.completeEventExpireDays").html( completeEventsExpiryDays );
+		
+		
 		if ( me.TabularDEObj.isCase_SEwoR() )
 		{
 			me.TabularDEObj.retrieveAndPopulateEvents( me.TabularDEObj.personList.personEvent.mainEventTableTag, function( eventFoundNo )
 			{
-
 				me.searchResultMsgRowTag.show();
 				me.searchResultMessageTag.text( "Found " + eventFoundNo + " event(s) for period from " + $.format.date( me.getDefaultStartDate(), "dd/MM/yyyy" ) + " to " + $.format.date( me.getDefaultEndDate(), "dd/MM/yyyy" ) + " at " + me.orgUnitNameTag.val() );
 				

@@ -194,8 +194,8 @@ function PersonDialogForm( TabularDEObj )
 								}
 								else
 								{																					
-									// var personId = returnData.response.reference;
-									var personId = returnData.response.importSummaries[0].reference;
+									var personId = returnData.response.reference;
+									//var personId = returnData.response.importSummaries[0].reference;
 
 									if ( Util.checkDefined( personId ) )
 									{
@@ -430,7 +430,7 @@ function PersonDialogForm( TabularDEObj )
 
 		var attributeInfo = me.getAttributeInfoInMsg( inputStr );
 		
-		return '"' + attributeInfo.name + '", ' + errorValue + " - " + errorMessage;
+		return '"' + attributeInfo.displayName + '", ' + errorValue + " - " + errorMessage;
 	}
 
 	me.getPersonAttributeById = function( json_PersonAttributes, attributeId )
@@ -488,7 +488,7 @@ function PersonDialogForm( TabularDEObj )
 
 
 				// Step 2. Add template row to the table <-- via append
-				me.personDialogTableTag.append("<tr " + visibleInfo + "><td><span class='attrname' attributeId='" + attributeId + "'>" + personAttribute.name + "</span>" + mandatorySpan + "</td><td type='attribute' " + mandatoryAttribute + " attributeId='" + attributeId + "'>" + me.TabularDEObj.getAttrControlsTemplate() + "</td></tr>");
+				me.personDialogTableTag.append("<tr " + visibleInfo + "><td><span class='attrname' attributeId='" + attributeId + "'>" + personAttribute.displayName + "</span>" + mandatorySpan + "</td><td type='attribute' " + mandatoryAttribute + " attributeId='" + attributeId + "'>" + me.TabularDEObj.getAttrControlsTemplate() + "</td></tr>");
 
 				// Step 3. Show the proper control for the data type + value.
 				var trCurrent = me.personDialogTableTag.find( "tr:last" );

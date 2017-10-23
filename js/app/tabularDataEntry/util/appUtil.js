@@ -454,7 +454,7 @@ EventUtil.appendSelectOption_Option = function( selectTag, item_Option )
 	}
 	else if ( typeof item_Option === "object" )
 	{
-		selectTag.append( "<option value='" + item_Option.code  + "'>" + item_Option.name + "</option>" );
+		selectTag.append( "<option value='" + item_Option.code  + "'>" + item_Option.displayName + "</option>" );
 	}
 }
 

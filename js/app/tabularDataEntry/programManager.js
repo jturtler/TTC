@@ -134,7 +134,7 @@ function ProgramManager( TabularDEObj, defaultProgramTag )
 
 	me.populateProgramStages = function( selectTag, programId )
 	{
-		Util.populateSelect( selectTag, "ProgramStage", me.getProgramStageList( programId ) );
+		Util.populateSelect( selectTag, "ProgramStage", me.getProgramStageList( programId ), "displayName" );
 		//selectTag.val( me.defaultProgramId );
 	}
 	
@@ -213,9 +213,7 @@ function ProgramManager( TabularDEObj, defaultProgramTag )
 
 	me.retrieveProgram_ProgramList = function( orgUnitId, populateFunc )
 	{
-		//var queryUrl = _queryURL_ProgramList + '?paging=false&fields=id,name,programType&';
-
-		var queryUrl = _queryURL_OrgUnit + "/" + orgUnitId + ".json?fields=id,programs[id,name,programType,expiryPeriodType,expiryDays,completeEventsExpiryDays]";
+		var queryUrl = _queryURL_OrgUnit + "/" + orgUnitId + ".json?fields=id,programs[id,displayName,programType,expiryPeriodType,expiryDays,completeEventsExpiryDays]";
 
 
 		RESTUtil.getAsynchData( queryUrl, function ( json_ProgramList )
@@ -233,10 +231,11 @@ function ProgramManager( TabularDEObj, defaultProgramTag )
 
 						$.each( json_ProgramList.programs, function( i_program, item_program ) 
 						{
-							programList_Temp.push( { "id": item_program.id, "name":  item_program.name
+							programList_Temp.push( { "id": item_program.id, "name":  item_program.displayName
 								, "programType": item_program.programType
 								, "expiryPeriodType" : item_program.expiryPeriodType 
 								, "expiryDays" : item_program.expiryDays
+								, "completeEventsExpiryDays" : item_program.completeEventsExpiryDays
 								, "programStages":  me.getProgramStageList_FromSource( item_program.id, json_programListWithStage_Full ) } );
 
 							//console.log( 'adding programStage to program' );

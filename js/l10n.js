@@ -211,7 +211,6 @@ document.webL10n = (function(window, document, undefined) {
 
         for (var i = 0; i < entries.length; i++) {
           var line = entries[i];
-
           // comment or blank line?
           if (reComment.test(line))
             continue;
@@ -243,6 +242,7 @@ document.webL10n = (function(window, document, undefined) {
 
       // import another *.properties file
       function loadImport(url) {
+		  console.log(url);
         xhrLoadText(url, function(content) {
           parseRawLines(content, false); // don't allow recursive imports
         }, null, false); // load synchronously

@@ -23,7 +23,7 @@ function DataSetValues( TabularDEObj )
 	me.PARAM_PERIOD = "@PARAM_PERIOD";
 	me.PARAM_ORGUNIT_ID = "@PARAM_ORGUNIT_ID";
 	
-	me._query_dataSet = _queryURL_api + "dataSets/" + me.PARAM_DATASET_ID + ".json?fields=dataSetElements[dataElement[id,formName,valueType,categoryCombo[id,categoryOptionCombos[id,name]]]]";
+	me._query_dataSet = _queryURL_api + "dataSets/" + me.PARAM_DATASET_ID + ".json?fields=displayName,dataSetElements[dataElement[id,displayFormName,valueType,categoryCombo[id,categoryOptionCombos[id,displayName]]]]";
 	me._query_dataValues = _queryURL_api + "dataValueSets.json?period=" + me.PARAM_PERIOD + "&orgUnit=" + me.PARAM_ORGUNIT_ID + "&dataSet=" + me.PARAM_DATASET_ID;
 	me._queryUrl_dataValueSave = _queryURL_api + 'dataValues';
 
@@ -49,6 +49,15 @@ function DataSetValues( TabularDEObj )
 		{
 			me.loadDataSetOfStage( function( dataSetId, jsonDataSet ){
 				me.getHiddenDataElementsInSettings( function( hiddenDEList ){
+					
+					// STEP 0. Generate data set header
+					var headerTag = $("<thead></thead>");
+					var headerRowTag = $("<tr></tr>");
+					headerRowTag.append("<th colspan='2'>" + jsonDataSet.displayName + "</th>");
+					headerTag.append( headerRowTag );
+					
+					me.dataSetFormTag.append( headerTag );
+					
 					// STEP 1. Generate header if any. Headers are categoryCombos
 					me.generateTablesByCategoryCombos( jsonDataSet.dataSetElements, hiddenDEList );
 					
@@ -63,7 +72,7 @@ function DataSetValues( TabularDEObj )
 							var optionCombos = de.categoryCombo.categoryOptionCombos;
 							
 							var rowTag = $("<tr></tr>");
-							rowTag.append("<td>" + de.formName + "</td>");
+							rowTag.append("<td>" + de.displayFormName + "</td>");
 							
 							var cols = tbody.find("th");
 							for( var j=0; j<cols.length; j++ )
@@ -162,7 +171,7 @@ function DataSetValues( TabularDEObj )
 							}
 							else
 							{
-								headerTag.append("<th optComboId='" + optionCombos[j].id + "'>" + optionCombos[j].name + "</th>");
+								headerTag.append("<th optComboId='" + optionCombos[j].id + "'>" + optionCombos[j].displayName + "</th>");
 							}
 							
 						}

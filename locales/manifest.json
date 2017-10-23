@@ -1,7 +1,8 @@
 {
   "locales": [
     "en",
-    "es"
+    "es",
+	"km"
   ],
   "default_locale": "en",
   "resources": [

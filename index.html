@@ -4,9 +4,12 @@
 <title>Tabular Tracker Capture</title>
 <meta charset="UTF-8">
 
+<script> var _jsIncludeDate = Date.now(); </script>
+
 	<!-- Credit: 
 		'webL10n' - implemented by Victor Garcia, vgarciabnz@gmail.com
 	-->
+	
 	<script src="js/jQuery/jquery-1.11.1.min.js"></script>
 	<script src="js/jQuery/jquery-ui.min.js"></script>
 	<script src="js/jQuery/jquery.ui.core.js"></script>
@@ -22,9 +25,18 @@
 	<script src="js/gmap3/gmap3-menu.js"></script>
 
 	<script src="js/app/dialogLoading.js"></script>
-	<script src="js/app/util.js"></script>
+	<script> document.write("<script src='js/app/util.js?v=" + _jsIncludeDate + "'><\/script>"); </script>
 	<script src="js/app/RESTUtil.js"></script>
 	
+	<link rel="stylesheet" href="css/jQuery/jquery.ui.all.css">
+	<link rel="stylesheet" href="css/jQuery/jquery-ui.css" />
+	<link rel="stylesheet" href="css/gmap3/gmap3-menu.css" />
+	<link rel="stylesheet" href="css/app/style.css">
+
+	<link rel="resource" type="application/l10n" href="locales/locales.ini" />
+	<script src="js/l10n.js"></script>
+	
+
 	<!-- URL addresses (Dhis site, home, api) -->
 	<script>
 
@@ -64,10 +76,11 @@
 		var _queryURL_PersonSubmit = _queryURL_api + "trackedEntityInstances";
 		var _queryURL_PersonQuery = _queryURL_api + "trackedEntityInstances"; 
 
-		var _queryURL_PersonAttributes = _queryURL_api + "trackedEntityAttributes.json?paging=false&viewClass=detail&fields=id,name,valueType,optionSetValue,optionSet[id,name,options[id,code,name,displayName]]";
+		var _queryURL_PersonAttributes = _queryURL_api + "trackedEntityAttributes.json?paging=false&viewClass=detail&fields=id,displayName,valueType,optionSetValue,optionSet[id,displayName,options[id,code,displayName]]";
 
 		var _queryURL_TrackedEntities = _queryURL_api + "trackedEntities";
 
+		var _queryURL_Enrollments = _queryURL_api + "enrollments.json?ouMode=ACCESSIBLE";
 		var _queryURL_EventQuery = _queryURL_api + "events.json?paging=false&skipPaging=true";
 		var _queryURL_EventSubmit = _queryURL_api + "events";
 
@@ -83,11 +96,15 @@
 
 	</script>
 
-	
+
+	<!-- OrgUnit Tree Related -->
+	<script type="text/javascript" src="js/DHIS/oust_v2.js"></script>
+
 	<script src="js/app/settings/dbSetting.js"></script>
 	
 	<script src="js/app/tabularDataEntry/tabularDataEntry.js"></script>
-	<script src="js/app/tabularDataEntry/searchPanel.js"></script>
+	<script> document.write("<script src='js/app/tabularDataEntry/searchPanel.js?v=" + _jsIncludeDate + "'><\/script>"); </script>
+	
 	<script src="js/app/tabularDataEntry/defaultProgramTEAManager.js"></script>
 	<script src="js/app/tabularDataEntry/programManager.js"></script>	
 	<script src="js/app/tabularDataEntry/personList.js"></script>
@@ -112,18 +129,6 @@
 	<script src="js/app/matrixOrgUnit/matrixOrgunitPeriod.js"></script>
 	
 	
-	<link rel="stylesheet" href="css/jQuery/jquery.ui.all.css">
-	<link rel="stylesheet" href="css/jQuery/jquery-ui.css" />
-	<link rel="stylesheet" href="css/gmap3/gmap3-menu.css" />
-	<link rel="stylesheet" href="css/app/style.css">
-
-	<link rel="resource" type="application/l10n" href="locales/locales.ini" />
-	<script src="js/l10n.js"></script>
-
-	
-	<!-- OrgUnit Tree Related -->
-	<script type="text/javascript" src="js/DHIS/oust_v2.js"></script>
-
 	<!-- Main App Coding -->
 	<script>
 	
@@ -143,6 +148,7 @@
 		var _status_ACTIVE = "ACTIVE";
 		var _status_CANCELLED = "CANCELLED";
 		var _status_COMPLETED = "COMPLETED";
+		var _status_ALL = "";
 
 		var _view = 'view';
 		var _view_Yes = 'y';
@@ -412,7 +418,7 @@
 					<td style="color: White;" data-l10n-id="specificPeriodMode">Specific Period</td>
 					<td>	
 						<span id="settingLink" style="display:none;">
-							| <a href="" id="settingFormOpen" style="color: White;" data-l10n-id="setting">Setting</a> | <a href="https://docs.google.com/document/d/1S6WD_oYdewVWFvsDnr1CL8yM2easN5mDc7j8QWI09Sw" target="_blank" style="color: White;">v <span id="currentVersion">1.63.2</span></a>
+							| <a href="" id="settingFormOpen" style="color: White;" data-l10n-id="setting">Setting</a> | <a href="https://docs.google.com/document/d/1S6WD_oYdewVWFvsDnr1CL8yM2easN5mDc7j8QWI09Sw" target="_blank" style="color: White;">v <span id="currentVersion">1.64 SNAPSHOT v2.2</span></a>
 						</span>
 						| <button type="button" id="closeButton" class="button" style="font-size: 11px;"><span data-l10n-id="close" nameid="closeButton">Close</span></button>
 					</td>
@@ -510,6 +516,7 @@
 								<option data-l10n-id="active" value="ACTIVE"></option>
 								<option data-l10n-id="completed" value="COMPLETED"></option>
 								<option data-l10n-id="cancelled" value="CANCELLED"></option>
+								<option data-l10n-id="all" value=""></option>
 							</select>&nbsp;&nbsp;
 
 							<input id="searchAllProgram" type="checkbox" style="vertical-align:bottom;" /><span data-l10n-id="searchProgramPerson" nameId='SearchAllProgram' style="color:#222222; font-style:italic;"></span>&nbsp;&nbsp;&nbsp;
@@ -568,11 +575,17 @@
 				</tr>
 			</table>
 
+			<div id="specialPeriodFooter" style="color:gray;font-size:11px;font-style:italic">
+				*** <span data-l10n-id="completeEventExpireDays"></span>: <span class="completeEventExpireDays"></span>
+				| <span data-l10n-id="expiryPeriodType"></span>: <span class="expiryPeriodType"></span>  
+				| <span data-l10n-id="expiryDays"></span>: <span class="expiryDays"></span>  
+			</div>
+					
 			<button type='button' class='personEvent_addNewRow BlueButton' style="margin-top:4px;"><span data-l10n-id="addEvent" nameId='AddNewEventRow'></span></button>
 			
 			<br><br>
 			
-			<table id="dataSetForm" style="display:none"></table>
+			<table id="dataSetForm" border="1" class="dataSetForm" style="display:none;"></table>
 
 		</div>
 

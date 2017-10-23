@@ -1,4 +1,43 @@
 
+function EventStatus() {};
+	
+// For "Single Event WITHOUT registration" program
+EventStatus.SIGN_SEwoR_EVENT_OPEN = "open";
+EventStatus.SIGN_SEwoR_EVENT_COMPLETED_CAN_REOPEN = "reopen";
+EventStatus.SIGN_SEwoR_EVENT_FUTURE_LOCKED = "futureLocked";
+EventStatus.SIGN_SEwoR_EVENT_COMPLETED_EXPIRED = "expired";
+EventStatus.SIGN_SEwoR_EVENT_COMPLETED_LOCKED = "completedLocked";
+
+
+// For "Single Event WITH registration" program
+EventStatus.SIGN_SEwR_EVENT_OPEN = "open";
+EventStatus.SIGN_SEwR_PROGRAM_COMPLETED = "programCompleted";
+EventStatus.SIGN_SEwR_PROGRAM_INACTIVE = "programInactive";
+EventStatus.SIGN_SEwR_EVENT_FUTURE_LOCKED = "futureLocked";
+EventStatus.SIGN_SEwR_EVENT_COMPLETED_CAN_REOPEN = "eventCompleted";
+EventStatus.SIGN_SEwR_EVENT_COMPLETED_EXPIRED = "completedLocked"
+EventStatus.SIGN_SEwR_EVENT_EXPIRED = "eventExpired";
+
+EventStatus.SEwoR_EVENT_STATUS = {
+	"open" : "Open"
+	,"reopen" : "Completed"
+	,"locked" : "Locked"
+	,"expired" : "Completed"
+	,"completedLocked" : "Expired"
+};
+
+EventStatus.SEwR_EVENT_STATUS = {
+"open" : "Open"
+,"programCompleted" : "Program completed"
+,"programInactive" : "Program inactive"
+,"futureLocked" : "Locked"
+,"eventCompleted" : "Event Completed"
+,"eventExpired" : "Event Expired"
+,"completedLocked" : "Event Expired"
+};
+
+
+
 function RelativePeriod()
 {
 	var me = this;
@@ -14,8 +53,10 @@ function RelativePeriod()
 	me.PERIOD_TYPE_LAST_12_QUARTERS = "last12Quarters_QUARTER";
 	
 	me.SIGN_OPEN_FORM = "o";
-	me.SIGN_FULL_LOCK_FORM = "x";
+	me.SIGN_FULL_LOCK_FORM_ = "x";
 	me.SIGN_PART_LOCK_FORM = "p";
+	
+	// For Event status LOCK list
 	
 	me.SIGN_OPEN_FORM_TAG = "<img src='img/check-mark-md.png' style='width:12px;height:12px;'>";
 	me.SIGN_FULL_LOCK_FORM_TAG = "<img src='img/lockedForm.png' style='width:10px;height:10px;'>";
@@ -242,7 +283,7 @@ function RelativePeriod()
 		var todayStr = me.formatDateObj_YYYYMMDD( new Date() );
 		
 		
-		if( expiredPeriodType == "" )
+		if( expiredPeriodType === "undefined" || expiredPeriodType == "" )
 		{
 			if( todayStr > endDateStr || ( todayStr >= startDateStr && todayStr <= endDateStr ) )
 			{
@@ -293,7 +334,21 @@ function RelativePeriod()
 	};
 	
 	
-	me.lockDataFormByEventDate = function( event, expiredPeriodType, expiredDays )
+	me.lockDataFormByEventDate = function( isSEwoR, event, expiredPeriodType, expiredDays, completeEventsExpiryDays )
+	{
+		if( isSEwoR )
+		{
+			return me.lockDataFormBySEwoREventDate( event, expiredPeriodType, expiredDays, completeEventsExpiryDays );
+		}
+		else
+		{
+			return me.lockDataFormBySEwREventDate( event, expiredPeriodType, expiredDays, completeEventsExpiryDays );
+		}
+		
+	};
+	
+	
+	me.lockDataFormBySEwoREventDate = function( event, expiredPeriodType, expiredDays, completeEventsExpiryDays )
 	{
 		var todayStr = me.formatDateObj_YYYYMMDD( new Date() );
 		var eventDate = Util.getDate_FromYYYYMMDD( event.eventDate );
@@ -301,7 +356,7 @@ function RelativePeriod()
 			
 		if( dateStr > todayStr)
 		{
-			return me.SIGN_FULL_LOCK_FORM;
+			return EventStatus.SIGN_SEwoR_EVENT_FUTURE_LOCKED;
 		}
 		else if( expiredPeriodType !== "undefined" && expiredPeriodType !== "" )
 		{
@@ -311,17 +366,97 @@ function RelativePeriod()
 			
 			if( dateStr <= todayStr && validMinDateStr <= dateStr && dateStr <= expiredDateStr )
 			{
-				return me.SIGN_OPEN_FORM;
+				return me.getCompleteEventExpiredStatus( event, completeEventsExpiryDays, true );
 			}
 			else
 			{
-				return me.SIGN_FULL_LOCK_FORM;
+				return EventStatus.SIGN_SEwoR_EVENT_COMPLETED_LOCKED;
 			}
 		}
+		else
+		{
+			return me.getCompleteEventExpiredStatus( event, completeEventsExpiryDays, true );
+		}
 		
-		return me.SIGN_OPEN_FORM;
+	};
+	
+	me.lockDataFormBySEwREventDate = function( event, expiredPeriodType, expiredDays, completeEventsExpiryDays )
+	{
+		if( event.enrollmentStatus == "COMPLETED" )
+		{
+			return EventStatus.SIGN_SEwR_PROGRAM_COMPLETED;
+	
+		}
+		else if( event.enrollmentStatus == "CANCELLED" )
+		{
+			return EventStatus.SIGN_SEwR_PROGRAM_INACTIVE;
+		}
+		else
+		{
+			var todayStr = me.formatDateObj_YYYYMMDD( new Date() );
+			var eventDate = Util.getDate_FromYYYYMMDD( event.eventDate );
+			var dateStr = me.formatDateObj_YYYYMMDD( eventDate );
+				
+			if( dateStr > todayStr)
+			{
+				return EventStatus.SIGN_SEwR_EVENT_FUTURE_LOCKED;
+			}
+			else if( expiredPeriodType !== "undefined" && expiredPeriodType !== "" )
+			{
+				var expiredDateRange = me.calExpiredDateRange( new Date(), expiredPeriodType, eval( expiredDays ) );
+				var validMinDateStr = me.formatDateObj_YYYYMMDD( expiredDateRange.validMinDate );
+				var expiredDateStr = me.formatDateObj_YYYYMMDD( expiredDateRange.expiredDate );
+				
+				if( dateStr <= todayStr && validMinDateStr <= dateStr && dateStr <= expiredDateStr )
+				{
+					return me.getCompleteEventExpiredStatus( event, completeEventsExpiryDays, false );
+				}
+				else
+				{
+					return EventStatus.SIGN_SEwR_EVENT_EXPIRED;
+				}
+			}
+			else
+			{
+				return me.getCompleteEventExpiredStatus( event, completeEventsExpiryDays, false );
+			}
+			
+		}
+		
 	};
 		
+	
+	me.getCompleteEventExpiredStatus = function( event, completeEventsExpiryDays, isSEwoR )
+	{
+		if( event.status == "COMPLETED" )
+		{		
+			if( completeEventsExpiryDays !== "undefined" )
+			{
+				completeEventsExpiryDays = eval( completeEventsExpiryDays );
+				var todayStr = me.formatDateObj_YYYYMMDD( new Date() );
+				
+				var checkedCompletedEventDate = Util.getDate_FromYYYYMMDD( event.completedDate );
+				checkedCompletedEventDate.setDate( checkedCompletedEventDate.getDate() + completeEventsExpiryDays );
+				var checkedCompletedEventDateStr = me.formatDateObj_YYYYMMDD( checkedCompletedEventDate );
+
+				if ( checkedCompletedEventDateStr >= todayStr )
+				{
+					return ( isSEwoR ) ? EventStatus.SIGN_SEwoR_EVENT_COMPLETED_CAN_REOPEN : EventStatus.SIGN_SEwR_EVENT_COMPLETED_CAN_REOPEN;
+				}
+				else
+				{
+					return ( isSEwoR ) ? EventStatus.SIGN_SEwoR_EVENT_COMPLETED_EXPIRED : EventStatus.SIGN_SEwR_EVENT_COMPLETED_LOCKED;
+				}
+			}
+			
+			return ( isSEwoR ) ? EventStatus.SIGN_SEwoR_EVENT_COMPLETED_CAN_REOPEN : EventStatus.SIGN_SEwR_EVENT_COMPLETED_CAN_REOPEN;
+		}
+		
+		return ( isSEwoR ) ? EventStatus.SIGN_SEwoR_EVENT_OPEN : EventStatus.SIGN_SEwR_EVENT_OPEN;
+		
+	};
+	
+	
 	me.calExpiredDateRange = function( startPeriodDate, expiredPeriodType, expiredDays )
 	{
 		var expiredDate = me.calExpiredDate( startPeriodDate, expiredPeriodType, expiredDays );

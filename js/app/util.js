@@ -279,8 +279,9 @@ Util.getObjPropertyCount = function( list )
 // -------
 // Seletet Tag Populate, Etc Related
 
-Util.populateSelect = function( selectObj, selectName, json_Data )
-{							
+Util.populateSelect = function( selectObj, selectName, json_Data, displayPropertyName )
+{					
+	var displayProperty = ( displayPropertyName == undefined ) ? "name" : displayPropertyName;
 	selectObj.empty();
 
 	selectObj.append( '<option value="">Select ' + selectName + '</option>' );
@@ -289,7 +290,7 @@ Util.populateSelect = function( selectObj, selectName, json_Data )
 	{
 		$.each( json_Data, function( i, item ) {
 
-			selectObj.append( $( '<option></option>' ).attr( "value", item.id ).text( item.name ) );
+			selectObj.append( $( '<option></option>' ).attr( "value", item.id ).text( item[displayProperty] ) );
 		});
 	}
 }
@@ -314,13 +315,14 @@ Util.populateSelect_WithDefaultName = function( selectObj, selectName, json_Data
 }
 
 
-Util.selectOption_WithOptionalInsert = function ( selectObj, id, list )
+Util.selectOption_WithOptionalInsert = function ( selectObj, id, list, displayPropertyName )
 {
 	if ( selectObj.find( "option" ).length > 0 )
 	{
 		selectObj.val( id );				
 	}
 
+	var displayName = ( displayPropertyName == undefined ) ? "name" : displayPropertyName;
 	// If not found, add the item.
 	if ( selectObj.val() != id )
 	{
@@ -331,7 +333,7 @@ Util.selectOption_WithOptionalInsert = function ( selectObj, id, list )
 
 			if ( item !== undefined )
 			{
-				selectObj.append( $( '<option></option>' ).attr( "value", item.id ).text( item.name ) );
+				selectObj.append( $( '<option></option>' ).attr( "value", item.id ).text( item[displayName] ) );
 			}
 		}
 		else

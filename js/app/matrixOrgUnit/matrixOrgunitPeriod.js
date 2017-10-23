@@ -14,6 +14,7 @@ function MatrixOrgunitPeriod( _orgUnitSelectionTreePopup, _TabularDEObj )
 	me.TabularDEObj = _TabularDEObj;
 	me.relativePeriod;
 	me.searchMatrixOrgUnit;
+	me.searchPanel = me.TabularDEObj.searchPanel;
 	
 	me.ouChildrenLoaded = false;
 	me.ouChildrenList;
@@ -35,6 +36,7 @@ function MatrixOrgunitPeriod( _orgUnitSelectionTreePopup, _TabularDEObj )
 	me.matrixPrevPeriodTag = $("#matrixPrevPeriod");
 	me.matrixNextPeriodTag = $("#matrixNextPeriod");
 	me.matrixOuDataDivTag = $("#matrixOuDataDiv");
+	me.programStatusListTag = $("#programStatusList");
 	
 	// Footer
 	me.completeEventExpireDaysTag = $("#completeEventExpireDays");
@@ -93,9 +95,9 @@ function MatrixOrgunitPeriod( _orgUnitSelectionTreePopup, _TabularDEObj )
 					var selectedProgram = me.programListTag.find("option:selected");
 					
 					var completeExpiryDays = selectedProgram.attr("completeExpiryDays");
-					completeExpiryDays = ( completeExpiryDays === undefined || completeExpiryDays == "" ) ? "--" : completeExpiryDays;
+					completeExpiryDays = ( completeExpiryDays === "undefined" || completeExpiryDays == "" ) ? "--" : completeExpiryDays;
 					var expiryPeriodType = selectedProgram.attr("peType");
-					expiryPeriodType = ( expiryPeriodType === undefined || expiryPeriodType == "" ) ?  "--" : expiryPeriodType;
+					expiryPeriodType = ( expiryPeriodType === "undefined" || expiryPeriodType == "" ) ?  "--" : expiryPeriodType;
 					
 					me.completeEventExpireDaysTag.html( completeExpiryDays );
 					me.expiryPeriodTypeTag.html( expiryPeriodType );
@@ -306,13 +308,12 @@ function MatrixOrgunitPeriod( _orgUnitSelectionTreePopup, _TabularDEObj )
 			if( status != me.relativePeriod.SIGN_FULL_LOCK_FORM 
 				|| ( status == me.relativePeriod.SIGN_FULL_LOCK_FORM && value != "" ) )
 			{
-					// Disable for control form
+				// Disable for control form
 				Util.disableTag( me.settingConsoleTag.find("input,select"), true );
 				
 				// Show Back button and enable [Back To Matrix] button
 				me.backToMatrixTag.show();
 				Util.disableTag( me.backToMatrixTag, false );
-				
 				
 				// Load TEI/Event list
 				var keys = cellTag.attr("key").split("_");
@@ -321,36 +322,40 @@ function MatrixOrgunitPeriod( _orgUnitSelectionTreePopup, _TabularDEObj )
 				var periodCode = keys[1];
 				
 				var jsonOuData = {"name": ouName, "id": ouId};
-				// me.TabularDEObj.searchPanel.onOrgUnitSelect( jsonOuData );
-				me.TabularDEObj.searchPanel.setOrgUnitTags( jsonOuData );
-				
-				me.TabularDEObj.searchPanel.programManager.loadProgramList( ouId, function(){
-					
-					me.TabularDEObj.searchPanel.programManager.defaultProgramTag.val( me.programListTag.val() );
-					me.TabularDEObj.searchPanel.programTagOnChange( function(){
-						
-						me.TabularDEObj.searchPanel.defaultProgramRowTag.show();
-						
-						$( "input[type='radio'][name='period'][value='custom']" ).prop("checked", true);
-						$( "input[type='radio'][name='period'][value='custom']" ).click();
-						var dateRange = me.relativePeriod.getDateRangeOfPeriod( periodCode );
-						me.TabularDEObj.searchPanel.defaultDateFromTag.val( $.format.date( dateRange.startDate, _dateFormat_YYYYMMDD ) );
-						me.TabularDEObj.searchPanel.defaultDateToTag.val( $.format.date( dateRange.endDate, _dateFormat_YYYYMMDD ) );
-						me.TabularDEObj.searchPanel.defaultDateRowTag.show();
-						$( '#defaultDatePeriod' ).show();
-						
-						me.TabularDEObj.searchPanel.defaultRetrievalRowTag.show();
-						me.TabularDEObj.searchPanel.performDataRetrieval( function(){
-							// me.specificPeriodChkTag.prop( "checked", true );
-							me.ouMatrixSectionTag.hide();
-							me.specificPeriodSectionTag.show("fast");
+				me.searchPanel.setUp_OrgUnitMap( ouId );
+				me.searchPanel.setOrgUnitTags( jsonOuData, function(){
+					me.searchPanel.programManager.loadProgramList( ouId, function(){
+						me.searchPanel.programManager.defaultProgramTag.val( me.programListTag.val() );
+						me.searchPanel.programTagOnChange( function(){
+							
+							me.searchPanel.defaultProgramRowTag.show();
+							
+							$( "input[type='radio'][name='period'][value='custom']" ).prop("checked", true);
+							$( "input[type='radio'][name='period'][value='custom']" ).click();
+							var dateRange = me.relativePeriod.getDateRangeOfPeriod( periodCode );
+							me.searchPanel.defaultDateFromTag.val( $.format.date( dateRange.startDate, _dateFormat_YYYYMMDD ) );
+							me.searchPanel.defaultDateToTag.val( $.format.date( dateRange.endDate, _dateFormat_YYYYMMDD ) );
+							me.searchPanel.defaultDateRowTag.show();
+							$( '#defaultDatePeriod' ).show();
+							
+							me.programStatusListTag.val( _status_ALL );
+							me.searchPanel.defaultRetrievalRowTag.show();
+							me.searchPanel.programManager.defaultProgramTag.val( me.programListTag.val() );
+							me.searchPanel.performDataRetrieval( function(){
+								
+								me.ouMatrixSectionTag.hide();
+								me.specificPeriodSectionTag.show("fast");
 
-							// Scroll left end
-							AppUtil.pageHScroll( "Left" );
+								// Scroll left end
+								AppUtil.pageHScroll( "Left" );
+								
+							});
 						});
-					});
 					
-				});
+					});
+				} );
+				
+				
 			}
 		});
 	};

@@ -10,6 +10,8 @@ function SearchMatrixOrgUnit( MatrixObj )
 	
 	me.queryURL_OrgUnit = _queryURL_api + 'organisationUnits/';
 	me.queryURL_OrgUnitNameQuery = _queryURL_api + 'organisationUnits.json?paging=false&fields=name,id,level,parents[id,name,level],ancestors[id,name,level]&filter=name:ilike:';
+	me.queryURL_PROGRAMS_BY_ORGUNIT_PARENT = _queryURL_api + "programs.json?fields=id,displayName,expiryPeriodType,expiryDays,completeEventsExpiryDays&paging=false&filter=organisationUnits.parent.id:eq:";
+	
 			
 	me.orgUnitNameTag = $( '#matrixOrgUnitName' );
 	me.orgUnitTreeBtnTag = $( '#matrixOrgUnitTreeBtn' );
@@ -317,30 +319,31 @@ function SearchMatrixOrgUnit( MatrixObj )
 		// Disabled program list
 		Util.disableTag( me.programListTag, true );
 		
-		
 		QuickLoading.dialogShowAdd( 'matrixProgramLoading' );
 
 		var parentOuId = me.getOrgUnitId();
 		me.programListTag.find("option").remove();
 		
-		RESTUtil.getAsynchData( _queryURL_api +'sqlViews/MCxNK3CmTbO/data.json?var=ouId:' + parentOuId
+		
+		// RESTUtil.getAsynchData( _queryURL_api +'sqlViews/MCxNK3CmTbO/data.json?var=ouId:' + parentOuId
+		RESTUtil.getAsynchData( me.queryURL_PROGRAMS_BY_ORGUNIT_PARENT + parentOuId
 			, function( jsonData )
 			{
 				me.programListTag.append("<option value=''>[Please select]</option>");
-				var rows = jsonData.rows;
-				for( var i in rows )
+				var programs = jsonData.programs;
+				for( var i in programs )
 				{
-					var id = rows[i][0];
-					var name = rows[i][1];
-					var expiryPeriodType = rows[i][2];
-					var expiryDays = rows[i][3];
-					var completeExpiryDays = rows[i][4];
+					var id = programs[i].id;
+					var name = programs[i].displayName;
+					var expiryPeriodType = programs[i].expiryPeriodType;
+					var expiryDays = programs[i].expiryDays;
+					var completeExpiryDays = programs[i].completeEventsExpiryDays;
 					me.programListTag.append("<option value='" + id + "' peType='" + expiryPeriodType + "' expiryDays='" + expiryDays + "' completeExpiryDays='" + completeExpiryDays + "'>" + name + "</option>");
 				}
 				
 				Util.disableTag( me.programListTag, false );
 				
-				if( rows.length == 1 )
+				if( programs.length == 1 )
 				{
 					me.programListTag.find("option[value!='']").attr( "selected", "selected" );
 					MatrixObj.matrixExecuteRetrievalTag.click();

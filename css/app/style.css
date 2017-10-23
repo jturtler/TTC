@@ -858,3 +858,14 @@ input:checked + .slider:before {
 .slider.round:before {
   border-radius: 50%;
 }
+
+.dataSetForm
+{
+	border-color: #eff2ef;
+	border-collapse: collapse;
+}
+
+.dataSetForm tbody
+{
+	padding: 3px;
+}

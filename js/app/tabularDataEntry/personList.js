@@ -799,18 +799,15 @@ function PersonList( TabularDEObj )
 		me.personEvent.populateEventsByPersonId( personId, trPersonRow, divPersonDetailTag, function( json_Events )
 		{
 			
-			// Show 'Add new event' button if Active program
-			if ( me.TabularDEObj.getSearchProgramStatus() == _status_ACTIVE )
-			{
-				addNewEventRowButton.show();
-			}
-
 			// * After populating event data, Set 'DoneStage'
 			me.setDoneStageRelated( item_Person, trPersonRow, function( doneStages )
 			{
 				// For already populated events case, if there is 'add new'
 				// row added, remove the stage.
-				me.personEvent.removeFromStageList( divPersonDetailTag.find( 'select.eventStage' ), doneStages );					
+				me.personEvent.removeFromStageList( divPersonDetailTag.find( 'select.eventStage' ), doneStages );	
+
+				// Show 'Add new event' button if Active program
+				me.personEvent.showSEwoRCreateNewEventBtn( me.TabularDEObj.searchPanel.defaultProgramTag, trPersonRow, addNewEventRowButton );
 			});
 
 

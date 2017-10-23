@@ -10,14 +10,14 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 	me.mainEventTableTag =  $( '#mainTable_Event' );
 	me.mainEventSectionTag =  $( '#mainSection_Event' );
 	me.dataSetDivTag =  $( '#dataSetDiv' );
+	me.mainSection_PersonTag = $("#mainSection_Person");
 
 
 	me.attr_EventRowNo = "eventrowno";
 
 
 	me.buttonTemplate_Complete = "<button type='button' class='button eventComplete' style='display:none;'><span nameId='CompleteEvent'>" + l10n.get('complete') + "</span></button><button type='button' class='button eventIncomplete' style='display:none;'><span nameId='IncompleteEvent'>" + l10n.get('incomplete') + "</span></button>";
-
-
+	
 	me.trTemplate_EventRow = "<td class='orig'><input type='text' class='eventDate datepicker' caltype='upToToday' size='12'><br><span class='eventOrgUnit'></span></td>"
 		+ "<td class='orig'><div><select class='eventProgram' style='margin: 1px 1px;display:none;' />"
 			+	"<div class='eventProgramDiv divReadOnly'></div></div>"
@@ -139,7 +139,7 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 		
 		
 		// For program, set is as display only. 
-		Util.selectOption_WithOptionalInsert( eventProgram, programId, me.TabularDEObj.getProgramList_Full() );
+		Util.selectOption_WithOptionalInsert( eventProgram, programId, me.TabularDEObj.getProgramList_Full(), "displayName" );
 		eventProgram.hide();
 		eventProgramDiv.show().html( eventProgram.find( 'option:selected' ).text() );
 
@@ -271,7 +271,7 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 			{
 				// 1. Generate the event and put the event id into the ..
 				me.eventCreate( trCurrent
-				, function( eventId, eventStatus )
+				, function( json_Event )
 				{
 					// Check for program stage 'non-repeatableness'
 					// and add to 'DontStage' is applicable.
@@ -292,7 +292,8 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 					{	
 						//var eventId = trCurrent.attr( "uid" );	
 						// Set this - for complete button show/hide & complete event handler set.
-						me.setEventFixedColumn_ForExisting( trCurrent, eventId, eventStatus );
+						// var eventStatus = me.TabularDEObj.isCase_MEwR() ? EventStatus.SIGN_SEwR_EVENT_OPEN : EventStatus.SIGN_SEwoR_EVENT_OPEN;
+						me.setEventFixedColumn_ForExisting( trCurrent, json_Event );
 						
 						// setTimeout due to the first time Async Data Element retrieval and rendering.
 						setTimeout( function() 
@@ -317,7 +318,6 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 		// Return the reference to the first control, so that it can be focused after the row generate.
 		return eventDate;
 	};
-	
 	
 	me.checkDateEventOutOfDateRange = function( eventDateTag )
 	{
@@ -417,7 +417,8 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 		{
 			me.eventCreate_SubmitData( json_Data, trCurrent, function( eventId, status )
 			{
-				successFunc( eventId, status );
+				json_Data.event = eventId;
+				successFunc( json_Data, status );
 			});
 		}
 		else
@@ -431,7 +432,8 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 			{
 				me.eventCreate_SubmitData( json_Data, trCurrent, function( eventId, status )
 				{
-					successFunc( eventId, status );
+					json_Data.event = eventId;
+					successFunc( json_Data, status );
 				});								
 			}
 			, function()
@@ -446,7 +448,7 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 					// Doesn't work well.  - due to timing..
 					me.eventCreate_SubmitData( json_Data, trCurrent, function( eventId, status )
 					{
-						successFunc( eventId, status );
+						successFunc( json_Data, status );
 					});							
 				});
 			});
@@ -492,9 +494,9 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 			}
 		);
 	}
-
-
-	this.setStatusRelated = function( trCurrent, eventId, programStageId, status )
+	
+	
+	this.setStatusRelated = function( trCurrent, json_Event, programStageId )
 	{
 		var eventDate = trCurrent.find( "input.eventDate" );
 		var eventStatus = trCurrent.find( "span.eventStatus" );
@@ -504,46 +506,62 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 		var eventIncomplete = trCurrent.find( "button.eventIncomplete" );
 		var eventProgramDiv = trCurrent.find( "div.eventProgramDiv" );
 		var eventStageDiv = trCurrent.find( "div.eventStageDiv" );
-
+		
+		
+		var status = me.getEventStatus( json_Event );
 		// Set Status
-		eventStatus.html( status );
+		var statusMsg = ( me.TabularDEObj.isCase_MEwR() ) ? EventStatus.SEwR_EVENT_STATUS[status] : EventStatus.SEwoR_EVENT_STATUS[status];
+		eventStatus.html( statusMsg );
 
-		if( status == _status_ACTIVE )
+		if( status == EventStatus.SIGN_SEwR_PROGRAM_INACTIVE
+			|| status == EventStatus.SIGN_SEwR_PROGRAM_COMPLETED )
 		{
-			eventIncomplete.hide();
-
+			trCurrent.closest("div.divPersonDetail").find("button").hide();
+			trCurrent.closest("div.divPersonDetail").find("span.eventStatus").html( statusMsg );
+			trCurrent.closest("div.divPersonDetail").find("input,select").each( function(){
+				Util.disableTag( $(this), true );
+			});
+		}
+		else if( status == EventStatus.SIGN_SEwR_EVENT_OPEN
+			|| status == EventStatus.SIGN_SEwoR_EVENT_OPEN )
+		{
 			// Delete related
 			eventDel.show();
-
+			
 			// remove previous click event
 			eventDel.off( 'click' );
 			eventRowDel.off( 'click' );
-
-			eventDel.click( function() { me.eventDelete( trCurrent, eventId ); });
-
+			
+			eventDel.click( function() { me.eventDelete( trCurrent, json_Event.event ); });
+			
 			// Complete related
 			eventComplete.show();
 
 			eventComplete.off( "click" ).on( "click", function() 
 			{
-				me.completeEvent( trCurrent, eventId, programStageId );
+				me.completeEvent( trCurrent, json_Event, programStageId );
 			});
+			
+			eventIncomplete.hide();
+			
+			// Show 'Add new event' button if Active program
+			var personUid = trCurrent.closest("tr.trPersonDetail").attr("uid");
+			var personTag = me.mainSection_PersonTag.find("tr.trPerson[uid='" + personUid + "']");
 		}
-		else if( status == _status_COMPLETED )
+		else if( status == EventStatus.SIGN_SEwR_EVENT_COMPLETED_CAN_REOPEN
+			|| status == EventStatus.SIGN_SEwoR_EVENT_COMPLETED_CAN_REOPEN )
 		{
-			eventDel.hide();
-			eventComplete.hide();
-
+			// In-Complete related
 			me.TabularDEObj.checkIncompleteAction_UserRole( function() 
 			{
 				eventIncomplete.show();
 			});
-
+			
 			eventIncomplete.off( "click" ).on( "click", function() 
 			{
-				me.incompleteEvent( trCurrent, eventId, programStageId );
+				me.incompleteEvent( trCurrent, json_Event, programStageId );
 			});
-
+			
 			me.TabularDEObj.dataInMemory.retrieveProgramStageData( programStageId, function( json_ProgramStage )
 			{
 				if ( json_ProgramStage.blockEntryForm )
@@ -552,15 +570,16 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 					me.setEventDEControlDisable( trCurrent );
 				}
 			});
-		}
-
-
-		if ( me.TabularDEObj.getSearchProgramStatus() != _status_ACTIVE )
-		{
-			eventDel.hide();
+			
 			eventComplete.hide();
+			eventDel.hide();
+		}
+		else
+		{
 			eventIncomplete.hide();
-
+			eventComplete.hide();
+			eventDel.hide();
+			
 			me.setEventFixedColumnDisable( trCurrent );
 			me.setEventDEControlDisable( trCurrent );					
 			Util.paintClear( eventProgramDiv );
@@ -569,11 +588,59 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 			eventProgramDiv.css( 'color', '#80808F' );
 			eventStageDiv.css( 'color', '#80808F' );
 		}
+		
+		// Hide 'Add new event' button if program is COMPLETED / INACTIVE
+		var personUid = trCurrent.closest("tr.trPersonDetail").attr("uid");
+		var trPerson = me.mainSection_PersonTag.find("tr.trPerson[uid='" + personUid + "']");
+		var addNewEventRowButton = trCurrent.closest("div.divPersonDetail").find( '.personEvent_addNewRow' );
+		me.showSEwoRCreateNewEventBtn( me.TabularDEObj.searchPanel.defaultProgramTag, trPerson, addNewEventRowButton );
+	};
+	
+	me.showSEwoRCreateNewEventBtn = function( eventProgram, trPerson, addNewEventRowButton )
+	{
+		addNewEventRowButton.hide();
+		
+		if( me.TabularDEObj.isCase_MEwR() ) 
+		{	
+			var eventStage = $("<select></select>");
+			
+			// Populate Stage list.
+			if( Util.checkValue( eventProgram.val() ) )
+			{
+				me.TabularDEObj.populateProgramStages( eventStage, eventProgram.val() );
 
-	}
+				// If MEwR case, see if person has done stage list.
+				// If there is, remove them from the programStage selection.
+				if ( trPerson !== undefined )
+				{
+					var doneStages = trPerson.attr( me.TabularDEObj.personList.attr_doneStages );
 
+					me.removeFromStageList( eventStage, doneStages );
+				}
+			}
+			
+			if( eventStage.find("option").length > 1 )
+			{
+				addNewEventRowButton.show();
+			}
+		}
+	};
+	
+	me.getEventStatus = function( event )
+	{
+		var relativePeriod = new RelativePeriod();
+		var eventDate = event.eventDate;
+		
+		var programSelected = me.TabularDEObj.searchPanel.defaultProgramTag.find("option:selected");
+		var expiredPeriodType = programSelected.attr("peType");
+		var expiryDays = programSelected.attr("expiryDays");
+		var completeEventsExpiryDays = programSelected.attr("completeEventsExpiryDays");
+		var eventStatus = event.status;
+		
+		return relativePeriod.lockDataFormByEventDate( !me.TabularDEObj.isCase_MEwR(), event, expiredPeriodType, expiryDays, completeEventsExpiryDays );
+	};
 
-	me.setEventFixedColumn_ForExisting = function( trCurrent, eventId, status )
+	me.setEventFixedColumn_ForExisting = function( trCurrent, json_Event )
 	{
 		var eventDate = trCurrent.find( "input.eventDate" );
 		var eventProgram = trCurrent.find( "select.eventProgram" );
@@ -586,7 +653,6 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 		// event date update are place in 'setEventDateSave()'
 
 		// disable the controls
-		//Util.disableTag( eventDate, true );
 		Util.disableTag( eventCreateTag, true );
 
 		eventProgram.hide();
@@ -604,7 +670,7 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 			// Simply used to get programStage name.  <-- should do a more efficient way for this..
 			me.TabularDEObj.dataInMemory.retrieveProgramStageData( selectedStageId, function( json_ProgramStage )
 			{
-				eventStageDiv.text( json_ProgramStage.name );
+				eventStageDiv.text( json_ProgramStage.displayName );
 				eventStageDiv.attr( 'uid', json_ProgramStage.id );
 			});
 		}
@@ -619,10 +685,11 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 		Util.disableTag( eventRowDelete, true );
 
 		// Set status, delete, completed status button related actions.
-		me.setStatusRelated( trCurrent, eventId, selectedStageId, status );
+		me.setStatusRelated( trCurrent, json_Event, selectedStageId );
 
 	}
 
+	
 
 	me.eventDelete = function( trCurrent, eventUid )
 	{		
@@ -698,18 +765,26 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 			if( confirm( $( 'span.msg_ConfirmEventComplete' ).text() ) )
 			{
 				me.eventUpdate( trCurrent, _status_COMPLETED
-					, function()
+					, function( json_Event )
 					{
+						
+						trCurrent.find("input,select").each( function(){
+							Util.disableTag( $(this), true );
+						});
+					
 						// Find the next tabbing tag first.
 						var nextTabTag = EventUtil.getNextRowFocus_Event( trCurrent );
 
 						// Update the completeted row info/setting..
-						me.setStatusRelated( trCurrent, eventUid, programStageId, _status_COMPLETED );
+						
+						me.setStatusRelated( trCurrent, json_Event, programStageId );
 
 						if ( nextTabTag !== undefined )
 						{
 							nextTabTag.focus();
 						}
+						
+
 					}
 				);
 			}
@@ -717,18 +792,22 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 	}
 
 
-	me.incompleteEvent = function( trCurrent, eventUid, programStageId )
+	me.incompleteEvent = function( trCurrent, json_Event, programStageId )
 	{		
 		if( confirm( $( 'span.msg_ConfirmEventIncomplete' ).text() ) )
 		{
 			me.eventUpdate( trCurrent, _status_ACTIVE
-				, function()
+				, function( json_Event )
 				{
+					trCurrent.find("input,select").each( function(){
+						Util.disableTag( $(this), false );
+					});
+						
 					// Find the next tabbing tag first.
 					var nextTabTag = EventUtil.getNextRowFocus_Event( trCurrent );
 
 					// Update the completeted row info/setting..
-					me.setStatusRelated( trCurrent, eventUid, programStageId, _status_ACTIVE );
+					me.setStatusRelated( trCurrent, json_Event, programStageId );
 
 					if ( nextTabTag !== undefined )
 					{
@@ -825,9 +904,9 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 
 	me.populateEventsByPersonId = function( personId, trPersonRow, divPersonDetailTag, successFunc )
 	{
-
-		// NOTE: Populate event that does not have register date/orgUnit
-		// first <-- auto generated events on enrollment to program
+			// NOTE: Populate event that does not have register date/orgUnit
+			// first <-- auto generated events on enrollment to program
+		
 		me.getUnregisteredEventsByPersonId( personId, divPersonDetailTag, function( events_unregistered )
 		{
 			// Retrieve registered events
@@ -1045,7 +1124,7 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 			deId = deItem.dataElement.id;
 			compulsory = deItem.compulsory;
 
-			titleName = ( Util.checkValue( deItem.dataElement.formName ) ) ? deItem.dataElement.formName : deItem.dataElement.name;
+			titleName = ( Util.checkValue( deItem.dataElement.displayFormName ) ) ? deItem.dataElement.displayFormName : deItem.dataElement.displayName;
 
 			if ( deItem.compulsory )
 			{
@@ -1197,7 +1276,7 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 					}
 					else
 					{
-						//alert( "Unknown Column(DataElement) Type Found.  [Name: " + json_DataElement.name + ", ID: " + json_DataElement.id + ", valueType: " + valType + "]" );
+						//alert( "Unknown Column(DataElement) Type Found.  [Name: " + json_DataElement.displayName + ", ID: " + json_DataElement.id + ", valueType: " + valType + "]" );
 						var controlTag = me.setAndGetControlTag( tdTag, ".label" ).html( '<span style="color:Red;">Not supported valueType: ' + valType + '</span>' );
 					}
 
@@ -1397,24 +1476,28 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 
 		RESTUtil.submitData( json_Data, _queryURL_EventSubmit + '/' + eventUid, "PUT"
 			, function()
-			{						
-				// Clear all coloring
-				trCurrent.find( "td.added" ).find( "input,select" ).each( 
-					function () 
-					{
-						Util.paintResult( $(this), false );
-					}
-				);
+			{	
+				RESTUtil.getAsynchData( me.getEventDataUrl( eventUid )
+					, function( json_Event )
+					{				
+						// Clear all coloring
+						trCurrent.find( "td.added" ).find( "input,select" ).each( 
+							function () 
+							{
+								Util.paintResult( $(this), false );
+							}
+						);
 
-				trCurrent.find( "[status='checking']" ).each( 
-					function () 
-					{
-						$(this).attr( "status", "updated" );				 
-						Util.paintResult( $(this), true );
-					}
-				);
-				
-				if ( successAction !== undefined ) successAction();
+						trCurrent.find( "[status='checking']" ).each( 
+							function () 
+							{
+								$(this).attr( "status", "updated" );				 
+								Util.paintResult( $(this), true );
+							}
+						);
+						
+						if ( successAction !== undefined ) successAction( json_Event );
+					});
 			}
 			, function()
 			{
@@ -1671,15 +1754,24 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 		+ '&program=' + me.TabularDEObj.getSelectedProgramId();				
 	}
 
+	me.getEventDataUrl = function( eventId )
+	{
+		return _queryURL_ProgramStageInstance + '/' + eventId + ".json";	
+	}
+	
+	
 	// -------------------------------------
 	// -- Populate Events Related ----------
 
 	me.populateEvents = function( trPerson, item_EventTable, json_Events )
 	{
-		//var orgUnitUid = me.TabularDEObj.getOrgUnitId();
-		item_EventTable.find( "tr.trEventData" ).remove();
-		item_EventTable.find( "tr.trEventHead th.added" ).remove();
-
+		if( item_EventTable != undefined )
+		{
+			//var orgUnitUid = me.TabularDEObj.getOrgUnitId();
+			item_EventTable.find( "tr.trEventData" ).remove();
+			item_EventTable.find( "tr.trEventHead th.added" ).remove();
+		}
+		
 		if( Util.checkDataExists( json_Events ) )
 		{
 			$.each( json_Events, function( i_event, item_event ) 
@@ -1706,10 +1798,12 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 				var expiredPeriodType = programSelected.attr("peType");
 				var expiryDays = programSelected.attr("expiryDays");
 				var completeEventsExpiryDays = programSelected.attr("completeEventsExpiryDays");
-				var eventStatus = event.status;
 				
-				var lockFormSign = relativePeriod.lockDataFormByEventDate( event, expiredPeriodType, expiryDays );
-				if( lockFormSign == relativePeriod.SIGN_FULL_LOCK_FORM  )
+				var lockFormSign = relativePeriod.lockDataFormByEventDate( !me.TabularDEObj.isCase_MEwR(), event, expiredPeriodType, expiryDays, completeEventsExpiryDays );
+				
+				// Display [Delete] button for open event
+				if( lockFormSign != EventStatus.SIGN_SEwR_EVENT_OPEN
+					&& lockFormSign != EventStatus.SIGN_SEwoR_EVENT_OPEN  )
 				{
 					item_EventTable.find("tr[uid='" + event.event + "']").find("input,select").each( function(){
 						Util.disableTag( $(this), true );
@@ -1744,9 +1838,9 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 		}
 		
 		// Select Program/ProgramStages <-- if not in select option, add one.
-		Util.selectOption_WithOptionalInsert( eventProgram, item_event.program, me.TabularDEObj.getProgramList_Full() );
+		Util.selectOption_WithOptionalInsert( eventProgram, item_event.program, me.TabularDEObj.getProgramList_Full(), "displayName" );
 		
-		Util.selectOption_WithOptionalInsert( eventStage, item_event.programStage, me.TabularDEObj.getProgramStageList_Full() );
+		Util.selectOption_WithOptionalInsert( eventStage, item_event.programStage, me.TabularDEObj.getProgramStageList_Full(), "displayName" );
 		//eventProgram.val( item_event.program );
 		//eventStage.val( item_event.programStage );
 
@@ -1780,7 +1874,7 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 		// Populate the data element columns
 		me.populateEventColumnsAndData( trHead, trCurrent, item_event.programStage, function() 
 		{ 
-			me.setEventFixedColumn_ForExisting( trCurrent, item_event.event, item_event.status );
+			me.setEventFixedColumn_ForExisting( trCurrent, item_event );
 		}
 		, item_event );
 

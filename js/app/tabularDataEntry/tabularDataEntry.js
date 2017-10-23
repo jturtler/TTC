@@ -86,6 +86,16 @@ function TabularDataEntry( _orgUnitSelectionTreePopup )
 		return me.searchPanel.getEventQueryBaseUrl();
 	}
 
+	me.getEventQueryBaseUrl = function( )
+	{
+		return me.searchPanel.getEventQueryBaseUrl();
+	}
+	
+	me.getEnrollmentQueryBaseUrl = function()
+	{
+		return me.searchPanel.getEnrollmentQueryBaseUrl();
+	}
+	
 	me.getTEIFromEventQueryBaseUrl = function()
 	{
 		return me.searchPanel.getTEIFromEventQueryBaseUrl();
