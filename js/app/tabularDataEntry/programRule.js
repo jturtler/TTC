@@ -431,7 +431,8 @@ function ProgramRule( TabularDEObj )
 
 							// Disable the tag..
 							targetTag.prop( 'disabled', true );
-
+							targetTag.val("");
+							targetTag.change();
 						}
 						else if( action.programRuleActionType == 'SHOWERROR' )
 						{

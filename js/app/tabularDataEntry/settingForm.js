@@ -491,7 +491,7 @@ function SettingForm( _TabularDEObj, _matrixObj )
 	{
 		DHISUtil.retrieveUserAccount( function( json_data ) 
 		{
-			if ( json_data.username == _deploymentManagerId )
+			if ( _deploymentManagerIds.indexOf( json_data.username ) >= 0 )
 			{
 				me.trLatestVersionTag.show();
 

@@ -169,7 +169,7 @@
 		var _appInitialized = false;
 		var _userLanguage;
 
-		var _deploymentManagerId = 'jamesc'; // userID for some feature on 'Setting' popup - 'latest version number update / 'incomplete' event user role'
+		var _deploymentManagerIds = ["jamesc","trancs","rmelia"]; // userID for some feature on 'Setting' popup - 'latest version number update / 'incomplete' event user role'
 
 
 		// =========================================================
@@ -186,6 +186,7 @@
 				DHISUtil.retrieveUserAccount( function( json_data ) 
 				{
 					_userLanguage = json_data.settings.keyUiLocale;
+					if( _userLanguage == null ) _userLanguage = "en";
 					l10n.setLanguage(_userLanguage);
 				});
 
