@@ -524,7 +524,7 @@ function PersonDialogForm( TabularDEObj )
 			attributeControl = cntrDropdown.attr( _view, _view_Yes );
 
 			cntrDropdown.empty();
-			cntrDropdown.append( "<option value=''>Select Value</option>" );
+			cntrDropdown.append( "<option value=''>" + l10n.get('selectValue') + "</option>" );
 
 			if ( optionSet.options !== undefined )
 			{

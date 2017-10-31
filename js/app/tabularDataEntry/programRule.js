@@ -431,8 +431,23 @@ function ProgramRule( TabularDEObj )
 
 							// Disable the tag..
 							targetTag.prop( 'disabled', true );
-							targetTag.val("");
-							targetTag.change();
+							if( targetTag.val() != "" )
+							{
+								if( targetTag.hasClass("checkbox") )
+								{
+									if( targetTag.is( ":checked" ) )
+									{
+										targetTag.prop("checked", false);
+										targetTag.change();
+									}
+								}
+								else
+								{
+									targetTag.val("");
+									targetTag.change();
+								}
+								
+							}
 						}
 						else if( action.programRuleActionType == 'SHOWERROR' )
 						{

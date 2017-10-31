@@ -329,6 +329,7 @@ function SearchMatrixOrgUnit( MatrixObj )
 		RESTUtil.getAsynchData( me.queryURL_PROGRAMS_BY_ORGUNIT_PARENT + parentOuId
 			, function( jsonData )
 			{
+				me.programListTag.find("option").remove();
 				me.programListTag.append("<option value=''>[Please select]</option>");
 				var programs = jsonData.programs;
 				for( var i in programs )

@@ -44,7 +44,7 @@ function RelativePeriod()
 	
 	me.matrixPeriodTag = $("#matrixPeriod");
 	
-	me.monthlyNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+	me.monthlyNames = ["shortJan", "shortFeb", "shortMar", "shortApr", "shortMay", "shortJun", "shortJul", "shortAug", "shortSep", "shortOct", "shortNov", "shortDec"];
     me.quarterlyStartMonth = ["01", "04", "07", "10"];
 	
 	me.PERIOD_TYPE_LAST_12_MONTHS = "last12Months_MONTH";
@@ -121,7 +121,8 @@ function RelativePeriod()
             while( curMonth>0 && idx < me.noMonth ) {
                 var month = ( curMonth >= 10 ) ? curMonth + "" : "0" + curMonth;
                 var code = year + "" + month;
-                var name = me.monthlyNames[curMonth - 1] + " " + year;
+				var displayName = l10n.get( me.monthlyNames[curMonth - 1] );
+                var name = displayName + " " + year;
                 var period = {"code": code, "name": name};
 
                 periodList.push(period);
@@ -150,7 +151,8 @@ function RelativePeriod()
 			var month = ( i >= 10 ) ? i + "" : "0" + i;
 			
 			var code = year + "" + month;
-			var name = me.monthlyNames[month - 1] + " " + year;
+			var displayName = l10n.get( me.monthlyNames[month - 1] );
+			var name = displayName + " " + year;
 			var period = {"code": code, "name": name};
 				
 			periodList.push( period );

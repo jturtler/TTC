@@ -933,7 +933,8 @@ function SearchPanel( TabularDEObj )
 			me.TabularDEObj.retrieveAndPopulateEvents( me.TabularDEObj.personList.personEvent.mainEventTableTag, function( eventFoundNo )
 			{
 				me.searchResultMsgRowTag.show();
-				me.searchResultMessageTag.text( "Found " + eventFoundNo + " event(s) for period from " + $.format.date( me.getDefaultStartDate(), "dd/MM/yyyy" ) + " to " + $.format.date( me.getDefaultEndDate(), "dd/MM/yyyy" ) + " at " + me.orgUnitNameTag.val() );
+				
+				me.searchResultMessageTag.text( l10n.get( "found" ) + " " + eventFoundNo + " " + l10n.get( "eventForPeriodFrom" ) + " " + $.format.date( me.getDefaultStartDate(), "dd/MM/yyyy" ) + " " + l10n.get( "to" ) + " " + $.format.date( me.getDefaultEndDate(), "dd/MM/yyyy" ) + " " + l10n.get( "at" ) + " " + me.orgUnitNameTag.val() );
 				
 				if( exeFunc != undefined ) exeFunc();
 			});
