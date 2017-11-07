@@ -321,6 +321,7 @@ function MatrixOrgunitPeriod( _orgUnitSelectionTreePopup, _TabularDEObj )
 				var ouId = keys[0];
 				var periodCode = keys[1];
 				
+				
 				var jsonOuData = {"name": ouName, "id": ouId};
 				me.searchPanel.setUp_OrgUnitMap( ouId );
 				me.searchPanel.setOrgUnitTags( jsonOuData, function(){

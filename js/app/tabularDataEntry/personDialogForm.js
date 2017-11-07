@@ -193,9 +193,16 @@ function PersonDialogForm( TabularDEObj )
 									me.personCreateUpdate_Fail_Handle( returnData );
 								}
 								else
-								{																					
-									var personId = returnData.response.reference;
-									//var personId = returnData.response.importSummaries[0].reference;
+								{	
+									var personId;
+									if( _settingForm.DHISVersion == "2.25" || _settingForm.DHISVersion == "2.26" )
+									{
+										personId = returnData.response.reference;
+									}
+									else
+									{
+										personId = returnData.response.importSummaries[0].reference;
+									}
 
 									if ( Util.checkDefined( personId ) )
 									{
@@ -548,12 +555,19 @@ function PersonDialogForm( TabularDEObj )
 
 			cntrDropdown.val( value );
 		}
-		else if( valueType == "TEXT" || valueType == "LONG_TEXT" || valueType == "NUMBER" || valueType == "LETTER" || valueType == "PHONE_NUMBER" || valueType == "EMAIL"  || valueType == "USERNAME" )
+		
+
+
+		else if( valueType == "TEXT" || valueType == "LONG_TEXT" 
+			|| valueType == "NUMBER" || valueType == "INTEGER_ZERO_OR_POSITIVE" 
+			|| valueType == "INTEGER_POSITIVE" || valueType == "INTEGER" || valueType == "PERCENTAGE"
+			|| valueType == "LETTER" || valueType == "PHONE_NUMBER" || valueType == "EMAIL"  || valueType == "USERNAME" )
 		{
 			// TODO: For now, have 'username' display as textbox <-- should be user listing
 			attributeControl = trCurrent.find( ".textbox" ).val( value ).attr( _view, _view_Yes );
 
-			if ( valueType == "NUMBER" )
+			if ( valueType == "NUMBER" || valueType == "INTEGER_ZERO_OR_POSITIVE" 
+				|| valueType == "INTEGER_POSITIVE" || valueType == "INTEGER" || valueType == "PERCENTAGE")
 			{
 				PersonUtil.setTagTypeValidation( attributeControl, "NUMBER" );
 			}

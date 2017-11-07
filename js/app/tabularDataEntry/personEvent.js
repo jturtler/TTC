@@ -1514,10 +1514,17 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 		if ( me.validateEventDEControlVal( tag ) )
 		{
 			var dataElementId = tag.closest( "td" ).attr( "DEID" );
-	
+			
 			if ( Util.checkValue( eventId ) && Util.checkValue( dataElementId ) )
 			{
 				var dataValue = me.getDataValue_FromTag( tag );
+				
+				var valType = tag.attr("valtype");
+				if( valType == "COORDINATE" )
+				{
+					dataValue = me.validCoordinatorsValue( dataValue );
+					tag.val( dataValue );
+				}
 
 				var dataElementValue = { "dataElement": dataElementId };
 
@@ -1549,6 +1556,18 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 	};
 
 
+	me.validCoordinatorsValue = function( coordinates )
+	{
+		coordinates = coordinates.replace("[", "").replace("]", "");
+		
+		if( _settingForm.DHISVersion !== undefined && _settingForm.DHISVersion !== "2.25" )
+		{
+			coordinates = "[" + coordinates + "]";
+		}
+		
+		return coordinates;
+	};
+	
 	me.validateEventDEControlVal = function( inputTag )
 	{
 		var pass = true;

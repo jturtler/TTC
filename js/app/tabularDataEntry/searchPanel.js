@@ -28,6 +28,7 @@ function SearchPanel( TabularDEObj )
 	me.executeRetrievalTag = $( '#executeRetrieval' );
 
 	me.defaultProgramRowTag = $( '#defaultProgramRow' );
+	me.defaultCategoriesRowTag = $("#defaultCategoriesRow");
 	me.defaultProgramTag = $( '#defaultProgram' );
 	me.defaultProgramNoteSpanTag = $( '#defaultProgramNote' );
 	me.personFoundNoSpanTag = $( '#personFoundNo' );
@@ -85,7 +86,7 @@ function SearchPanel( TabularDEObj )
 		return me.countryOrgUnitId;
 	}
 				
-	me.setCountryId = function( orgUnitId, ouParents )
+	me.setCountryId = function( orgUnitId, ouParents, returnFunc )
 	{
 		me.countryOrgUnitId = "";
 
@@ -104,6 +105,9 @@ function SearchPanel( TabularDEObj )
 						return false;
 					}
 				});
+				
+				
+				if( returnFunc !== undefined ) returnFunc();
 			}
 			else
 			{
@@ -121,9 +125,16 @@ function SearchPanel( TabularDEObj )
 							}
 						});
 					}
+					
+					if( returnFunc !== undefined ) returnFunc();
+								
 				});
 			}
 		}
+		else if( returnFunc !== undefined ) {
+			returnFunc();
+		}
+								
 	}
 	
 	me.setOrgUnitTags = function( orgUnit, returnFunc ) 
@@ -138,28 +149,30 @@ function SearchPanel( TabularDEObj )
 			
 			var orgUnitId = orgUnit.id;
 			me.setVisibility_Section( me.defaultProgramRowTag, true );
-
+		
 
 			// Re-retrieve the programManager based on the orgUnit
 			me.programManager.loadProgramList( orgUnitId, function(){
 				// Set the country orgUnit <--- Send object...
-				me.setCountryId( orgUnitId, orgUnit.parents );
+				me.setCountryId( orgUnitId, orgUnit.parents, function(){
+					
+					// Notify person count in the org unit
+					me.displayOrgUnitPersonCount( orgUnitId );
+
+					
+					// Setup the orgUnit Map
+					me.setUp_OrgUnitMap( orgUnitId );
+
+
+					me.defaultProgramTag.focus();
+					
+					Util.paintClear( me.orgUnitNameTag );
+					
+					
+					if( returnFunc !== undefined ) returnFunc();
+				} );
 				
 
-				// Notify person count in the org unit
-				me.displayOrgUnitPersonCount( orgUnitId );
-
-				
-				// Setup the orgUnit Map
-				me.setUp_OrgUnitMap( orgUnitId );
-
-
-				me.defaultProgramTag.focus();
-				
-				Util.paintClear( me.orgUnitNameTag );
-				
-				
-				if( returnFunc !== undefined ) returnFunc();
 			} );
 			
 		});
@@ -241,6 +254,7 @@ function SearchPanel( TabularDEObj )
 
 		// Should set as a function for reset
 		me.setVisibility_Section( me.defaultProgramRowTag, false );	
+		me.setVisibility_Section( me.defaultCategoriesRowTag, false );
 
 		me.resetSetting_PeriodAndBelow();
 	}

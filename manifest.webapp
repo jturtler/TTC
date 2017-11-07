@@ -1,7 +1,7 @@
 {
-	"version":"1.64.1"
-	,"name":"Tabular Tracker Capture - v1.64.1"
-	,"description":"Tabular Tracker Capture - v1.64.1"
+	"version":"1.65"
+	,"name":"Tabular Tracker Capture - v1.65"
+	,"description":"Tabular Tracker Capture - v1.65"
 	,"icons":{"16":null,"48":"img/icons/icon.png","128":null}
 	,"developer":{"url":"","name":"James Chang","company":null,"email":null}
 	,"launch_path":"index.html"

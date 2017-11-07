@@ -54,7 +54,10 @@ function SearchMatrixOrgUnit( MatrixObj )
 	
 	me.setRootOrgUnitAsDefault = function()
 	{
-		me.onOrgUnitSelect( me.rootData );
+		if( me.rootData != undefined )
+		{
+			me.onOrgUnitSelect( me.rootData );
+		}
 	};
 	
 	me.setUp_Events = function()

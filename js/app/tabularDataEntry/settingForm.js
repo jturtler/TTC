@@ -57,6 +57,8 @@ function SettingForm( _TabularDEObj, _matrixObj )
 	me.height = 450;
 
 	me.dbSettingName = "App_TabularData_SettingData";
+	
+	me.queryURL_DHIS_version = _queryURL_api + "system/info";
 
 	me.queryURL_orgUnitLevels = _queryURL_api + 'organisationUnitLevels.json?paging=false&fields=id,name,level';
 	me.queryURL_orgUnitGroups = _queryURL_api + 'organisationUnitGroups.json?paging=false&fields=id,name';
@@ -69,6 +71,7 @@ function SettingForm( _TabularDEObj, _matrixObj )
 	me.loadedOUGroups = false;
 	me.loadedTrackerDataElements = false;
 	me.loadedAggDataElements = false;
+	me.loadedDHISVersion = false;
 	
 	me.FormPopupSetup = function()
 	{
@@ -123,13 +126,13 @@ function SettingForm( _TabularDEObj, _matrixObj )
 					}
 					
 					// Matrix periods
-					me.settingData.specialPeriodMode = me.specificPeriodModeTag.val();
+					json_SettingData.specialPeriodMode = me.specificPeriodModeTag.val();
 					
 					// Matrix periods
-					me.settingData.thisYearMonthsPeriod = me.thisYearMonthsPeriodTag.prop("checked");
-					me.settingData.last12MonthsPeriod = me.last12MonthsPeriodTag.prop("checked");
-					me.settingData.last12WeeksPeriod = me.last12WeeksPeriodTag.prop("checked");
-					me.settingData.last12QuartersPeriod = me.last12QuartersPeriodTag.prop("checked");
+					json_SettingData.thisYearMonthsPeriod = me.thisYearMonthsPeriodTag.prop("checked");
+					json_SettingData.last12MonthsPeriod = me.last12MonthsPeriodTag.prop("checked");
+					json_SettingData.last12WeeksPeriod = me.last12WeeksPeriodTag.prop("checked");
+					json_SettingData.last12QuartersPeriod = me.last12QuartersPeriodTag.prop("checked");
 					
 					// Tracker data elements in OU Group list
 					json_SettingData.orgUnitGroups = [];
@@ -591,7 +594,7 @@ function SettingForm( _TabularDEObj, _matrixObj )
 	
 	me.afterLoadedMetaData = function()
 	{
-		if( me.loadedOUGroups && me.loadedTrackerDataElements && me.loadedAggDataElements )
+		if( me.loadedOUGroups && me.loadedTrackerDataElements && me.loadedAggDataElements && me.loadedDHISVersion )
 		{
 			me.addTrackerOrgUnitGroupRow();
 			me.populateSettingData();
@@ -771,6 +774,26 @@ function SettingForm( _TabularDEObj, _matrixObj )
 		return listTag;
 	};
 	
+	// ---------------------------------------------------------------------------------------------
+	// Get current DHIS version
+	
+	me.getDHISVersion = function()
+	{
+		RESTUtil.getAsynchData( me.queryURL_DHIS_version
+		, function( json_Data )
+		{
+			me.DHISVersion = json_Data.version;
+			me.loadedDHISVersion = true;
+			me.afterLoadedMetaData();
+		}, function()
+		{
+			me.loadedDHISVersion = true;
+			me.afterLoadedMetaData();
+		});
+		
+	}
+	 
+	
 	// Initial Setup Call
 	me.initialSetup = function()
 	{
@@ -780,7 +803,6 @@ function SettingForm( _TabularDEObj, _matrixObj )
 		me.specificPeriodChkTag.change( function(){
 			 me.viewModeOnChange();
 		} );
-		me.loadSettingDataInitially_AndCheckRequired();
 		
 		
 		var userSecurityManager = new UserSecurityManager();
@@ -801,9 +823,12 @@ function SettingForm( _TabularDEObj, _matrixObj )
 			me.loadOrgUnitGroupList();
 			me.loadAggDataElementList();
 			me.loadTrackerDataElementList();
+			me.getDHISVersion();
 			
 			me.FormPopupSetup();
 			
+			me.loadSettingDataInitially_AndCheckRequired();
+		
 			me.addProgramRuleBtnTag.click( function(){
 				me.addTrackerOrgUnitGroupRow();
 			});
