@@ -55,6 +55,12 @@ function TabularDataEntry( _orgUnitSelectionTreePopup )
 		me.searchPanel.programManager.populateProgramStages( programStageTag, programVal );
 	}
 
+	me.populateCatOptionCombos = function( catOptionTag, catOptionVal, returnFunc )
+	{
+		me.searchPanel.catOptionComboManager.populateCatOptionCombos( catOptionTag, catOptionVal, returnFunc );
+	}
+
+	
 	me.populatePrograms = function( programTag )
 	{
 		me.searchPanel.programManager.populatePrograms( programTag );
@@ -110,6 +116,11 @@ function TabularDataEntry( _orgUnitSelectionTreePopup )
 	{
 		return me.searchPanel.programManager.selectedProgram;
 	}
+	
+	me.getSelectedCategoryOptionId = function()
+	{
+		return me.searchPanel.catOptionComboManager.getSelectedCategoryOptionId();
+	}
 
 	me.getSelectedProgramType = function()
 	{
@@ -136,6 +147,11 @@ function TabularDataEntry( _orgUnitSelectionTreePopup )
 		return me.searchPanel.getDefaultEndDate();
 	}
 
+	me.createCatOptionURLParam = function( catOptionId )
+	{
+		return me.searchPanel.createCatOptionURLParam( catOptionId );
+	}
+	
 	me.isCase_ListAllPersonHistoricalEvents = function()
 	{
 		return me.searchPanel.isCase_ListAllPersonHistoricalEvents();

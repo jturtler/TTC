@@ -42,8 +42,12 @@ function MatrixOrgunitPeriod( _orgUnitSelectionTreePopup, _TabularDEObj )
 	me.completeEventExpireDaysTag = $("#completeEventExpireDays");
 	me.expiryPeriodTypeTag = $("#expiryPeriodType");
 	me.expiryDaysTag = $("#expiryDays");
-
 	
+	
+	me.defaultCatOptionTag = $("#defaultCatOption");
+	me.defaultDateRowTag = $("#defaultDateRow");
+	
+							
 	// -------------------------------------------------------------------------------------------------------
 	// On Init Setup Method	
 
@@ -329,6 +333,10 @@ function MatrixOrgunitPeriod( _orgUnitSelectionTreePopup, _TabularDEObj )
 						me.searchPanel.programManager.defaultProgramTag.val( me.programListTag.val() );
 						me.searchPanel.programTagOnChange( function(){
 							
+							// Load CatOptionCombo list by selected program
+							$(me.defaultCatOptionTag.find("option")[1]).attr('selected', 'selected');
+							
+							
 							me.searchPanel.defaultProgramRowTag.show();
 							
 							$( "input[type='radio'][name='period'][value='custom']" ).prop("checked", true);
@@ -344,6 +352,7 @@ function MatrixOrgunitPeriod( _orgUnitSelectionTreePopup, _TabularDEObj )
 							me.searchPanel.programManager.defaultProgramTag.val( me.programListTag.val() );
 							me.searchPanel.performDataRetrieval( function(){
 								
+								me.defaultDateRowTag.show();
 								me.ouMatrixSectionTag.hide();
 								me.specificPeriodSectionTag.show("fast");
 

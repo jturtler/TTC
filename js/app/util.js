@@ -305,7 +305,7 @@ Util.populateSelect_WithDefaultName = function( selectObj, selectName, json_Data
 
 		if( item.name == defaultName )
 		{
-			selectObj.append( $( '<option selected></option>' ).attr( "value", item.id ).text( item.name ) );
+			selectObj.append( $( '<option selected></option>' ).attr( "value", item.id ).text( item[defaultName] ) );
 		}
 		else
 		{

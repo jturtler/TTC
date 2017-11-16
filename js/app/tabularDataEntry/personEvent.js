@@ -18,7 +18,7 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 
 	me.buttonTemplate_Complete = "<button type='button' class='button eventComplete' style='display:none;'><span nameId='CompleteEvent'>" + l10n.get('complete') + "</span></button><button type='button' class='button eventIncomplete' style='display:none;'><span nameId='IncompleteEvent'>" + l10n.get('incomplete') + "</span></button>";
 	
-	me.trTemplate_EventRow = "<td class='orig'><input type='text' class='eventDate datepicker' caltype='upToToday' size='12'><br><span class='eventOrgUnit'></span></td>"
+	me.trTemplate_EventRow = "<td class='orig'><select class='catOption' style='margin: 1px 1px;'/><input type='text' class='eventDate datepicker' caltype='upToToday' size='12'><br><span class='eventOrgUnit'></span> </td>"
 		+ "<td class='orig'><div><select class='eventProgram' style='margin: 1px 1px;display:none;' />"
 			+	"<div class='eventProgramDiv divReadOnly'></div></div>"
 			+	"<div><select class='eventStage' style='margin: 1px 1px;'/><div class='eventStageDiv  divReadOnly'></div></div><div><button class='eventCreate button smallRoundButton' style='font-size: 10px;' >&nbsp;&nbsp;<span nameId='CreateEvent' style='font-size: 10px;'>Create</span>&nbsp;&nbsp;</button></div></td>"
@@ -102,6 +102,7 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 	{
 		var eventDate = trCurrent.find( ".eventDate" );
 		var eventStage = trCurrent.find( ".eventStage" );
+		var catOption = trCurrent.find( ".catOption" );
 		var eventCreateTag = trCurrent.find( ".eventCreate" );
 
 		// Disable the button initially
@@ -109,7 +110,7 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 
 		if ( Util.checkCalendarDateStrFormat( eventDate.val() ) )
 		{
-			if ( me.TabularDEObj.isCase_SEwoR() || eventStage.val() != '' )
+			if ( catOption.val() != '' && ( me.TabularDEObj.isCase_SEwoR() || eventStage.val() != '' ) )
 			{
 				Util.disableTag( eventCreateTag, false );
 			}
@@ -130,6 +131,7 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 		var eventProgram = trCurrent.find( ".eventProgram" );
 		var eventProgramDiv = trCurrent.find( "div.eventProgramDiv" );
 		var eventStage = trCurrent.find( ".eventStage" );
+		var catOption = trCurrent.find( ".catOption" );
 		var eventCreateTag = trCurrent.find( ".eventCreate" );
 
 
@@ -163,6 +165,24 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 			Util.disableTag( eventStage, true );					
 		}
 
+		// Populate catOption list
+		if( Util.checkValue( eventProgram.val() ) )
+		{
+			// Load CatOptionCombo list by selected program
+			me.TabularDEObj.populateCatOptionCombos( catOption, me.TabularDEObj.getSelectedCategoryOptionId() );
+			catOption.find("option[value='ALL']").remove();
+			catOption.find("option[value='" + _settingForm.defaultCatOption.id + "']").remove();
+			
+			if( me.TabularDEObj.getSelectedCategoryOptionId() == "ALL" )
+			{
+				catOption.show();
+			}
+			else
+			{
+				catOption.hide();
+			}
+		}
+		
 		// Set the event button Disable - initially
 		me.setEventCreateButtonEnable( trCurrent );
 
@@ -249,6 +269,15 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 			me.setEventCreateButtonEnable( trCurrent );
 
 			eventStage.focus();
+		});
+
+		
+		// On catOption change, check catOption value and event date value.
+		catOption.change( function() 
+		{
+			me.setEventCreateButtonEnable( trCurrent );
+
+			catOption.focus();
 		});
 
 
@@ -398,6 +427,7 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 		var eventDate = trCurrent.find( "input.eventDate" );
 		var eventProgram = trCurrent.find( "select.eventProgram" );
 		var eventStage = trCurrent.find( "select.eventStage" );
+		var catOption = trCurrent.find( "select.catOption" );
 		//var eventStatus = trCurrent.find( "span.eventStatus" );
 
 		var eventDel = trCurrent.find( "input.eventDelete" );
@@ -410,8 +440,11 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 
 		// Need to check if the program Stage has (programStages.captureCoordinates 
 
-		var json_Data = {"program": eventProgram.val(), "programStage": eventStage.val(),"orgUnit": orgUnitUid, "eventDate": eventDateInFormat, "coordinate": {}, "status": _status_ACTIVE };
+		var json_Data = {"program": eventProgram.val(), "programStage": eventStage.val(),"orgUnit": orgUnitUid, "eventDate": eventDateInFormat, "coordinate": {}, "status": _status_ACTIVE, "attributeCategoryOptions" : catOption.val() };
 
+		// Disable catOption selector
+		var catOption = trCurrent.find( ".catOption" );
+		Util.disableTag( catOption, true );
 
 		if ( me.TabularDEObj.isCase_SEwoR() )
 		{
@@ -624,6 +657,7 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 				addNewEventRowButton.show();
 			}
 		}
+		
 	};
 	
 	me.getEventStatus = function( event )
@@ -688,8 +722,6 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 		me.setStatusRelated( trCurrent, json_Event, selectedStageId );
 
 	}
-
-	
 
 	me.eventDelete = function( trCurrent, eventUid )
 	{		
@@ -803,6 +835,10 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 						Util.disableTag( $(this), false );
 					});
 						
+					// Disable catOption dropbox
+					var catOption = trCurrent.find( ".catOption" );
+					Util.disableTag( catOption, true );
+					
 					// Find the next tabbing tag first.
 					var nextTabTag = EventUtil.getNextRowFocus_Event( trCurrent );
 
@@ -813,6 +849,7 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 					{
 						nextTabTag.focus();
 					}
+					
 				}
 			);
 		}
@@ -975,7 +1012,7 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 
 
 	// To be executed by 'Populate' button. - if Program is SEwoR.
-	me.retrieveAndPopulateEvents = function( tableCurrent, execFunc )
+	/* me.retrieveAndPopulateEvents = function( tableCurrent, execFunc )
 	{
 		// Step 1. Clear the person/event data table
 		me.clearEventList();
@@ -1014,9 +1051,78 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 		, DialogLoading.open
 		, DialogLoading.close					
 		);	
+	} */
+
+	// To be executed by 'Populate' button. - if Program is SEwoR.
+	me.retrieveAndPopulateEvents = function( tableCurrent, execFunc )
+	{
+		// Step 1. Clear the person/event data table
+		me.clearEventList();
+		me.eventList = [];
+		
+		if( me.TabularDEObj.getSelectedCategoryOptionId() == "ALL" )
+		{
+			var categoryOptions = JSON.parse(JSON.stringify(me.TabularDEObj.getSelectedProgram().categoryOptions));
+			categoryOptions.push( _settingForm.defaultCatOption );
+			me.catOptionTotal = categoryOptions.length;
+			me.catOptionEventIdx = 0;
+			
+			for( var i in categoryOptions )
+			{
+				var catOptId = categoryOptions[i].id;
+				me.retrieveEvents( catOptId, tableCurrent, execFunc );	
+			}
+		}
+		else
+		{
+			me.catOptionTotal = 1;
+			me.catOptionEventIdx = 0;
+			me.retrieveEvents( undefined, tableCurrent, execFunc );	
+		}
 	}
+	
+	
+	me.retrieveEvents = function( catOptionId, tableCurrent, execFunc )
+	{
+		var requestUrl = me.getEventsSearchUrl( undefined, catOptionId );
+		
+		RESTUtil.getAsynchData( requestUrl, function( json_Events )
+		{
+			if ( Util.checkDataExists( json_Events.events ) )
+			{
+				me.eventList = me.eventList.concat( json_Events.events );
+			}
+			
+			me.catOptionEventIdx++;
+			if( me.catOptionEventIdx == me.catOptionTotal )
+			{
+				var json_EventList_Sorted = Util.sortByKey( me.eventList, "eventDate" );
 
+				me.populateEvents( undefined, tableCurrent, json_EventList_Sorted );
 
+				var foundNo = json_Events.events.length;
+				if ( foundNo == 0 )
+				{
+					// Create the new event row - simply get basic info
+					me.addNewLastRow_Event( undefined, me.mainEventTableTag, me.TabularDEObj.getSelectedProgramId() );
+				}
+
+				execFunc( foundNo );
+			}
+
+		}
+		, function( failed_Message )
+		{
+			execFunc( "0" );					
+
+			alert( $( 'span.msg_EventRetrievalFailed' ).text() + '\n\n Error: ' + JSON.stringify( failed_Message ) );
+
+		}
+		, DialogLoading.open
+		, DialogLoading.close					
+		);
+	}
+	
 	// =========================================================
 	// Populate Event Column Related
 
@@ -1708,9 +1814,9 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 
 
 	// Event Search from default setting - populate
-	me.getEventsDefaultPopulate_SearchUrl = function()
+	me.getEventsDefaultPopulate_SearchUrl = function( catOptionId )
 	{				
-		return me.buildSearchURLByParameter( me.TabularDEObj.getEventQueryBaseUrl() );
+		return me.buildSearchURLByParameter( me.TabularDEObj.getEventQueryBaseUrl(), catOptionId );
 	}
 
 	
@@ -1720,12 +1826,13 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 	}
 
 
-	me.buildSearchURLByParameter = function( baseURL )
+	me.buildSearchURLByParameter = function( baseURL, catOptionId )
 	{
 		var orgUnitId = me.TabularDEObj.getOrgUnitId();
 		var programId = me.TabularDEObj.getSelectedProgramId();
 		var startDate = me.TabularDEObj.getDefaultStartDate();
 		var endDate = me.TabularDEObj.getDefaultEndDate();
+		var catOptionURLParam = me.TabularDEObj.createCatOptionURLParam( catOptionId );
 		
 		var searchAllProgramStr = "";
 
@@ -1737,15 +1844,15 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 		return baseURL 
 		+ '&orgUnit=' + orgUnitId 
 		+ '&startDate=' + $.format.date( startDate, _dateFormat_YYYYMMDD_Dash ) 
-		+ '&endDate=' + $.format.date( endDate, _dateFormat_YYYYMMDD_Dash ) 
+		+ '&endDate=' + $.format.date( endDate, _dateFormat_YYYYMMDD_Dash )  
+		+ '&' + catOptionURLParam 
 		+ searchAllProgramStr; 
 	}
 
 	
-	me.getEventsSearchUrl = function( personId )
+	me.getEventsSearchUrl = function( personId, catOptionId )
 	{
 		var returnUrl = "";
-
 
 		// If list All perosn historical events flag is set, remove the date/program/orgUnit filter.
 		if ( me.TabularDEObj.isCase_ListAllPersonHistoricalEvents() && me.TabularDEObj.isCase_MEwR() )
@@ -1754,7 +1861,7 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 		}
 		else
 		{
-			returnUrl = me.getEventsDefaultPopulate_SearchUrl();
+			returnUrl = me.getEventsDefaultPopulate_SearchUrl( catOptionId );
 		}
 
 		if ( Util.checkValue( personId ) )
@@ -1841,6 +1948,8 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 
 		// -----------------------------------------------
 		// --- STEP 1. Populate first 3 row - Event date, program, stage
+		
+		var eventCatOption = trCurrent.find( "select.catOption" );
 		var eventDate = trCurrent.find( "input.eventDate" );
 		var eventOrgUnit = trCurrent.find( "span.eventOrgUnit" );
 		var eventProgram = trCurrent.find( "select.eventProgram" );
@@ -1855,6 +1964,12 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 			// Check if the selected event date is in the range			
 			me.checkDateEventOutOfDateRange( eventDate );
 		}
+		
+		// Add default catOption for existing event 
+		// , just in case a default event created before a catOptionCombo is added for program 
+		eventCatOption.append( "<option value='" + _settingForm.defaultCatOption.id + "'>" + _settingForm.defaultCatOption.displayName + "</option>" );
+		eventCatOption.val( item_event.attributeCategoryOptions );
+		Util.disableTag( eventCatOption, true );
 		
 		// Select Program/ProgramStages <-- if not in select option, add one.
 		Util.selectOption_WithOptionalInsert( eventProgram, item_event.program, me.TabularDEObj.getProgramList_Full(), "displayName" );

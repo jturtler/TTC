@@ -28,9 +28,12 @@ function SearchPanel( TabularDEObj )
 	me.executeRetrievalTag = $( '#executeRetrieval' );
 
 	me.defaultProgramRowTag = $( '#defaultProgramRow' );
-	me.defaultCategoriesRowTag = $("#defaultCategoriesRow");
 	me.defaultProgramTag = $( '#defaultProgram' );
 	me.defaultProgramNoteSpanTag = $( '#defaultProgramNote' );
+	
+	me.defaultCatOptionTag = $("#defaultCatOption");
+	me.defaultCatOptionRowTag = $("#defaultCatOptionRow");
+	
 	me.personFoundNoSpanTag = $( '#personFoundNo' );
 	me.personList_DescSpanTag = $( '#personList_Desc' );
 
@@ -49,6 +52,7 @@ function SearchPanel( TabularDEObj )
 	
 	// Set program manager
 	me.programManager = new ProgramManager( me.TabularDEObj, me.defaultProgramTag );
+	me.catOptionComboManager = new CatOptionComboManager( me.TabularDEObj );
 
 	me.defaultProgram_TEA_Manager = new DefaultProgram_TEA_Manager();
 
@@ -163,7 +167,6 @@ function SearchPanel( TabularDEObj )
 					// Setup the orgUnit Map
 					me.setUp_OrgUnitMap( orgUnitId );
 
-
 					me.defaultProgramTag.focus();
 					
 					Util.paintClear( me.orgUnitNameTag );
@@ -254,11 +257,15 @@ function SearchPanel( TabularDEObj )
 
 		// Should set as a function for reset
 		me.setVisibility_Section( me.defaultProgramRowTag, false );	
-		me.setVisibility_Section( me.defaultCategoriesRowTag, false );
-
+		
+		me.resetSetting_CatOptionComboAndBelow();
+	}
+	
+	me.resetSetting_CatOptionComboAndBelow = function()
+	{
+		me.setVisibility_Section( me.defaultCatOptionRowTag );
 		me.resetSetting_PeriodAndBelow();
 	}
-
 
 	me.resetSetting_PeriodAndBelow = function()
 	{
@@ -310,10 +317,12 @@ function SearchPanel( TabularDEObj )
 		if( !visible )
 		{
 			sectionTag.slideUp( 400 );
+			sectionTag.hide();
 		}
 		else
 		{
 			sectionTag.slideDown( 400 );
+			sectionTag.show();
 		}
 	}
 
@@ -769,6 +778,27 @@ function SearchPanel( TabularDEObj )
 	}
 
 
+	me.createCatOptionURLParam = function( catOptionId )
+	{
+		var selectedCatOptionId = ( catOptionId == undefined ) ? me.defaultCatOptionTag.val() : catOptionId;
+		
+		if( selectedCatOptionId == "ALL" )
+		{
+			return "";
+		}
+		else if( selectedCatOptionId == _settingForm.defaultCatOption.id )
+		{
+			return "attributeCc=" + _settingForm.defaultCatCombo.id + "&attributeCos=" + _settingForm.defaultCatOption.id;
+		}
+		
+		return "attributeCc=" + me.programManager.selectedProgram.categoryComboId + "&attributeCos=" + selectedCatOptionId;
+	}
+	
+	me.getDefaultCatOption = function()
+	{
+		return me.defaultCatOptionTag.val();
+	}
+	
 	me.setDefaultDatePeriod_Related = function()
 	{
 
@@ -819,10 +849,21 @@ function SearchPanel( TabularDEObj )
 
 	me.setDefaultProgramTag_Change = function()
 	{
-
 		me.defaultProgramTag.change( function() 
 		{
-			me.programTagOnChange();
+			// me.resetSetting_CatOptionComboAndBelow();
+			me.programTagOnChange(function(){
+				// me.defaultCatOptionTag.change();
+			});
+		});
+		
+		me.defaultCatOptionTag.change( function() 
+		{
+			me.resetSetting_PeriodAndBelow();
+			if( me.defaultCatOptionTag.val() != "" )
+			{
+				me.setVisibility_Section( me.defaultDateRowTag, true );
+			}
 		});
 	}
 
@@ -833,8 +874,8 @@ function SearchPanel( TabularDEObj )
 
 		me.defaultProgramNoteSpanTag.text( '' );
 
-		me.resetSetting_PeriodAndBelow();
-
+		me.resetSetting_CatOptionComboAndBelow();
+		
 		var selectedProgramId = me.defaultProgramTag.val();
 		me.programManager.setSelectedProgram( selectedProgramId );
 
@@ -842,27 +883,35 @@ function SearchPanel( TabularDEObj )
 		{
 			me.defaultProgramNoteSpanTag.text( '*Please select a program.' );
 			Util.paintAttention( me.defaultProgramTag );
+			
 			if( exeFunc != undefined ) exeFunc();
 
 			//me.setStatus_PopulateButton();					
 		}
 		else
 		{
-
 			Util.paintClear( me.defaultProgramTag );
-		
-			me.setVisibility_Section( me.defaultDateRowTag, true );
+			var selectedProgram = me.TabularDEObj.getSelectedProgram();
+			// Load CatOptionCombo list by selected program
+			me.TabularDEObj.populateCatOptionCombos( me.defaultCatOptionTag, undefined, function(){
+				var catOptNo = me.defaultCatOptionTag.find("option").length;
+				if( catOptNo == 2 )
+				{
+					me.setVisibility_Section( me.defaultCatOptionRowTag, false );
+					me.setVisibility_Section( me.defaultDateRowTag, true );
+				}
+				else
+				{
+					me.setVisibility_Section( me.defaultCatOptionRowTag, true );
+				}
+				
+			} );
+
+			// Preload program stage data elements data before actual loading of events list.
+			me.preloadProgramStageDataElementsData( selectedProgramId );
 
 			DialogLoading.openWithCallback( function()
 			{ 
-
-				var selectedProgram = me.TabularDEObj.getSelectedProgram();
-
-
-				// Preload program stage data elements data before actual loading of events list.
-				me.preloadProgramStageDataElementsData( selectedProgramId );
-
-
 				// Store the person attributes of the program - to be placed in person table columns (th)
 				me.retrieveProgramPersonAttributeData( selectedProgramId
 					, function( programTrackedEntityAttributes )
@@ -890,21 +939,23 @@ function SearchPanel( TabularDEObj )
 							//me.setVisibility_MainSectionDiv( true );
 						}
 
-
 						//me.setStatus_PopulateButton();
 
 						DialogLoading.close();
 
 						//me.defaultProgramTag.focus();
+						
 
 						$( 'input:radio[name="period"]')[0].focus();
-
+						
+						
+						// me.defaultCatOptionTag.change();
+			
 						if( exeFunc != undefined ) exeFunc();
 					}
 
 				);
 		
-
 			});
 
 		}

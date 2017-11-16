@@ -68,9 +68,9 @@ function ProgramManager( TabularDEObj, defaultProgramTag )
 
 			// program Rules and Variables 
 			me.TabularDEObj.programRule.RetrieveAndSet_ProgramRulesAndVariables( me.selectedProgram );
+			
 		}
 	};
-
 
 	me.getSelectedProgramType = function()
 	{
@@ -127,7 +127,7 @@ function ProgramManager( TabularDEObj, defaultProgramTag )
 		if ( me.programList !== undefined )
 		{
 			$.each( me.programList, function( i, item ) {
-				selectTag.append("<option value='" + item.id + "' peType='" + item.expiryPeriodType + "' expiryDays='" + item.expiryDays + "' completeEventsExpiryDays='" + item.completeEventsExpiryDays + "'>" + item.name + "</option>");
+				selectTag.append("<option value='" + item.id + "' peType='" + item.expiryPeriodType + "' expiryDays='" + item.expiryDays + "' completeEventsExpiryDays='" + item.completeEventsExpiryDays + "' >" + item.name + "</option>");
 			});
 		}
 	}
@@ -213,8 +213,7 @@ function ProgramManager( TabularDEObj, defaultProgramTag )
 
 	me.retrieveProgram_ProgramList = function( orgUnitId, populateFunc )
 	{
-		var queryUrl = _queryURL_OrgUnit + "/" + orgUnitId + ".json?fields=id,programs[id,displayName,programType,expiryPeriodType,expiryDays,completeEventsExpiryDays]";
-
+		var queryUrl = _queryURL_OrgUnit + "/" + orgUnitId + ".json?fields=id,programs[id,displayName,programType,expiryPeriodType,expiryDays,completeEventsExpiryDays,categoryCombo[id,categories[categoryOptions[id,displayName]]]]";
 
 		RESTUtil.getAsynchData( queryUrl, function ( json_ProgramList )
 		{
@@ -236,15 +235,17 @@ function ProgramManager( TabularDEObj, defaultProgramTag )
 								, "expiryPeriodType" : item_program.expiryPeriodType 
 								, "expiryDays" : item_program.expiryDays
 								, "completeEventsExpiryDays" : item_program.completeEventsExpiryDays
-								, "programStages":  me.getProgramStageList_FromSource( item_program.id, json_programListWithStage_Full ) } );
-
-							//console.log( 'adding programStage to program' );
+								, "programStages":  me.getProgramStageList_FromSource( item_program.id, json_programListWithStage_Full ) 
+								, "categoryComboId":  item_program.categoryCombo.id
+								, "categoryOptions" : item_program.categoryCombo.categories[0].categoryOptions
+							} );
 
 						});
 
 						QuickLoading.dialogShowRemove( 'programLoading' );
 
 						populateFunc( Util.sortByKey( programList_Temp, "name" ) );
+						
 					} 
 				);							
 			}

@@ -59,19 +59,23 @@ function SettingForm( _TabularDEObj, _matrixObj )
 	me.dbSettingName = "App_TabularData_SettingData";
 	
 	me.queryURL_DHIS_version = _queryURL_api + "system/info";
+	me.queryURL_defaultCatOption = _queryURL_api + "categoryCombos.json?filter=name:eq:default&fields=id,displayName,categories[categoryOptions[id,displayName]]";
 
 	me.queryURL_orgUnitLevels = _queryURL_api + 'organisationUnitLevels.json?paging=false&fields=id,name,level';
 	me.queryURL_orgUnitGroups = _queryURL_api + 'organisationUnitGroups.json?paging=false&fields=id,name';
-	me.queryURL_trackedDataElements = _queryURL_api + 'dataElements.json?paging=false&fields=id,name,domainType,dataSetElements[dataSet[id]]'; // TRACKER
-	me.queryURL_aggregateDataElements = _queryURL_api + 'dataSets/XURYYYvxH9z.json?fields=dataSetElements[dataElement[id,name,domainType]]'; // AGGEGATE
+	me.queryURL_trackedDataElements = _queryURL_api + 'dataElements.json?paging=false&fields=id,displayName,domainType,dataSetElements[dataSet[id]]'; // TRACKER
+	me.queryURL_aggregateDataElements = _queryURL_api + 'dataSets/XURYYYvxH9z.json?fields=dataSetElements[dataElement[id,displayName,domainType]]'; // AGGEGATE
 
 	me.settingData;
 	me.ouGroupList = [];
-	me.dataElementList = [];
+	me.DHISVersion;
+	me.defaultCatOption;
+	me.defaultCatCombo;
 	me.loadedOUGroups = false;
 	me.loadedTrackerDataElements = false;
 	me.loadedAggDataElements = false;
 	me.loadedDHISVersion = false;
+	me.loadedDefaultCatOptionCombo = false;
 	
 	me.FormPopupSetup = function()
 	{
@@ -558,7 +562,7 @@ function SettingForm( _TabularDEObj, _matrixObj )
 		RESTUtil.getAsynchData( me.queryURL_trackedDataElements
 		, function( json_Data )
 		{
-			me.trackerDataElementList = Util.sortByKey( json_Data.dataElements, "name" );
+			me.trackerDataElementList = Util.sortByKey( json_Data.dataElements, "displayName" );
 			me.loadedTrackerDataElements = true;
 			me.afterLoadedMetaData();
 		}
@@ -580,7 +584,7 @@ function SettingForm( _TabularDEObj, _matrixObj )
 				me.aggDataElementList.push( json_Data.dataSetElements[i].dataElement );
 			}
 			
-			me.aggDataElementList = Util.sortByKey( me.aggDataElementList, "name" );
+			me.aggDataElementList = Util.sortByKey( me.aggDataElementList, "displayName" );
 			me.loadedAggDataElements = true;
 			me.afterLoadedMetaData();
 		}
@@ -594,7 +598,7 @@ function SettingForm( _TabularDEObj, _matrixObj )
 	
 	me.afterLoadedMetaData = function()
 	{
-		if( me.loadedOUGroups && me.loadedTrackerDataElements && me.loadedAggDataElements && me.loadedDHISVersion )
+		if( me.loadedOUGroups && me.loadedTrackerDataElements && me.loadedAggDataElements && me.loadedDHISVersion && me.loadedDefaultCatOptionCombo )
 		{
 			me.addTrackerOrgUnitGroupRow();
 			me.populateSettingData();
@@ -744,7 +748,7 @@ function SettingForm( _TabularDEObj, _matrixObj )
 
 		$.each( list, function( i, item ) {
 
-			listTag.append( $( '<option></option>' ).attr( "value", item.id ).text( item.name ) );
+			listTag.append( $( '<option></option>' ).attr( "value", item.id ).text( item.displayName ) );
 		});
 		
 		return listTag;
@@ -767,7 +771,7 @@ function SettingForm( _TabularDEObj, _matrixObj )
 		$.each( list, function( i, item ) {
 			if( item.domainType == domainType )
 			{
-				listTag.append( $( '<option></option>' ).attr( "value", item.id ).text( item.name ) );
+				listTag.append( $( '<option></option>' ).attr( "value", item.id ).text( item.displayName ) );
 			}
 		});
 		
@@ -791,8 +795,32 @@ function SettingForm( _TabularDEObj, _matrixObj )
 			me.afterLoadedMetaData();
 		});
 		
+	};
+	
+	// ---------------------------------------------------------------------------------------------
+	// Get Default CatOption
+	
+	me.getDefaultCatOptionCombo = function()
+	{
+		RESTUtil.getAsynchData( me.queryURL_defaultCatOption
+		, function( json_Data )
+		{
+			me.defaultCatOption = json_Data.categoryCombos[0].categories[0].categoryOptions[0];
+			
+			me.defaultCatCombo = {
+				"id" : json_Data.categoryCombos[0].id
+			};
+	
+			me.loadedDefaultCatOptionCombo = true;
+			me.afterLoadedMetaData();
+		}, function()
+		{
+			me.loadedDefaultCatOptionCombo = true;
+			me.afterLoadedMetaData();
+		});
+		
 	}
-	 
+	
 	
 	// Initial Setup Call
 	me.initialSetup = function()
@@ -824,6 +852,7 @@ function SettingForm( _TabularDEObj, _matrixObj )
 			me.loadAggDataElementList();
 			me.loadTrackerDataElementList();
 			me.getDHISVersion();
+			me.getDefaultCatOptionCombo();
 			
 			me.FormPopupSetup();
 			

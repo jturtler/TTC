@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Tabular Tracker Capture</title>
+<meta charset="UTF-8">
+
+<script> var _jsIncludeDate = Date.now(); </script>
+
+	<!-- Credit: 
+		'webL10n' - implemented by Victor Garcia, vgarciabnz@gmail.com
+	-->
+	<script src="js/jQuery/jquery-1.11.1.min.js"></script>
+	<script src="js/jQuery/jquery-ui.min.js"></script>
+	<script src="js/jQuery/jquery.ui.core.js"></script>
+	<script src="js/jQuery/jquery.ui.widget.js"></script>
+	<script src="js/jQuery/jquery.ui.datepicker.js"></script>
+	<script src="js/jQuery/jquery.dateFormat-1.0.js"></script>
+	<script src="js/jQuery/jquery.watermark.js"></script>
+	<script src="js/jQuery/jquery.cookie.js"></script>
+	<script src="js/jQuery/jquery.blockUI.js"></script>
+	<script src="js/moment.min.js"></script>
+
+	<script src="js/gmap3/gmap3.min.js"></script> 
+	<script src="js/gmap3/gmap3-menu.js"></script>
+
+	<script src="js/app/dialogLoading.js"></script>
+	<script> document.write("<script src='js/app/util.js?v=" + _jsIncludeDate + "'><\/script>"); </script>
+	<script src="js/app/RESTUtil.js"></script>
+	
+	<link rel="stylesheet" href="css/jQuery/jquery.ui.all.css">
+	<link rel="stylesheet" href="css/jQuery/jquery-ui.css" />
+	<link rel="stylesheet" href="css/gmap3/gmap3-menu.css" />
+	<link rel="stylesheet" href="css/app/style.css">
+
+	<link rel="resource" type="application/l10n" href="locales/locales.ini" />
+	<script src="js/l10n.js"></script>
+	
+
+	<!-- URL addresses (Dhis site, home, api) -->
+	<script>
+
+		// ------------------------------------
+		// *** DHIS AppStore Deploy Version ***
+		// -- App Manifest Json (Get this via Synch, so that it is defined ahead)
+		var _appManifest = $.parseJSON( RESTUtil.getSynchData( 'manifest.webapp' ) );
+		// -- URLs
+		var _dhisSiteURL = _appManifest.activities.dhis.href.replace( '/dhis-web-maintenance-appmanager', '' ) + '/';
+		// ------------------------------------
+
+		// -------------------
+		// *** PSI Version ***
+		//var _dhisSiteURL = "../../";
+		// -------------------
+
+		var _dhisHomeURL = _dhisSiteURL + 'dhis-web-dashboard-integration/index.action';
+
+		var _queryURL_api = _dhisSiteURL + 'api/';
+
+		var _queryURL_me = _queryURL_api + "me";
+
+		var _queryURL_systemInfo = _queryURL_api + "system/info"
+
+		var _queryURL_appTitle = _queryURL_api + 'systemSettings?key=applicationTitle';
+
+		var _queryURL_OrgUnit = _queryURL_api + "organisationUnits";
+
+		var _queryURL_Program = _queryURL_api + "programs/";
+		var _queryURL_ProgramList = _queryURL_api + "programs.json";
+		var _queryURL_ProgramStages = _queryURL_api + "programStages";
+		var _queryURL_DataElementDetail = _queryURL_api + "dataElements/";
+		var _queryURL_OptionSets = _queryURL_api + "optionSets/";
+
+		var _queryURL_ProgramStageInstance = _queryURL_api + "events/"; 
+
+		var _queryURL_PersonSubmit = _queryURL_api + "trackedEntityInstances";
+		var _queryURL_PersonQuery = _queryURL_api + "trackedEntityInstances"; 
+
+		var _queryURL_PersonAttributes = _queryURL_api + "trackedEntityAttributes.json?paging=false&viewClass=detail&fields=id,displayName,valueType,optionSetValue,optionSet[id,displayName,options[id,code,displayName]]";
+
+		var _queryURL_TrackedEntities = _queryURL_api + "trackedEntities";
+
+		var _queryURL_Enrollments = _queryURL_api + "enrollments.json?ouMode=ACCESSIBLE";
+		var _queryURL_EventQuery = _queryURL_api + "events.json?paging=false&skipPaging=true";
+		var _queryURL_EventSubmit = _queryURL_api + "events";
+
+		var _queryURL_TEIFromEventQuery = _queryURL_api + "events/eventRows.json?paging=false&skipPaging=true";
+
+		var _queryURL_ProgramEnrollmentSubmit = _queryURL_api + "enrollments";
+		var _queryURL_ProgramEnrollmentQuery = _queryURL_api + "enrollments.json";
+
+		var _queryURL_ProgramRules = _queryURL_api + "programRules";
+		var _queryURL_ProgramRuleVariables = _queryURL_api + "programRuleVariables";
+
+		var _queryURL_PersonDataValidate = _dhisSiteURL + "dhis-web-caseentry/validateTrackedEntityInstance.action";
+
+	</script>
+
+
+	<!-- OrgUnit Tree Related -->
+	<script type="text/javascript" src="js/DHIS/oust_v2.js"></script>
+
+	<script src="js/app/settings/dbSetting.js"></script>
+	
+	<script src="js/app/tabularDataEntry/tabularDataEntry.js"></script>
+	<script> document.write("<script src='js/app/tabularDataEntry/searchPanel.js?v=" + _jsIncludeDate + "'><\/script>"); </script>
+	
+	<script src="js/app/tabularDataEntry/defaultProgramTEAManager.js"></script>
+	<script src="js/app/tabularDataEntry/programManager.js"></script>	
+	<script src="js/app/tabularDataEntry/personList.js"></script>
+	<script src="js/app/tabularDataEntry/personEvent.js"></script>
+	<script src="js/app/tabularDataEntry/dataInMemory.js"></script>
+	<script src="js/app/tabularDataEntry/programRule.js"></script>
+	<script src="js/app/tabularDataEntry/personDialogForm.js"></script>
+	<script src="js/app/settings/userSecurityManager.js"></script>
+	<script src="js/app/tabularDataEntry/settingForm.js"></script>
+	<script src="js/app/tabularDataEntry/orgUnitSelectionTreePopup.js"></script>
+	<script src="js/app/tabularDataEntry/orgUnitMapPopup.js"></script>
+	<script src="js/app/tabularDataEntry/dataElementOrguUnitPopup.js"></script>
+	<script src="js/app/tabularDataEntry/dataSetValues.js"></script>
+	<script src="js/app/orgunit/orgUnitHierarchy.js"></script>
+	<script src="js/app/tabularDataEntry/period/weekly.js"></script>
+	<script src="js/app/tabularDataEntry/period/monthly.js"></script>
+	<script src="js/app/tabularDataEntry/util/appUtil.js"></script>
+	
+	
+	<script src="js/app/matrixOrgUnit/relativePeriod.js"></script>
+	<script src="js/app/matrixOrgUnit/searchMatrixOrgUnit.js"></script>
+	<script src="js/app/matrixOrgUnit/matrixOrgunitPeriod.js"></script>
+
+	<!-- Main App Coding -->
+	<script>
+	
+		// Global variables/objects
+
+		// -- Static definitions
+		var _Success = 1;
+		var _Fail = 0;
+
+		var _dateFormat_Picker_YYMMDD = "yy/mm/dd";
+		var _dateFormat_Picker_YYMMDD_Dash = "yy-mm-dd";
+		var _dateFormat_YYYYMMDD = "yyyy/MM/dd";
+		var _dateFormat_YYYYMMDD_Dash = "yyyy-MM-dd";
+		
+		var _dateFormat_DDMMMYYYY = "dd MMM yyyy";
+
+		var _status_ACTIVE = "ACTIVE";
+		var _status_CANCELLED = "CANCELLED";
+		var _status_COMPLETED = "COMPLETED";
+		var _status_ALL = "";
+
+		var _view = 'view';
+		var _view_Yes = 'y';
+
+
+		// -- Instances and variables
+		var _today = new Date();
+
+		var _orgUnitSelectionTreePopup;
+		var _TabularDEObj;
+		var _matrixOrgunitPeriod;
+		var _settingForm;
+
+		var _weekStartDate;
+		var _weekEndDate;
+
+		var l10n;
+		var _appInitialized = false;
+		var _userLanguage;
+
+		var _deploymentManagerId = 'jamesc'; // userID for some feature on 'Setting' popup - 'latest version number update / 'incomplete' event user role'
+
+
+		// =========================================================
+		// On localization and page load run
+		
+		// This method is called when localization and page are loaded
+		document.webL10n.ready( function() 
+		{
+			l10n = document.webL10n;
+
+			if( _userLanguage == null ) {
+
+				// First call to document.webL10n.ready
+				DHISUtil.retrieveUserAccount( function( json_data ) 
+				{
+					_userLanguage = json_data.settings.keyUiLocale;
+					l10n.setLanguage(_userLanguage);
+				});
+
+			} else if ( !_appInitialized ){
+				// Second call to document.webL10n.ready
+
+				// Loading message popup initial setup 
+				DialogLoading.initialSetup();
+
+				MsgManager.initialSetup();
+
+				// Alert User if some cached files are out of synch.
+				AppUtil.CheckCachedFileSynch();
+
+				// DHIS system related value set
+				DHISUtil.retrieveAndSet_DHISData();
+
+				// Pre-retrieve User Info - so same retrieval afterwards reuse this from memory
+				DHISUtil.preRetrieve_UserInfo();
+
+				// Main class create/run
+				
+				_orgUnitSelectionTreePopup = new OrgUnitSelectionTreePopup();
+				
+				_TabularDEObj = new TabularDataEntry( _orgUnitSelectionTreePopup );
+				
+				_matrixOrgunitPeriod = new MatrixOrgunitPeriod( _orgUnitSelectionTreePopup, _TabularDEObj );
+				
+				// App Setting Form Popup
+				_settingForm = new SettingForm( _TabularDEObj, _matrixOrgunitPeriod );
+				
+				_appInitialized = true;
+			} 
+		
+		});
+
+
+		
+		// -------------------------------------------
+		// -- ProgramRuleUtil Static Classes
+		
+		function ProgramRuleUtil() {}
+
+		ProgramRuleUtil.checkProgramRuleData = function( areaTag )
+		{
+			var pass = true;
+
+			// Program Rule error case occurances
+			if ( areaTag.find( "img.ruleError" ).length > 0 )
+			{
+				pass = false;
+				alert( $( 'span.msg_ProgramRuleError' ).text() );
+			}
+
+			return pass;
+		};
+
+
+		function GMapHelper() {}
+		GMapHelper.hasLoaded = false;
+		GMapHelper.loadScript = function( callBack_Str, callBack ) 
+		{
+			if ( GMapHelper.hasLoaded )
+			{
+				callBack();
+			}
+			else
+			{
+				var script = document.createElement('script');
+
+				script.type = 'text/javascript';
+
+				script.src = 'https://maps.googleapis.com/maps/api/js?key=AIzaSyB0wy06coUW9kJYWXA8Gqh-hBkBB17odLw&sensor=true&libraries=geometry&callback=' + callBack_Str;
+
+				document.body.appendChild(script);
+
+				GMapHelper.hasLoaded = true;
+			}
+		}
+	</script>
+
+</head>
+
+<body>
+
+	<div id="dialog-loading" style="display:none;">
+		<table border="0" cellpadding="0" cellspacing="0" align="right" valign="top">
+		<tr>
+		<td><a id="forceClose" href="" style="color:Tomato;font-size:75%;">[X]</a></td>
+		</tr>
+		</table>
+		<table border="0" cellpadding="0" cellspacing="0" width="180px" height="100%" align="center" valign="middle">
+			<tr valign="middle">
+				<td height="50px" valign="middle" align="right">
+					<img src="img/loading_big_blue.gif" alt="Loading" />
+				</td>
+				<td height="50px" valign="middle" align="left" style="font-size: medium;">
+					&nbsp;&nbsp;- 
+				</td>
+				<td data-l10n-id="loading" height="50px" valign="middle" align="left" style="font-size: medium;">
+				</td>
+			</tr>
+		</table>
+	</div>
+
+	<div id="personDialogForm" class="ui-widget" style="margin:0; padding:0; display:none;">
+		<b><span data-l10n-id="personInfo" nameId='PersonInfo' ></span></b>
+
+		<div style="margin: 3px; padding: 4px 7px; border: solid 1px #888;">
+			<table id="person_Table" class="tbTEIDetail" style="width:100%;">
+			</table>
+		</div>
+		
+		<input id="person_Result" type="hidden" />
+		<input id="person_formType" type="hidden" />
+		<input id="person_id" type="hidden" />
+	</div>		
+
+	<div id="orgUnitMapDialogForm" class="ui-widget" style="margin:0;padding:0;">
+		<div id="orgUnitMapBig" class="gmap3"></div>
+	</div>
+
+	<div id="orgUnitSelectionTreeDialogForm" class="ui-widget" style="margin:0;padding:0;display:none;">
+		<table style="padding: 0; margin: 0;">
+			<thead>
+				<tr>
+					<td>
+						<select id="treeSelectedId" name="treeSelectedId" multiple="multiple" style="display:none"/>
+					</td>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td>											
+						<div id="selectionTree"></div>	
+					</td>
+				</tr>
+			</tbody>
+		</table>
+
+	</div>
+
+	<div id="settingDialogForm" class="ui-widget" style="margin:0;padding:0;display:none;">
+		<b><span data-l10n-id="appSetting" nameId='SettingFormTitle'></span></b>
+		
+		<div id="settingDialogTabs">
+		  <ul>
+			<li><a href="#tabs-1" data-l10n-id="settings_general">General</a></li>
+			<li><a href="#tabs-2" data-l10n-id="settings_programRules">Program Rules</a></li>
+			<li><a href="#tabs-3" data-l10n-id="settings_dataSets">Data Sets</a></li>
+		  </ul>
+		  <div id="tabs-1">
+			<table id="setting_Table" class="listTable" style="width:95%;">
+				<tr>
+					<td data-l10n-id="countryLevel"> <span title='Compulsory' class='mandatory'>*</span></td><td><select id="countryLevels"></select></td>
+				</tr>
+				<tr id="trLatestVersion" style="display: none;">
+					<td data-l10n-id="latestVersion"></td><td><input id="latestVersion" type="Text" size="5" /></td>
+				</tr>
+				<tr id="trIncompleteActionUserRole" style="display: none;">
+					<td data-l10n-id="incompleteActionUserRole"></td><td><input id="incompleteActionUserRole" type="Text" size="20" /></td>
+				</tr>
+				<tr>
+					<td data-l10n-id="defaultModeSetting"> 
+						<span title='Compulsory' class='mandatory'>*</span>
+					</td>
+					<td>
+						<select id="specificPeriodMode">
+							<option value="true" selected data-l10n-id="specificPeriodMode"></option>
+							<option value="false" data-l10n-id="matrixMode"></option>
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<td data-l10n-id="matrixPeriodSetting"> 
+						<span title='Compulsory' class='mandatory'>*</span>
+					</td>
+					<td>
+						<input type="checkbox" id="thisYearMonthsPeriod" value="thisYearMonthsPeriod" checked> <span data-l10n-id="thisYearMonthsPeriod"><br>
+						<input type="checkbox" id="last12MonthsPeriod" value="last12MonthsPeriod" checked> <span data-l10n-id="last12MonthsPeriod"><br>
+						<input type="checkbox" id="last12WeeksPeriod" value="last12WeeksPeriod" checked> <span data-l10n-id="last12WeeksPeriod"><br>
+						<input type="checkbox" id="last12QuartersPeriod" value="last12QuartersPeriod" checked> <span data-l10n-id="last12QuartersPeriod"><br>
+						<span id="matrixPeriodSettingMsg" data-l10n-id="matrixPeriodSettingMsg" style="display:none;color:red;font-size: 9px; font-style: italic;"></span>
+					</td>
+				</tr>
+			</table>
+		  </div>
+		  <div id="tabs-2">
+			<table class="listTable" style="width:95%;">
+				<tr>
+					<td data-l10n-id="settings_orgUnitGroup"></td>
+					<td  data-l10n-id="settings_hideDEs"></td>
+				</tr>
+				<tr>
+					<td colspan="2">
+						<button id="addProgramRuleBtn" data-l10n-id="settings_addMoreProgramRule"></button>
+					</td>
+				</tr>
+			</table>
+		  </div>
+		  <div id="tabs-3">
+			<table class="listTable" style="width:95%;">
+				<tr>
+					<td data-l10n-id="settings_orgUnitGroup"></td>
+					<td data-l10n-id="settings_hideDEs"></td>
+				</tr>
+				<tr>
+					<td colspan="2">
+						<button id="addDataSetRuleBtn" data-l10n-id="settings_addDataSetRule"></button>
+					</td>
+				</tr>
+			</table>
+		  </div>
+		</div>
+	</div>
+
+	<div id="header">
+		<img id="headerBanner" src="img/logo_banner.png" style="cursor:pointer" title="View home page">
+		<span id="headerText" style="cursor:pointer" title="View home page"></span>
+		<div id="headerRightSideControls">
+			<table>
+				<tr>
+					<td style="color: White;" data-l10n-id="matrixMode">Matrix </td>
+					<td>
+						<label class="switch">
+						  <input type="checkbox" id="specificPeriodChk" checked>
+						  <span class="slider round"></span>
+						</label>
+					</td>
+					<td style="color: White;" data-l10n-id="specificPeriodMode">Specific Period</td>
+					<td>	
+						<span id="settingLink" style="display:none;">
+							| <a href="" id="settingFormOpen" style="color: White;" data-l10n-id="setting">Setting</a> | <a href="https://docs.google.com/document/d/1S6WD_oYdewVWFvsDnr1CL8yM2easN5mDc7j8QWI09Sw" target="_blank" style="color: White;">v <span id="currentVersion">1.64 SNAPSHOT v2</span></a>
+						</span>
+						| <button type="button" id="closeButton" class="button" style="font-size: 11px;"><span data-l10n-id="close" nameid="closeButton">Close</span></button>
+					</td>
+				</tr>
+			</table>
+		</div>
+	</div>
+
+	<div id="divMsgArea" style="display: none;">
+		<span id="spanMsgAreaClose"><img src="img/hide.png" title="Close" id="btnMsgAreaClose"></span>
+		<span id="spanMsgAreaText"></span>
+	</div>
+
+	<div id="specificPeriodSection" style="display:block;margin-top:38px;">		
+
+		<table border="0" cellpadding="0" cellspacing="0" width="100%">
+			<tr>
+				<td align="left" valign="top">
+
+					<div style="margin-top: 4px;">
+
+						<div><span data-l10n-id="appTitle" nameId='MainTitle' class="pageTitle" style="display:block;"></span><div>
+
+						<table id="settingConsole" class="tbBorderNone" style="margin-top: 4px;">
+						  <tr class="valignTop">
+
+							<td id="orgUnitRow" style="display:none;">
+								<table>
+								<tr>
+								  <td class="consoleTitle">	
+									<span data-l10n-id="searchOrgUnit" nameId='OrgUnit'></span>
+								  </td>
+								  <td style="white-space: nowrap;">
+									<input type="text" id="orgUnitName" size="30"/><input type="button" id="orgUnitTreeBtn" value="T" title="Open OrgUnitTree" style="cursor:pointer; margin:0px; padding:1px 2px; color:#777777; background-color: #F2F9FF; border-left: none;"><span id="personFoundNo" style="font-size: 9px;color:#CCCCCC;margin-left:1px;"></span>
+								  </td>
+								 </tr>
+								 </table>
+
+								<div id='orgUnitLoading' style='display:none'>
+									<img src='img/ui-anim_basic.gif'/><span data-l10n-id="retrieving"></span>
+								</div>
+
+							</td>
+
+							<td id="defaultProgramRow" style="display:none;">
+								<table>
+								<tr>
+								  <td class="consoleTitle">	
+									<span data-l10n-id="searchProgram" nameId='DefaultProgram'></span>
+								  </td>
+								  <td>
+									<select id="defaultProgram"></select> 
+								  </td>
+								 </tr>
+								 </table>
+
+								<div id='programLoading' style='display:none'>
+									<img src='img/ui-anim_basic.gif'/><span data-l10n-id="loading"></span>
+								</div>
+
+							</td>
+
+							<td id="defaultDateRow" style="display:none;">
+								<table>
+								<tr>
+								  <td class="consoleTitle">	
+									<span data-l10n-id="searchPeriod" nameId='Period'></span>
+								  </td>
+								  <td style="white-space: nowrap;">
+									<input type="radio" name="period" value="month"/><span data-l10n-id="month" nameId='PeriodMonth'></span>
+									<input type="radio" name="period" value="week"/><span data-l10n-id="week" nameId='PeriodWeek'></span>
+									<input type="radio" name="period" value="custom"/><span data-l10n-id="custom" nameId='PeriodOther'></span>
+									
+									<span id="defaultMonth" style="display:none;"><select id="defaultMonth_Month"></select> <select id="defaultMonth_Year"></select></span> 
+
+									<input type="text" id="defaultWeek" class="defaultDatePicker" style="display:none; width:160px;"></input>
+
+									<span id="defaultDatePeriod" style="display:none;"><input type="text" id="defaultDateFrom" class="defaultDatePicker" style="width:80px;"></input> - <input type="text" id="defaultDateTo" class="defaultDatePicker"  style="width:80px;"></input></span>
+								  </td>
+								</tr>
+								</table>
+							</td>
+
+							<td id="defaultRetrievalRow" style="display:none; vertical-align:middle; padding-left:5px;">
+								<button type="button" id="executeRetrieval" class="BlueButton" style="width: 50px;" ><span data-l10n-id="executeRetrieval" nameId='executeRetrieval'></span></button>
+								<button type="button" id="backToMatrix" class="BlueButton" style="width: 50px;display:none;" ><span data-l10n-id="backToMatrix"></span></button>
+							</td>
+
+						  </tr>
+						  <tr id="personEventSearchOptions" style="display:none;">
+							<td colspan="3" class="valignTop" style="padding-top:4px;padding-bottom:3px;">
+
+							<span data-l10n-id="programStatus" nameId='ProgramStatus'></span>
+							<select id="programStatusList">
+								<option data-l10n-id="active" value="ACTIVE"></option>
+								<option data-l10n-id="completed" value="COMPLETED"></option>
+								<option data-l10n-id="cancelled" value="CANCELLED"></option>
+								<option data-l10n-id="all" value=""></option>
+							</select>&nbsp;&nbsp;
+
+							<input id="searchAllProgram" type="checkbox" style="vertical-align:bottom;" /><span data-l10n-id="searchProgramPerson" nameId='SearchAllProgram' style="color:#222222; font-style:italic;"></span>&nbsp;&nbsp;&nbsp;
+							<input id="listAllPersonHistoricalEvents" type="checkbox" style="vertical-align:bottom;" /><span data-l10n-id="listEventsPerson" nameId='ListAllHistoricalEvents' style="color:#222222; font-style:italic;"></span>
+						</td>
+					  </tr>
+					  <tr id="searchResultMsgRow" style="display:none;">
+						<td colspan="3">
+							&nbsp;&nbsp;<span id="searchResultMessage" style="color:#444444;font-style:italic;"> </span>
+							&nbsp;&nbsp;<span id="defaultProgramNote"></span>
+						</td>
+					  </tr>
+					  </table>
+				</div>
+
+				</td>
+				<td align="right" valign="top">
+					<div id="orgUnitMapSmall" style="display:none;margin-top:2px;margin-right:4px;"><a href="" id="orgUnitMapAnchor"><img id="orgUnitMapImage" src="" alt="" /></a></div>
+				</td>
+			</tr>
+		</table>
+
+
+		<div style="line-height:5px;"></div>
+		<br>
+
+		<div id="mainSection_Person" class="tbStyle_Person" style="display:none;" >
+
+			<div style="margin-top:-10px; margin-bottom:6px;">
+				<button type="button" class="person_addNewRow BlueButton"><span data-l10n-id="addNewRow" nameId='AddNewRow'></span></button>
+			</div>
+
+			<table id="mainTable_Person" border="1" class="tbStyle_Person" style="font-size:small;">
+				<colgroup>
+					<col />
+					<col width="100px" />
+				</colgroup>
+			</table>	
+
+			<div style="margin-top:4px;">
+				<button type="button" class="person_addNewRow BlueButton"><span data-l10n-id="addNewRow" nameId='AddNewRow'></span></button>
+			</div>
+		</div>
+
+
+		<div id="mainSection_Event" class="tbStyle_Person" style="display:none;">
+
+			<button type='button' class='personEvent_addNewRow BlueButton' style="margin-top: -10px; margin-bottom:8px;"><span data-l10n-id="addEvent" nameId='AddNewEventRow'></span></button>
+
+			<table id="mainTable_Event" border="1" class="tbStyle_PersonDetail" style="margin-left: 0px;font-size:small;">
+				<tr class='trEventHead'>
+					<th class='orig' align='center'><span data-l10n-id="date" nameId='EventTableHeader_Date'></span></th>
+					<th class='orig'></th>
+					<th class='orig' align='center'><span data-l10n-id="status" nameId='EventTableHeader_Status'></span></th>
+					<th class='orig' type='delete'>&nbsp;</th>
+				</tr>
+			</table>
+
+			<div id="specialPeriodFooter" style="color:gray;font-size:11px;font-style:italic">
+				*** <span data-l10n-id="completeEventExpireDays"></span>: <span class="completeEventExpireDays"></span>
+				| <span data-l10n-id="expiryPeriodType"></span>: <span class="expiryPeriodType"></span>  
+				| <span data-l10n-id="expiryDays"></span>: <span class="expiryDays"></span>  
+			</div>
+					
+			<button type='button' class='personEvent_addNewRow BlueButton' style="margin-top:4px;"><span data-l10n-id="addEvent" nameId='AddNewEventRow'></span></button>
+			
+			<br><br>
+			
+			<table id="dataSetForm" border="1" class="dataSetForm" style="display:none;"></table>
+
+		</div>
+
+		<div id="orgUnit_DataElementForm" style="display:none">
+			<table class="listTable" style="width:100%">
+				<tbody id="villageByHeathCenterTb">
+					<tr>
+						<td>
+							<input type="radio" name="deOrgUnitSelectorOption" checked value="villageByHeathCenter"> <span data-l10n-id="villageByHeathCenter"></span>
+						</td>
+						<td>
+							<select id="deOrgunitList" style="width:200px"></select>
+						</td>
+					</tr>
+				</tbody>
+				<tbody id="villageByOULevelTb">
+					<tr>
+						<td colspan="2">
+							<input type="radio" name="deOrgUnitSelectorOption" value="villageByOULevel"> <span data-l10n-id="villageByOULevel"></span>
+						</td>
+					</tr>
+					<tr>
+						<td data-l10n-id="province"></td>
+						<td><select id="deProvinceList" style="width:200px"></select></td>
+					</tr>
+					<tr>
+						<td data-l10n-id="district"></td>
+						<td><select id="deDistritList" style="width:200px"></select></td>
+					</tr>
+					<tr>
+						<td data-l10n-id="commune"></td>
+						<td><select id="deCommuneList" style="width:200px"></select></td>
+					</tr>
+					<tr>
+						<td data-l10n-id="village"></td>
+						<td><select id="deVillageList" style="width:200px"></select></td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		
+		<br>
+
+		<!--
+		<button type='button' id='testBtn'>Test</button>
+		-->
+		<div id='programRuleLoading' style='display:none'>
+			<img src='img/ui-anim_basic.gif'/>retrieving..</span>
+		</div>
+
+
+		<div id="translationTagDiv" style="display:none;">
+			<span data-l10n-id="addPerson" nameId='AddPerson'></span>
+			<span data-l10n-id="updatePerson" nameId='UpdatePerson'></span>
+
+			<span data-l10n-id="dateOrgunit" nameId='EventTableHeader_Date_OrgUnit'></span>
+			<span data-l10n-id="programAndStage" nameId='EventTableHeader_Program_Stage'></span>
+			<span data-l10n-id="status" nameId='EventTableHeader_Status'></span>
+			<span data-l10n-id="addEvent" nameId='AddNewEventRow'></span>
+
+			<span data-l10n-id="create" nameId='CreateEvent'></span>
+			<span data-l10n-id="complete" nameId='CompleteEvent'></span>
+
+			<span class="msg_CacheClear" nameId='Msg_CacheClear'>[Warning] Application files are not in synch. Please clear cache in browser to remove older javascript files.</span>
+			<span class="msg_MandatoryFill" nameId='Msg_MandatoryFill'>[Message] Mandatory field has to be filled.</span>
+			<span class="msg_ValidFill" nameId='Msg_ValidFill'>[Message] Invalid fields have to be cleared.</span>			
+			<span class="msg_NoProgramAttributes" nameId='Msg_NoProgramAttributes'>[Message] The selected program does not have any person attribtues.</span>
+			<span class="msg_SelectDefaultProgram" nameId='Msg_SelectDefaultProgram'>[Message] Please select the default program in order to proceed this.</span>
+			<span class="msg_ProgramAttributeAtLeast" nameId='Msg_ProgramAttributeAtLeast'>[Message] The program needs to have at least one display attribute for this!</span>
+			<span class="msg_SamePersonInList" nameId='Msg_SamePersonInList'>[Message] The same person exists in the list already.</span>
+			<span class="msg_CanNotEnrol_PreviousEnroll" nameId='Msg_CanNotEnrol_PreviousEnroll'>[Message] Can not enroll to the program.  It has previous non-active enrollment to the program and the program is set to only enroll once.</span>
+			<span class="msg_CheckEventDateStage" nameId='Msg_CheckEventDateStage'>[Message] Please check event date value and event stage selection, and try again.</span>
+			<span class="msg_NotEnrolled" nameId='Msg_NotEnrolled'>[Message] The TEI is not yet enrolled to the program.  Update the TEI Info first to create event.</span>
+			<span class="msg_FailedToEnroll" nameId='Msg_FailedToEnroll'>[Message] Failed to enroll - </span>
+			<span class="msg_FailedToCreateEvent" nameId='Msg_FailedToCreateEvent'>[Message] Failed to create the event: </span>
+			<span class="msg_EventDeleted" nameId='Msg_EventDeleted'>[Message] Successfully deleted the event!</span>
+			<span class="msg_EventDeleteFailed" nameId='Msg_EventDeleteFailed'>[Message] Failed to delete the event!</span>
+			<span class="msg_EventRetrievalFailed" nameId='Msg_EventRetrievalFailed'>[Message] Failed to retrieve the events!</span>
+			<span class="msg_EventUpdateFailed" nameId='Msg_EventUpdateFailed'>[Message] Failed to update the event</span>
+			<span class="msg_CompulsoryFill" nameId='Msg_CompulsoryFill'>[Message] Please fill the compulsory fields in order to proceed.</span>
+			<span class="msg_ProgramRuleError" nameId='Msg_ProgramRuleError'>[Message] Please resolve the program rule error case(s) before proceeding.</span>
+			<span class="msg_PersonNotFoundDHIS" nameId='Msg_PersonNotFoundDHIS'>[Message] Tracked Entity 'Person' was not found in this DHIS system.  Please add 'Person' Tracked Entity first.</span>
+			<span class="msg_SelectDefaultProgram" nameId='Msg_SelectDefaultProgram'>[Message] Please select the Default Program.</span>
+			<span class="msg_PersonNotFound" nameId='Msg_PersonNotFound'>[Message] Person Not Found</span>
+			<span class="msg_PersonCreated" nameId='Msg_PersonCreated'>[Message] Person created successfully!</span>
+			<span class="msg_ProgramEnrolled" nameId='Msg_ProgramEnrolled'>[Message] Enrolled to the program</span>
+			<span class="msg_ProgramEnrollFailed" nameId='Msg_ProgramEnrollFailed'>[Message] Failed to enroll - </span>
+			<span class="msg_PersonInfoUpdated" nameId='Msg_PersonInfoUpdated'>[Message] Person info updated successfully!</span>
+			<span class="msg_PersonCreateUpdateFailed" nameId='Msg_PersonCreateUpdateFailed'>[Message] Failed to create/update the person.  Detail: </span>
+			<span class="msg_DefaultLanguageEdit" nameId='Msg_DefaultLanguageEdit'>[Message] Default langauge can not be edited.</span>
+			<span class="msg_SettingData_MandatoryCountryLevel" nameId='Msg_SettingData_MandatoryCountryLevel'>[Message] Country Level is a mandatory field.  Please set the Country Level to continue.</span>
+			<span class="msg_SettingData_FailedToSave" nameId='Msg_SettingData_FailedToSave'>[Message] Failed to save the setting data.</span>
+			<span class="msg_SettingData_CountryLevelNotDefined" nameId='Msg_SettingData_CountryLevelNotDefined'>[Message] Country Level is not defined!  Aborted the task.</span>
+			<span class="msg_SettingData_OrgUnitLevelNotFound" nameId='Msg_SettingData_OrgUnitLevelNotFound'>[Message] Organisation Unit Level not found.  Please check Organisation Unit level set or manifest.webapp dhis.href value.</span>
+
+			<span class="msg_ConfirmDelete" nameId='Msg_ConfirmDelete'>[Confirm] Are you sure that you want to delete?</span>
+			<span class="msg_ConfirmEventComplete" nameId='Msg_ConfirmEventComplete'>[Confirm] Are you sure that you want to complete this event?</span>
+			<span class="msg_ConfirmEventIncomplete" nameId='Msg_ConfirmEventIncomplete'>[Confirm] Are you sure that you want to incomplete this event?</span>
+		</div>
+	</div>
+
+</body>
+
+
+	<div id="ouMatrixSection" style="display:none;margin-top:38px;">		
+
+		<table border="0" cellpadding="0" cellspacing="0" width="100%">
+			<tr>
+				<td align="left" valign="top">
+
+					<div style="margin-top: 4px;">
+
+						<div><span data-l10n-id="appTitle" nameId='MainTitle' class="pageTitle" style="display:block;"></span><div>
+
+						<table id="settingConsole" class="tbBorderNone" style="margin-top: 4px;">
+						  <tr class="valignTop">
+
+							<td>
+								<table>
+								<tr>
+								  <td class="consoleTitle">	
+									<span data-l10n-id="searchOrgUnit" nameId='OrgUnit'></span>
+								  </td>
+								  <td style="white-space: nowrap;">
+									<input type="text" id="matrixOrgUnitName" size="30"/>
+									<input type="button" id="matrixOrgUnitTreeBtn" value="T" title="Open OrgUnitTree" style="cursor:pointer; margin:0px; padding:1px 2px; color:#777777; background-color: #F2F9FF; border-left: none;"><span id="personFoundNo" style="font-size: 9px;color:#CCCCCC;margin-left:1px;"></span>
+								  </td>
+								 </tr>
+								 </table>
+
+								<div id='matrixOrgUnitLoading' style='display:none'>
+									<img src='img/ui-anim_basic.gif'/><span data-l10n-id="retrieving"></span>
+								</div>
+
+							</td>
+
+							<td>
+								<table>
+								<tr>
+								  <td class="consoleTitle">	
+									<span data-l10n-id="searchProgram" nameId='DefaultProgram'></span>
+								  </td>
+								  <td>
+									<select id="programList" style="width:200px;"></select> 
+									
+									<div id='matrixProgramLoading' style='display:none'>
+										<img src='img/ui-anim_basic.gif'/><span data-l10n-id="retrieving"></span>
+									</div>
+
+								  </td>
+								 </tr>
+								 </table>
+
+							</td>
+
+							<td>
+								<table id="matrixPeriodTb">
+								<tr>
+								  <td class="consoleTitle">	
+									<span data-l10n-id="searchPeriod" nameId='Period'></span>
+								  </td>
+								  <td style="white-space: nowrap;">
+									<select id="matrixPeriod">
+										<option value="thisYearMonths_MONTH" dataVal="thisYearMonthsPeriod" data-l10n-id="thisYearMonthsPeriod">This Year months</option>
+										<option value="last12Months_MONTH" dataVal="last12MonthsPeriod" data-l10n-id="last12MonthsPeriod">Last 12 months</option>
+										<option value="last12Weeks_WEEK" dataVal="last12WeeksPeriod" data-l10n-id="last12WeeksPeriod">Last 12 weeks</option>
+										<option value="last12Quarters_QUARTER" dataVal="last12QuartersPeriod" data-l10n-id="last12QuartersPeriod">Last 12 Quarters</option>
+									</select>
+								  </td>
+								</tr>
+								</table>
+							</td>
+
+							<td style="vertical-align:middle; padding-left:5px;">
+								<button type="button" id="matrixExecuteRetrieval" class="BlueButton" style="width: 50px;" ><span data-l10n-id="matrixExecuteRetrieval" nameId='matrixExecuteRetrieval'></span></button>
+
+							</td>
+
+						  </tr>
+					  </tr>
+					  </table>
+				</div>
+
+				</td>
+		</table>
+
+
+		<div style="line-height:5px;"></div>
+		<br>
+		
+		<div id="matrixOuDataDiv" style="display:none;" >
+			<table>
+				<tr>
+					<td> 
+						<Button id="matrixPrevPeriod" class="BlueButton">&laquo;</button>
+						<span style="float:right;"><Button id="matrixNextPeriod" class="BlueButton">&raquo;</button></span>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<table id="matrixOuData" class='tbStyle_Person' style='font-size:small;'></table>
+					</td>
+				</tr>
+				<tr>
+					<td id="matrixFooter" style="color:gray;font-size:11px;font-style:italic;float:right">
+						*** <span data-l10n-id="completeEventExpireDays"></span>: <span id="completeEventExpireDays"></span>
+						| <span data-l10n-id="expiryPeriodType"></span>: <span id="expiryPeriodType"></span>  
+						| <span data-l10n-id="expiryDays"></span>: <span id="expiryDays"></span>  
+					</td>
+				</tr>
+			</table>
+		</div>
+	</div>
+	
+</html>

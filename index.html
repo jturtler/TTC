@@ -106,7 +106,8 @@
 	<script> document.write("<script src='js/app/tabularDataEntry/searchPanel.js?v=" + _jsIncludeDate + "'><\/script>"); </script>
 	
 	<script src="js/app/tabularDataEntry/defaultProgramTEAManager.js"></script>
-	<script src="js/app/tabularDataEntry/programManager.js"></script>	
+	<script src="js/app/tabularDataEntry/programManager.js"></script>
+	<script src="js/app/tabularDataEntry/catOptionComboManager.js"></script>
 	<script src="js/app/tabularDataEntry/personList.js"></script>
 	<script src="js/app/tabularDataEntry/personEvent.js"></script>
 	<script src="js/app/tabularDataEntry/dataInMemory.js"></script>
@@ -482,14 +483,14 @@
 
 							</td>
 							
-							<td id="defaultCategoriesRow" style="display:none;">
+							<td id="defaultCatOptionRow" style="display:none;color:black;">
 								<table>
 									<tr>
 									  <td class="consoleTitle">	
-										<span data-l10n-id="searchCategories" nameId='DefaultCategories'></span>
+										<span data-l10n-id="searchCategoryOptionCombo" nameId='defaultCatOption'></span>
 									  </td>
 									  <td>
-										<select id="defaultCategories"></select> 
+										<select id="defaultCatOption"></select> 
 									  </td>
 									</tr>
 								 </table>
