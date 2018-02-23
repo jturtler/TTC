@@ -21,6 +21,8 @@ function PersonDialogForm( TabularDEObj )
 
 	me.afterSaveAction;
 
+	me.enrolmentDateTag = $("#enrolmentDate");
+	me.incidentDateTag = $("#incidentDate");
 
 	// -------------------------------------------
 	// Methods
@@ -30,7 +32,9 @@ function PersonDialogForm( TabularDEObj )
 		me.currentPersonTr = currentTr;
 
 		me.afterSaveAction = afterSaveAction;
-
+		
+		me.enrolmentDateTag.val( Util.getCurrentDate() );
+		me.enrolmentDateTag.val("");
 
 		// Make sure the attribute list is loaded first.
 		me.checkAndLoadPersonAttributeData( function()
@@ -129,6 +133,16 @@ function PersonDialogForm( TabularDEObj )
 				// For person attributes, add value, and if not in program, hide them.
 				PersonUtil.addIDtypeToID( item_Person );
 				
+				// Populate [Enrollment date] and [Incident Date]
+				var enrollments = item_Person.enrollments;
+				for( var i in enrollments )
+ 				{
+					if( enrollments[i].status == "ACTIVE" )
+					{
+						me.enrolmentDateTag.val( Util.formatDateBack( enrollments[i].enrollmentDate ) );
+						me.incidentDateTag.val( Util.formatDateBack( enrollments[i].incidentDate ) );
+					}
+				}
 				
 				//Util.write( " ID create: " + JSON.stringify( item_Person ) );
 
@@ -161,6 +175,11 @@ function PersonDialogForm( TabularDEObj )
 
 	me.FormPopupSetup = function()
 	{
+		
+		// Set date picker for Enrollment Date and Incident Date fields
+		// Util.setupDatePicker( me.enrolmentDateTag, undefined, dateFormat, "upToToday" );
+		// Util.setupDatePicker( me.incidentDateTag, undefined, dateFormat, "upToToday" );
+		Util.setDatePickerInRange( "incidentDate", "enrolmentDate", undefined, true );
 
 		// -- Set up the form -------------------
 		me.personDialogFormTag.dialog({
@@ -180,6 +199,8 @@ function PersonDialogForm( TabularDEObj )
 					var orgUnitId = me.TabularDEObj.getOrgUnitId();
 					var defaultProgramId = me.TabularDEObj.getSelectedProgramId();
 					var defaultDateInFormat = $.format.date( me.TabularDEObj.getDefaultStartDate(), _dateFormat_YYYYMMDD_Dash );
+					var enrollementDateInFormat = $.format.date( Util.getDate_FromYYYYMMDD( me.enrolmentDateTag.val() ), _dateFormat_YYYYMMDD_Dash );
+					var incidentDateInFormat = $.format.date( Util.getDate_FromYYYYMMDD( me.incidentDateTag.val() ), _dateFormat_YYYYMMDD_Dash );
 
 					me.checkDuplicateData( orgUnitId, defaultProgramId, undefined, function()
 					{
@@ -216,8 +237,8 @@ function PersonDialogForm( TabularDEObj )
 											if ( me.afterSaveAction !== undefined ) me.afterSaveAction();
 										}
 										, function()
-										{
-											me.TabularDEObj.programEnroll( personId, defaultProgramId, orgUnitId, defaultDateInFormat
+										{ 
+											me.TabularDEObj.programEnroll( personId, defaultProgramId, orgUnitId, enrollementDateInFormat, incidentDateInFormat, "POST"
 											, function( returnData )
 											{
 												MsgManager.msgAreaShow( $( 'span.msg_ProgramEnrolled' ).text() );
@@ -257,6 +278,8 @@ function PersonDialogForm( TabularDEObj )
 					var orgUnitId = me.TabularDEObj.getOrgUnitId();
 					var defaultProgramId = me.TabularDEObj.getSelectedProgramId();
 					var defaultDateInFormat = $.format.date( me.TabularDEObj.getDefaultStartDate(), _dateFormat_YYYYMMDD_Dash );
+					var enrollementDateInFormat = $.format.date( Util.getDate_FromYYYYMMDD( me.enrolmentDateTag.val() ), _dateFormat_YYYYMMDD_Dash );
+					var incidentDateInFormat = $.format.date( Util.getDate_FromYYYYMMDD( me.incidentDateTag.val() ), _dateFormat_YYYYMMDD_Dash );
 
 					var personId = me.personDialogFormTag.find( "#person_id" ).val();
 
@@ -283,11 +306,24 @@ function PersonDialogForm( TabularDEObj )
 									me.TabularDEObj.checkProgramEnroll( personId, defaultProgramId, orgUnitId
 									, function() 
 									{
-										if ( me.afterSaveAction !== undefined ) me.afterSaveAction();
+										if ( me.afterSaveAction !== undefined ){
+											// DHIS 2.28 doesnt allow to change [EnrolmentDate] and [IncidentDate] after enrollmenent
+											/* me.TabularDEObj.programEnroll( personId, defaultProgramId, orgUnitId, enrollementDateInFormat, incidentDateInFormat, "PUT"
+												, function( returnData )
+												{
+													me.afterSaveAction();
+												}
+												, function( returnData )
+												{
+													alert( $( 'span.msg_ProgramEnrollFailed' ).text() + '\n\n Error: ' + JSON.stringify( returnData ) );
+												}); */
+												
+											me.afterSaveAction();
+										} 
 									}
 									, function()
 									{
-										me.TabularDEObj.programEnroll( personId, defaultProgramId, orgUnitId, defaultDateInFormat
+										me.TabularDEObj.programEnroll( personId, defaultProgramId, orgUnitId, enrollementDateInFormat, incidentDateInFormat, "POST"
 										, function( returnData )
 										{
 											MsgManager.msgAreaShow( $( 'span.msg_ProgramEnrolled' ).text() );

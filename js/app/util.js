@@ -517,7 +517,7 @@ Util.formatDate = function( strDate )
 	{
 		var year = strDate.substring(0, 4);
 		var month = strDate.substring(5, 7);
-		var date = strDate.substring(8);
+		var date = strDate.substring(8,10);
 
 		returnVal = year + "-" + month + "-" + date;
 	}
@@ -709,6 +709,49 @@ Util.setupDateRangePicker = function( ctrl, onSelectFunc, dateFormat, minDate, m
 	}
 }
 
+Util.setDatePickerInRange = function( startdate, enddate, dateFormat, setCurrentStartDate, setCurrentEndDate )
+{
+	if ( !Util.checkValue( dateFormat ) )
+	{
+		dateFormat = _dateFormat_Picker_YYMMDD;
+	}
+	
+	if( setCurrentStartDate == undefined ) setCurrentStartDate = true;
+	if( setCurrentEndDate == undefined ) setCurrentEndDate = true;
+	
+	s = jQuery("#" + startdate );
+	e = jQuery("#" + enddate );
+	if( setCurrentStartDate && s.val()=='') s.val( Util.getCurrentDate(dateFormat) );
+	if( setCurrentEndDate && e.val()=='' ) e.val( Util.getCurrentDate(dateFormat) );
+
+	var dates = $('#'+startdate+', #' + enddate).datepicker(
+	{
+		dateFormat: dateFormat,
+		defaultDate: "+1w",
+		changeMonth: true,
+		changeYear: true,
+		numberOfMonths: 1,
+		maxDate: '+0d +0w',
+		//monthNamesShort: monthNames,
+		//dayNamesMin: dayNamesMin,
+		showAnim: '',
+		createButton: false,
+		constrainInput: true,
+        yearRange: '-100:+100',
+		onSelect: function(selectedDate)
+		{
+			var option = this.id == startdate ? "minDate" : "maxDate";
+			var instance = $(this).data("datepicker");
+			var date = $.datepicker.parseDate(instance.settings.dateFormat, selectedDate, instance.settings);
+			dates.not(this).datepicker("option", option, date);
+		}
+	});
+
+	jQuery( "#" + startdate ).attr("readonly", true );
+	jQuery( "#" + enddate ).attr("readonly", true );
+}
+
+
 Util.pageHScroll = function( option )
 {
 	if ( option === "Right" )
@@ -723,6 +766,16 @@ Util.pageHScroll = function( option )
 	}
 }
 
+
+Util.getCurrentDate = function( dateFormat )
+{	
+	if ( !Util.checkValue( dateFormat ) )
+	{
+		dateFormat = _dateFormat_Picker_YYMMDD;
+	}
+	
+	return jQuery.datepicker.formatDate( dateFormat , new Date() ) ;
+}
 
 // ---------------------------------------
 // Prototypes.  Extensions.

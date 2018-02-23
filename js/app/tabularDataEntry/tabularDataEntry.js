@@ -277,9 +277,9 @@ function TabularDataEntry( _orgUnitSelectionTreePopup )
 		me.personList.checkProgramEnroll( personId, programId, orgUnitId, enrolledAction, notEnrolledAction );
 	}
 
-	me.programEnroll = function( personId, programId, orgUnitId, eventDateInFormat, successAction, failAction )
+	me.programEnroll = function( personId, programId, orgUnitId, enrolmentDateInFormat, incidentDateInFormat, actionType,successAction, failAction )
 	{
-		me.personList.programEnroll(  personId, programId, orgUnitId, eventDateInFormat, successAction, failAction );
+		me.personList.programEnroll(  personId, programId, orgUnitId, enrolmentDateInFormat, incidentDateInFormat, actionType, successAction, failAction );
 	}
 
 	me.createPersonTableHeaders = function( programTrackedEntityAttributes )
@@ -342,7 +342,6 @@ function TabularDataEntry( _orgUnitSelectionTreePopup )
 
 		// Initially set focus on OrgUnit Search Tag
 		me.searchPanel.orgUnitNameTag.val( '' ).focus();
-
 
 		/*
 		$( '#testBtn' ).click( function()

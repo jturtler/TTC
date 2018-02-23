@@ -1037,12 +1037,13 @@ function PersonList( TabularDEObj )
 		);
 	}
 
-	me.programEnroll = function( personId, programId, orgUnitId, eventDateInFormat, successAction, failAction )
+	me.programEnroll = function( personId, programId, orgUnitId, enrolmentDateInFormat, incidentDateInFormat, actionType, successAction, failAction )
 	{
 		// Enroll the user
-		var json_Enroll = { "trackedEntityInstance": personId, "orgUnit": orgUnitId, "program": programId, "enrollmentDate": eventDateInFormat } //, "dateOfIncident": eventDateInFormat };
+		// var json_Enroll = { "trackedEntityInstance": personId, "orgUnit": orgUnitId, "program": programId, "enrollmentDate": eventDateInFormat } //, "dateOfIncident": eventDateInFormat };
+		var json_Enroll = { "trackedEntityInstance": personId, "orgUnit": orgUnitId, "program": programId, "enrollmentDate": enrolmentDateInFormat, "incidentDate": incidentDateInFormat };
 
-		RESTUtil.submitData( json_Enroll, _queryURL_ProgramEnrollmentSubmit, "POST"
+		RESTUtil.submitData( json_Enroll, _queryURL_ProgramEnrollmentSubmit, actionType
 			, function( returnData )
 			{
 				if ( successAction !== undefined ) successAction( returnData );

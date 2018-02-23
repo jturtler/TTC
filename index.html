@@ -299,7 +299,28 @@
 		<div style="margin: 3px; padding: 4px 7px; border: solid 1px #888;">
 			<table id="person_Table" class="tbTEIDetail" style="width:100%;">
 			</table>
+			
+			<table id="enrollment_Table" class="tbEnrollmentDetail" style="width:100%;">
+				<tr>
+					<td>
+						<span class="attrname" data-l10n-id="enrolmentDate" >Enrolment Date</span>
+					</td>
+					<td type="attribute" enrollmentAttr="enrolmentDate">
+						<input class="textbox" type="text" id="enrolmentDate">
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<span class="attrname" data-l10n-id="incidentDate" >Incident Date</span>
+					</td>
+					<td type="attribute" enrollmentAttr="incidentDate">
+						<input class="textbox" type="text" id="incidentDate">
+					</td>
+				</tr>
+			</table>
 		</div>
+		
+		
 		
 		<input id="person_Result" type="hidden" />
 		<input id="person_formType" type="hidden" />
@@ -420,7 +441,7 @@
 					<td style="color: White;" data-l10n-id="specificPeriodMode">Specific Period</td>
 					<td>	
 						<span id="settingLink" style="display:none;">
-							| <a href="" id="settingFormOpen" style="color: White;" data-l10n-id="setting">Setting</a> | <a href="https://docs.google.com/document/d/1S6WD_oYdewVWFvsDnr1CL8yM2easN5mDc7j8QWI09Sw" target="_blank" style="color: White;">v <span id="currentVersion">1.65</span></a>
+							| <a href="" id="settingFormOpen" style="color: White;" data-l10n-id="setting">Setting</a> | <a href="https://docs.google.com/document/d/1S6WD_oYdewVWFvsDnr1CL8yM2easN5mDc7j8QWI09Sw" target="_blank" style="color: White;">v <span id="currentVersion">1.66</span></a>
 						</span>
 						| <button type="button" id="closeButton" class="button" style="font-size: 11px;"><span data-l10n-id="close" nameid="closeButton">Close</span></button>
 					</td>
