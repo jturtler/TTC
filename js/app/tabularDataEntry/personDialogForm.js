@@ -33,9 +33,17 @@ function PersonDialogForm( TabularDEObj )
 
 		me.afterSaveAction = afterSaveAction;
 		
-		me.enrolmentDateTag.val( Util.getCurrentDate() );
-		me.enrolmentDateTag.val("");
-
+		if( formType == "Exist" )
+		{
+			Util.disableTag( me.enrolmentDateTag );
+			Util.disableTag( me.incidentDateDateTag );
+		}
+		else
+		{
+			me.enrolmentDateTag.val( Util.getCurrentDate() );
+			me.incidentDateDateTag.val("");
+		}
+		
 		// Make sure the attribute list is loaded first.
 		me.checkAndLoadPersonAttributeData( function()
 		{
