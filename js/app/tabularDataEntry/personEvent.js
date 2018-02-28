@@ -2089,17 +2089,13 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 
 		$.each( eventTEIs, function( i_eventTEI, item_eventTEI ) 
 		{
-			if ( Util.checkValue( item_eventTEI.trackedEntityInstance ) )
-			{
-				var personObj = me.getPersonObject( personList, item_eventTEI );
-										
-				personObj.eventRows.push( item_eventTEI );
-			}
+			var personObj = me.getPersonObject( personList, item_eventTEI );
+									
+			personObj.eventRows.push( item_eventTEI );
 		});
 
 		return personList;
 	}
-
 
 	me.getPersonObject = function( personList, eventTEI )
 	{

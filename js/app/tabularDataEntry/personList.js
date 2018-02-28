@@ -37,6 +37,8 @@ function PersonList( TabularDEObj )
 	me.itemTemplate_PersonInputAndInfo = "<input type='text' class='personSelect jq_watermark' placeholder='" + l10n.get('searchOrAddPerson') + "' size='25' />"
 							+ "<button type='button' class='personInfo button smallRoundButton' infoType='" + me.personDialogForm.type_New + "' style='display:none; margin:2px 4px 2px 3px; font-size: 11px;' ><span nameId='AddPerson'>" + l10n.get('addPerson') + "</span></button>"
 							+ "<button type='button' class='personInfo button smallRoundButton' infoType='" + me.personDialogForm.type_Exist + "' style='display:none; margin:2px 4px 2px 3px; font-size: 11px;' ><span nameId='UpdatePerson'>" + l10n.get('updatePerson') + "</span></button>"
+							+ "<img nameId='makeFollowup' src='img/warning_small.png' style='display:none; margin:2px 4px 2px 3px; cursor:pointer;' >"
+							+ "<img nameId='disableFollowup' src='img/warning_small_disable.png' style='display:none; margin:2px 4px 2px 3px; cursor:pointer;' >"
 							+ "<span class='personEventCountSec' style='display:none;color:#CCCCCC;font-size:9px;'>&nbsp;<span class='personEventCount'></span></span>";
 
 	me.trTemplate_PersonDetail = "<td class='blank' colspan='0'></td>";
@@ -191,7 +193,8 @@ function PersonList( TabularDEObj )
 					if ( i_attributeCount == 0 )
 					{
 						tdStr = "<td type='attribute_" + i_attributeCount + "' attributeid='" + item_attribute.id + "' style='white-space: nowrap;' class='tdPersonInfo'>" + me.itemTemplate_PersonInputAndInfo + "</td>";
-
+						
+						
 						// Enter text here for search or ...
 					}
 					else
@@ -215,7 +218,6 @@ function PersonList( TabularDEObj )
 
 		// Append the generated Tr info - * Use 'document.createElement()' to speed up.
 		mainPersonTable.append( $( document.createElement( "tr" ) ).attr( 'class', 'trPerson' ).attr( 'done_stages', '' ).append( trString ) );
-		
 		
 		var lastPersonRow = mainPersonTable.find( 'tr.trPerson:last' );
 
@@ -626,7 +628,6 @@ function PersonList( TabularDEObj )
 
 	me.setPersonInfoRow = function( trCurrent, item_Person )
 	{
-
 		// Initialize person event count
 		me.setPersonEventCount( trCurrent );
 
@@ -637,6 +638,7 @@ function PersonList( TabularDEObj )
 		if( Util.checkDefined( item_Person ) )
 		{
 			var personId = item_Person.trackedEntityInstance;
+			var programId = me.TabularDEObj.getSelectedProgramId();
 
 			trCurrent.attr( 'uid', personId );
 			trCurrent.next().attr( 'uid', personId );
@@ -650,7 +652,6 @@ function PersonList( TabularDEObj )
 
 			// Display Person Info Image Button
 			trCurrent.find( ".personInfo[infoType='" + me.personDialogForm.type_Exist + "']" ).show();
-
 
 			// Populate the person Attribute info.
 			me.populatePersonAttirbutesToRow( trCurrent, item_Person.attributes );
@@ -671,6 +672,32 @@ function PersonList( TabularDEObj )
 
 			var trDetailRow = trCurrent.next();
 		
+			
+			// Enable or Disable [Mark for followup]
+			var makeFollowupTag = trCurrent.find("[nameId='makeFollowup']");
+			var disableFollowupTag = trCurrent.find("[nameId='disableFollowup']");
+			if( item_Person.followup )
+			{
+				makeFollowupTag.show();
+			}
+			else
+			{
+				disableFollowupTag.show();
+			}
+			
+			makeFollowupTag.click(function(){
+				me.programEnroll( personId, item_Person.enrollment, programId, item_Person.orgUnit, item_Person.enrollmentDate, item_Person.incidentDate, false, "PUT", function(){
+					makeFollowupTag.hide();
+					disableFollowupTag.show();
+				});
+			});
+			
+			disableFollowupTag.click(function(){
+				me.programEnroll( personId, item_Person.enrollment, programId, item_Person.orgUnit, item_Person.enrollmentDate, item_Person.incidentDate, true, "PUT", function(){
+					makeFollowupTag.show();
+					disableFollowupTag.hide();
+				});
+			});
 
 			// When toggling anchor, show/hide the event list
 			trCurrent.find( '.detailToggle' ).show().off( 'click' ).click( function() {
@@ -902,6 +929,8 @@ function PersonList( TabularDEObj )
 			}
 			else
 			{
+				var programId = me.TabularDEObj.getSelectedProgramId();
+				
 				// Retrieve each person information, sort them by first attribute, and display as person row.
 
 				// Step 3. Sort the person by the first attribute
@@ -912,13 +941,31 @@ function PersonList( TabularDEObj )
 
 				var personEventObjList_Sorted = Util.sortByKey( json_PersonEventsList, PersonUtil.primaryAttributeVal, true );
 
-
+				
 				// Step 4. With person and person events within it, popuplate/display person only.
 				$.each( personEventObjList_Sorted, function( i_person, item_person ) 
 				{
-					var trPersonLast = me.addNewLastRow_Person( tableTag );
-
-					me.setPersonInfoRow( trPersonLast, item_person );
+					
+					// Get the followup infor of each TEI
+					me.TabularDEObj.checkProgramEnroll( item_person.trackedEntityInstance, programId, item_person.orgUnit, function( enrollmentData ) // has ACTIVE program
+					{
+						var followup = ( enrollmentData.followup === undefined ) ? false : eval( enrollmentData.followup );
+						item_person.followup = followup;
+						item_person.enrollment = enrollmentData.enrollment;
+						item_person.enrollmentDate = enrollmentData.enrollmentDate;
+						item_person.incidentDate = enrollmentData.incidentDate;
+						
+			
+						var trPersonLast = me.addNewLastRow_Person( tableTag );
+						me.setPersonInfoRow( trPersonLast, item_person );
+					}
+					, function() { 
+			
+						var trPersonLast = me.addNewLastRow_Person( tableTag );
+						me.setPersonInfoRow( trPersonLast, item_person );
+					});// No ACTIVE program
+						
+					
 
 				});
 
@@ -1015,7 +1062,8 @@ function PersonList( TabularDEObj )
 
 					if ( Util.checkData_WithPropertyVal( json_ProgramEnrollment.enrollments, "status", _status_ACTIVE ) )
 					{
-						enrolledAction();
+						var found = Util.findItemFromList( json_ProgramEnrollment.enrollments, "status", _status_ACTIVE );
+						enrolledAction( found );
 					}
 					else
 					{
@@ -1038,13 +1086,21 @@ function PersonList( TabularDEObj )
 		);
 	}
 
-	me.programEnroll = function( personId, programId, orgUnitId, enrolmentDateInFormat, incidentDateInFormat, actionType, successAction, failAction )
+	me.programEnroll = function( personId, enrollmentId, programId, orgUnitId, enrolmentDateInFormat, incidentDateInFormat, followup, actionType, successAction, failAction )
 	{
 		// Enroll the user
 		// var json_Enroll = { "trackedEntityInstance": personId, "orgUnit": orgUnitId, "program": programId, "enrollmentDate": eventDateInFormat } //, "dateOfIncident": eventDateInFormat };
-		var json_Enroll = { "trackedEntityInstance": personId, "orgUnit": orgUnitId, "program": programId, "enrollmentDate": enrolmentDateInFormat, "incidentDate": incidentDateInFormat };
+		var json_Enroll = { "trackedEntityInstance": personId, "orgUnit": orgUnitId, "program": programId, "enrollmentDate": enrolmentDateInFormat, "incidentDate": incidentDateInFormat, "followup": followup };
 
-		RESTUtil.submitData( json_Enroll, _queryURL_ProgramEnrollmentSubmit, actionType
+		var url = _queryURL_ProgramEnrollmentSubmit;
+		if( enrollmentId != undefined )
+		{
+			url += "/" + enrollmentId;
+			
+			json_Enroll.enrollment = enrollmentId;
+		}
+		
+		RESTUtil.submitData( json_Enroll, url, actionType
 			, function( returnData )
 			{
 				if ( successAction !== undefined ) successAction( returnData );

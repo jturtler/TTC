@@ -178,7 +178,7 @@ function PersonDialogForm( TabularDEObj )
 				var enrollments = item_Person.enrollments;
 				for( var i in enrollments )
  				{
-					if( enrollments[i].status == "ACTIVE" )
+					if( enrollments[i].status == _status_ACTIVE )
 					{
 						me.enrolmentDateTag.val( Util.formatDateBack( enrollments[i].enrollmentDate ) );
 						me.incidentDateTag.val( Util.formatDateBack( enrollments[i].incidentDate ) );
@@ -239,8 +239,21 @@ function PersonDialogForm( TabularDEObj )
 
 					me.checkDuplicateData( orgUnitId, defaultProgramId, undefined, function()
 					{
+						// Create json object for Tracked Entity Instance
 						var personData  = me.setupPersonData( orgUnitId );
+						
+						// Add Enrollment information
+						personData.enrollments = [];
+						var enrollment = {
+							"orgUnit": orgUnitId,
+							"program": defaultProgramId,
+							"enrollmentDate": enrollementDateInFormat,
+							"incidentDate": incidentDateInFormat
+						};
+						personData.enrollments.push( enrollment );
 
+						
+						
 						RESTUtil.submitData( personData, _queryURL_PersonSubmit, "POST"
 							, function( returnData )
 							{
@@ -265,7 +278,7 @@ function PersonDialogForm( TabularDEObj )
 										MsgManager.msgAreaShow( $( 'span.msg_PersonCreated' ).text() );
 										 
 
-										// Enroll
+										/* // Enroll
 										me.TabularDEObj.checkProgramEnroll( personId, defaultProgramId, orgUnitId
 										, function() 
 										{
@@ -273,7 +286,7 @@ function PersonDialogForm( TabularDEObj )
 										}
 										, function()
 										{ 
-											me.TabularDEObj.programEnroll( personId, defaultProgramId, orgUnitId, enrollementDateInFormat, incidentDateInFormat, "POST"
+											me.TabularDEObj.programEnroll( personId, defaultProgramId, orgUnitId, enrollementDateInFormat, incidentDateInFormat, false, "POST"
 											, function( returnData )
 											{
 												MsgManager.msgAreaShow( $( 'span.msg_ProgramEnrolled' ).text() );
@@ -284,7 +297,9 @@ function PersonDialogForm( TabularDEObj )
 												alert( $( 'span.msg_ProgramEnrollFailed' ).text() + '\n\n Error: ' + JSON.stringify( returnData ) );
 											});
 										});
-
+										*/
+										
+										if ( me.afterSaveAction !== undefined ) me.afterSaveAction();
 										
 										PersonUtil.getPersonByID_Reuse( personId, function( item_Person )
 										{
@@ -343,7 +358,7 @@ function PersonDialogForm( TabularDEObj )
 									{
 										if ( me.afterSaveAction !== undefined ){
 											// DHIS 2.28 doesnt allow to change [EnrolmentDate] and [IncidentDate] after enrollmenent
-											/* me.TabularDEObj.programEnroll( personId, defaultProgramId, orgUnitId, enrollementDateInFormat, incidentDateInFormat, "PUT"
+											me.TabularDEObj.programEnroll( personId, defaultProgramId, orgUnitId, enrollementDateInFormat, incidentDateInFormat, false, "POST"
 												, function( returnData )
 												{
 													me.afterSaveAction();
@@ -351,14 +366,14 @@ function PersonDialogForm( TabularDEObj )
 												, function( returnData )
 												{
 													alert( $( 'span.msg_ProgramEnrollFailed' ).text() + '\n\n Error: ' + JSON.stringify( returnData ) );
-												}); */
+												});
 												
-											me.afterSaveAction();
+											// me.afterSaveAction();
 										} 
 									}
 									, function()
 									{
-										me.TabularDEObj.programEnroll( personId, defaultProgramId, orgUnitId, enrollementDateInFormat, incidentDateInFormat, "POST"
+										me.TabularDEObj.programEnroll( personId, defaultProgramId, orgUnitId, enrollementDateInFormat, incidentDateInFormat, false, "POST"
 										, function( returnData )
 										{
 											MsgManager.msgAreaShow( $( 'span.msg_ProgramEnrolled' ).text() );

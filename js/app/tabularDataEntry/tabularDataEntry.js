@@ -92,11 +92,6 @@ function TabularDataEntry( _orgUnitSelectionTreePopup )
 		return me.searchPanel.getEventQueryBaseUrl();
 	}
 
-	me.getEventQueryBaseUrl = function( )
-	{
-		return me.searchPanel.getEventQueryBaseUrl();
-	}
-	
 	me.getEnrollmentQueryBaseUrl = function()
 	{
 		return me.searchPanel.getEnrollmentQueryBaseUrl();
@@ -277,9 +272,9 @@ function TabularDataEntry( _orgUnitSelectionTreePopup )
 		me.personList.checkProgramEnroll( personId, programId, orgUnitId, enrolledAction, notEnrolledAction );
 	}
 
-	me.programEnroll = function( personId, programId, orgUnitId, enrolmentDateInFormat, incidentDateInFormat, actionType,successAction, failAction )
+	me.programEnroll = function( personId, enrollmentId, programId, orgUnitId, enrolmentDateInFormat, incidentDateInFormat, followup, actionType,successAction, failAction )
 	{
-		me.personList.programEnroll(  personId, programId, orgUnitId, enrolmentDateInFormat, incidentDateInFormat, actionType, successAction, failAction );
+		me.personList.programEnroll(  personId, enrollmentId, programId, orgUnitId, enrolmentDateInFormat, incidentDateInFormat, followup, actionType, successAction, failAction );
 	}
 
 	me.createPersonTableHeaders = function( programTrackedEntityAttributes )
