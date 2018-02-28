@@ -46,6 +46,8 @@ function SearchPanel( TabularDEObj )
 	me.searchResultMsgRowTag = $( '#searchResultMsgRow' );
 	me.searchResultMessageTag = $( '#searchResultMessage' );
 
+	me.EventTableHeader_DateTag = $("[nameId='EventTableHeader_Date']");
+
 	me.defaultDateType;
 	me.defaultDateFrom;
 	me.defaultDateTo;
@@ -1000,6 +1002,15 @@ function SearchPanel( TabularDEObj )
 				me.searchResultMsgRowTag.show();
 				
 				me.searchResultMessageTag.text( l10n.get( "found" ) + " " + eventFoundNo + " " + l10n.get( "eventForPeriodFrom" ) + " " + $.format.date( me.getDefaultStartDate(), "dd/MM/yyyy" ) + " " + l10n.get( "to" ) + " " + $.format.date( me.getDefaultEndDate(), "dd/MM/yyyy" ) + " " + l10n.get( "at" ) + " " + me.orgUnitNameTag.val() );
+				
+				
+				// Set the [Description of Report Date] for Date header
+				var selectedProgram = me.TabularDEObj.getSelectedProgram();
+				if( selectedProgram.programStages.length > 0 )
+				{
+					console.log("========= selectedProgram.programStages[0] : " + selectedProgram.programStages[0] );
+					me.EventTableHeader_DateTag.html( selectedProgram.programStages[0].executionDateLabel );
+				}
 				
 				if( exeFunc != undefined ) exeFunc();
 			});

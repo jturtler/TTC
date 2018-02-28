@@ -751,6 +751,12 @@ Util.setDatePickerInRange = function( startdate, enddate, dateFormat, setCurrent
 	jQuery( "#" + enddate ).attr("readonly", true );
 }
 
+Util.datePicker_SetMaxDate = function( dateTag, maxDate )
+{
+	// dateTag.data("DateTimePicker").maxDate( maxDate );
+	dateTag.datepicker('option', 'maxDate', maxDate );
+};
+
 
 Util.pageHScroll = function( option )
 {

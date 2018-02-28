@@ -21,6 +21,8 @@ function PersonDialogForm( TabularDEObj )
 
 	me.afterSaveAction;
 
+	me.enrolmentDateLabelTag = $("#enrolmentDateLabel");
+	me.incidentDateLabelTag = $("#incidentDateLabel");
 	me.enrolmentDateTag = $("#enrolmentDate");
 	me.incidentDateTag = $("#incidentDate");
 
@@ -33,16 +35,47 @@ function PersonDialogForm( TabularDEObj )
 
 		me.afterSaveAction = afterSaveAction;
 		
+		// Get selected program configuration
+		var selectedProgram = me.TabularDEObj.getSelectedProgram();
+		
 		if( formType == "Exist" )
 		{
-			Util.disableTag( me.enrolmentDateTag );
-			Util.disableTag( me.incidentDateDateTag );
+			Util.disableTag( me.enrolmentDateTag, true );
+			Util.disableTag( me.incidentDateTag, true );
 		}
 		else
 		{
+			Util.disableTag( me.enrolmentDateTag, false );
+			Util.disableTag( me.incidentDateTag, false );
+			
+			
+			// Set date picker for Enrollment Date and Incident Date fields
+			Util.setDatePickerInRange( "incidentDate", "enrolmentDate", function(){
+				if( !eval( selectedProgram.selectIncidentDatesInFuture ) )
+				{
+					Util.datePicker_SetMaxDate( me.incidentDateTag, new Date() );
+				}
+				
+			}, true );
+			
+			// Set Current date for [Enrollment Date] field and [Incident Date] field
 			me.enrolmentDateTag.val( Util.getCurrentDate() );
-			me.incidentDateDateTag.val("");
+			me.incidentDateTag.val("");
+			
+			// Set the Enrollment date in future if any
+			if( eval( selectedProgram.selectEnrollmentDatesInFuture ) )
+			{
+				var futureDate = new Date();
+				futureDate.setFullYear( futureDate.getFullYear() + 100 );
+				Util.datePicker_SetMaxDate( me.enrolmentDateTag, futureDate );
+			}
+
 		}
+		
+		// Set lable for [Enrollment Date and IncidentDate]
+		me.enrolmentDateLabelTag.html( selectedProgram.enrollmentDateLabel );
+		me.incidentDateLabelTag.html( selectedProgram.incidentDateLabel );
+		
 		
 		// Make sure the attribute list is loaded first.
 		me.checkAndLoadPersonAttributeData( function()
@@ -183,12 +216,6 @@ function PersonDialogForm( TabularDEObj )
 
 	me.FormPopupSetup = function()
 	{
-		
-		// Set date picker for Enrollment Date and Incident Date fields
-		// Util.setupDatePicker( me.enrolmentDateTag, undefined, dateFormat, "upToToday" );
-		// Util.setupDatePicker( me.incidentDateTag, undefined, dateFormat, "upToToday" );
-		Util.setDatePickerInRange( "incidentDate", "enrolmentDate", undefined, true );
-
 		// -- Set up the form -------------------
 		me.personDialogFormTag.dialog({
 		  autoOpen: false,

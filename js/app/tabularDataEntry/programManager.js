@@ -213,7 +213,7 @@ function ProgramManager( TabularDEObj, defaultProgramTag )
 
 	me.retrieveProgram_ProgramList = function( orgUnitId, populateFunc )
 	{
-		var queryUrl = _queryURL_OrgUnit + "/" + orgUnitId + ".json?fields=id,programs[id,displayName,programType,expiryPeriodType,expiryDays,completeEventsExpiryDays,categoryCombo[id,categories[categoryOptions[id,displayName]]]]";
+		var queryUrl = _queryURL_OrgUnit + "/" + orgUnitId + ".json?fields=id,programs[id,displayName,programType,expiryPeriodType,expiryDays,completeEventsExpiryDays,selectIncidentDatesInFuture,selectEnrollmentDatesInFuture,enrollmentDateLabel,incidentDateLabel,categoryCombo[id,categories[categoryOptions[id,displayName]]]]";
 
 		RESTUtil.getAsynchData( queryUrl, function ( json_ProgramList )
 		{
@@ -235,6 +235,10 @@ function ProgramManager( TabularDEObj, defaultProgramTag )
 								, "expiryPeriodType" : item_program.expiryPeriodType 
 								, "expiryDays" : item_program.expiryDays
 								, "completeEventsExpiryDays" : item_program.completeEventsExpiryDays
+								, "selectEnrollmentDatesInFuture" : item_program.selectEnrollmentDatesInFuture
+								, "selectIncidentDatesInFuture" : item_program.selectIncidentDatesInFuture
+								, "enrollmentDateLabel" : item_program.enrollmentDateLabel
+								, "incidentDateLabel" : item_program.incidentDateLabel
 								, "programStages":  me.getProgramStageList_FromSource( item_program.id, json_programListWithStage_Full ) 
 								, "categoryComboId":  item_program.categoryCombo.id
 								, "categoryOptions" : item_program.categoryCombo.categories[0].categoryOptions

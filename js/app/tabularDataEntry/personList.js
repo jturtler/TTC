@@ -808,6 +808,7 @@ function PersonList( TabularDEObj )
 
 				// Show 'Add new event' button if Active program
 				me.personEvent.showSEwoRCreateNewEventBtn( me.TabularDEObj.searchPanel.defaultProgramTag, trPersonRow, addNewEventRowButton );
+				
 			});
 
 
