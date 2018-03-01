@@ -37,8 +37,8 @@ function PersonList( TabularDEObj )
 	me.itemTemplate_PersonInputAndInfo = "<input type='text' class='personSelect jq_watermark' placeholder='" + l10n.get('searchOrAddPerson') + "' size='25' />"
 							+ "<button type='button' class='personInfo button smallRoundButton' infoType='" + me.personDialogForm.type_New + "' style='display:none; margin:2px 4px 2px 3px; font-size: 11px;' ><span nameId='AddPerson'>" + l10n.get('addPerson') + "</span></button>"
 							+ "<button type='button' class='personInfo button smallRoundButton' infoType='" + me.personDialogForm.type_Exist + "' style='display:none; margin:2px 4px 2px 3px; font-size: 11px;' ><span nameId='UpdatePerson'>" + l10n.get('updatePerson') + "</span></button>"
-							+ "<img nameId='makeFollowup' src='img/warning_small.png' style='display:none; margin:2px 4px 2px 3px; cursor:pointer;' >"
-							+ "<img nameId='disableFollowup' src='img/warning_small_disable.png' style='display:none; margin:2px 4px 2px 3px; cursor:pointer;' >"
+							+ "<img nameId='makeFollowup' src='img/warning_small.png' style='display:none;cursor:pointer;' width='20' >"
+							+ "<img nameId='disableFollowup' src='img/warning_small_disable.png' style='display:none;cursor:pointer;' width='20' >"
 							+ "<span class='personEventCountSec' style='display:none;color:#CCCCCC;font-size:9px;'>&nbsp;<span class='personEventCount'></span></span>";
 
 	me.trTemplate_PersonDetail = "<td class='blank' colspan='0'></td>";
