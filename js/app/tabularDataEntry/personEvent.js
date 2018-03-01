@@ -546,6 +546,13 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 		var statusMsg = ( me.TabularDEObj.isCase_MEwR() ) ? EventStatus.SEwR_EVENT_STATUS[status] : EventStatus.SEwoR_EVENT_STATUS[status];
 		eventStatus.html( statusMsg );
 
+		
+		// remove previous Delete click event
+		eventDel.off( 'click' );
+		eventRowDel.off( 'click' );
+		eventDel.click( function() { me.eventDelete( trCurrent, json_Event.event ); });
+			
+			
 		if( status == EventStatus.SIGN_SEwR_PROGRAM_INACTIVE
 			|| status == EventStatus.SIGN_SEwR_PROGRAM_COMPLETED )
 		{
@@ -560,12 +567,6 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 		{
 			// Delete related
 			eventDel.show();
-			
-			// remove previous click event
-			eventDel.off( 'click' );
-			eventRowDel.off( 'click' );
-			
-			eventDel.click( function() { me.eventDelete( trCurrent, json_Event.event ); });
 			
 			// Complete related
 			eventComplete.show();
@@ -584,6 +585,8 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 		else if( status == EventStatus.SIGN_SEwR_EVENT_COMPLETED_CAN_REOPEN
 			|| status == EventStatus.SIGN_SEwoR_EVENT_COMPLETED_CAN_REOPEN )
 		{
+			eventDel.show();
+			
 			// In-Complete related
 			me.TabularDEObj.checkIncompleteAction_UserRole( function() 
 			{
@@ -605,13 +608,14 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 			});
 			
 			eventComplete.hide();
-			eventDel.hide();
+			eventDel.show();
 		}
 		else
 		{
 			eventIncomplete.hide();
 			eventComplete.hide();
-			eventDel.hide();
+			// eventDel.hide();
+			eventDel.show();
 			
 			me.setEventFixedColumnDisable( trCurrent );
 			me.setEventDEControlDisable( trCurrent );					
