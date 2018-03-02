@@ -286,7 +286,7 @@ function PersonDialogForm( TabularDEObj )
 										}
 										, function()
 										{ 
-											me.TabularDEObj.programEnroll( personId, defaultProgramId, orgUnitId, enrollementDateInFormat, incidentDateInFormat, false, "POST"
+											me.TabularDEObj.programEnroll( personId, undefined, defaultProgramId, orgUnitId, enrollementDateInFormat, incidentDateInFormat, false, "POST"
 											, function( returnData )
 											{
 												MsgManager.msgAreaShow( $( 'span.msg_ProgramEnrolled' ).text() );
@@ -358,7 +358,7 @@ function PersonDialogForm( TabularDEObj )
 									{
 										if ( me.afterSaveAction !== undefined ){
 											// DHIS 2.28 doesnt allow to change [EnrolmentDate] and [IncidentDate] after enrollmenent
-											me.TabularDEObj.programEnroll( personId, defaultProgramId, orgUnitId, enrollementDateInFormat, incidentDateInFormat, false, "POST"
+											me.TabularDEObj.programEnroll( personId, undefined, defaultProgramId, orgUnitId, enrollementDateInFormat, incidentDateInFormat, false, "POST"
 												, function( returnData )
 												{
 													me.afterSaveAction();
@@ -373,7 +373,7 @@ function PersonDialogForm( TabularDEObj )
 									}
 									, function()
 									{
-										me.TabularDEObj.programEnroll( personId, defaultProgramId, orgUnitId, enrollementDateInFormat, incidentDateInFormat, false, "POST"
+										me.TabularDEObj.programEnroll( personId, undefined, defaultProgramId, orgUnitId, enrollementDateInFormat, incidentDateInFormat, false, "POST"
 										, function( returnData )
 										{
 											MsgManager.msgAreaShow( $( 'span.msg_ProgramEnrolled' ).text() );
@@ -641,9 +641,6 @@ function PersonDialogForm( TabularDEObj )
 
 			cntrDropdown.val( value );
 		}
-		
-
-
 		else if( valueType == "TEXT" || valueType == "LONG_TEXT" 
 			|| valueType == "NUMBER" || valueType == "INTEGER_ZERO_OR_POSITIVE" 
 			|| valueType == "INTEGER_POSITIVE" || valueType == "INTEGER" || valueType == "PERCENTAGE"
@@ -675,6 +672,11 @@ function PersonDialogForm( TabularDEObj )
 			{
 				attributeControl.attr( 'caltype', 'none' );
 			}
+		}
+		else if( valueType == "TIME" )
+		{
+			attributeControl = trCurrent.find( ".textbox" ).val( value );
+			Util.setTimePicker( attributeControl );
 		}
 		else if( valueType == "TRUE_ONLY" || valueType == "TRACKER_ASSOCIATE" )
 		{

@@ -487,14 +487,32 @@ function PersonList( TabularDEObj )
 							{ 
 								me.getPersonById( ui.item.id, function( item_Person )
 								{
-									me.setPersonInfoRow( trCurrent, item_Person );
-
-									me.populateAndSet_PersonDetailSection( trCurrent, trCurrent.next(), item_Person );
-
-									DialogLoading.close();
-
-									// Open up the Detail Part
-									Util.toggleTarget( trCurrent.find( '.detailToggle' ), trCurrent.next() );
+									// Get the followup infor of each TEI
+									me.TabularDEObj.checkProgramEnroll( ui.item.id, me.TabularDEObj.getSelectedProgramId(), me.TabularDEObj.getOrgUnitId(), function( enrollmentData ) // has ACTIVE program
+									{
+										var followup = ( enrollmentData.followup === undefined ) ? false : eval( enrollmentData.followup );
+										item_Person.followup = followup;
+										item_Person.enrollment = enrollmentData.enrollment;
+										item_Person.enrollmentDate = enrollmentData.enrollmentDate;
+										item_Person.incidentDate = enrollmentData.incidentDate;
+										
+							
+										me.setPersonInfoRow( trCurrent, item_Person );
+										me.populateAndSet_PersonDetailSection( trCurrent, trCurrent.next(), item_Person );
+										DialogLoading.close();
+										// Open up the Detail Part
+										Util.toggleTarget( trCurrent.find( '.detailToggle' ), trCurrent.next() );
+									}
+									, function() { 
+							
+										me.setPersonInfoRow( trCurrent, item_Person );
+										me.populateAndSet_PersonDetailSection( trCurrent, trCurrent.next(), item_Person );
+										DialogLoading.close();
+										// Open up the Detail Part
+										Util.toggleTarget( trCurrent.find( '.detailToggle' ), trCurrent.next() );
+									});// No ACTIVE program
+										
+									
 								});											
 							}
 						);
@@ -676,29 +694,39 @@ function PersonList( TabularDEObj )
 			// Enable or Disable [Mark for followup]
 			var makeFollowupTag = trCurrent.find("[nameId='makeFollowup']");
 			var disableFollowupTag = trCurrent.find("[nameId='disableFollowup']");
-			if( item_Person.followup )
+			if( item_Person.followup == undefined )
 			{
-				makeFollowupTag.show();
+				makeFollowupTag.hide();
+				disableFollowupTag.hide();
 			}
 			else
 			{
-				disableFollowupTag.show();
+				if( item_Person.followup )
+				{
+					makeFollowupTag.show();
+				}
+				else
+				{
+					disableFollowupTag.show();
+				}
+				
+				// Add click_events
+				makeFollowupTag.click(function(){
+					me.programEnroll( personId, item_Person.enrollment, programId, item_Person.orgUnit, item_Person.enrollmentDate, item_Person.incidentDate, false, "PUT", function(){
+						makeFollowupTag.hide();
+						disableFollowupTag.show();
+					});
+				});
+				
+				disableFollowupTag.click(function(){
+					me.programEnroll( personId, item_Person.enrollment, programId, item_Person.orgUnit, item_Person.enrollmentDate, item_Person.incidentDate, true, "PUT", function(){
+						makeFollowupTag.show();
+						disableFollowupTag.hide();
+					});
+				});
+
 			}
 			
-			makeFollowupTag.click(function(){
-				me.programEnroll( personId, item_Person.enrollment, programId, item_Person.orgUnit, item_Person.enrollmentDate, item_Person.incidentDate, false, "PUT", function(){
-					makeFollowupTag.hide();
-					disableFollowupTag.show();
-				});
-			});
-			
-			disableFollowupTag.click(function(){
-				me.programEnroll( personId, item_Person.enrollment, programId, item_Person.orgUnit, item_Person.enrollmentDate, item_Person.incidentDate, true, "PUT", function(){
-					makeFollowupTag.show();
-					disableFollowupTag.hide();
-				});
-			});
-
 			// When toggling anchor, show/hide the event list
 			trCurrent.find( '.detailToggle' ).show().off( 'click' ).click( function() {
 				
