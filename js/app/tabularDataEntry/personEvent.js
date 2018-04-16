@@ -114,6 +114,10 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 			{
 				Util.disableTag( eventCreateTag, false );
 			}
+			else if( catOption.val() == "" && catOption.find("option").length == 1 )
+			{
+				Util.disableTag( eventCreateTag, false );
+			}
 		}
 	}
 
@@ -798,32 +802,51 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 	{		
 		if ( me.checkCompulsoryData( trCurrent ) && ProgramRuleUtil.checkProgramRuleData( trCurrent ) )
 		{
-			if( confirm( $( 'span.msg_ConfirmEventComplete' ).text() ) )
+			var canCompleted = true;
+			if( trCurrent.find('img.errorOnComplete').length > 0 )
 			{
-				me.eventUpdate( trCurrent, _status_COMPLETED
-					, function( json_Event )
-					{
-						
-						trCurrent.find("input,select").each( function(){
-							Util.disableTag( $(this), true );
-						});
-					
-						// Find the next tabbing tag first.
-						var nextTabTag = EventUtil.getNextRowFocus_Event( trCurrent );
-
-						// Update the completeted row info/setting..
-						
-						me.setStatusRelated( trCurrent, json_Event, programStageId );
-
-						if ( nextTabTag !== undefined )
-						{
-							nextTabTag.focus();
-						}
-						
-
-					}
-				);
+				message = $( 'span.Msg_ConfirmEventErrorOnComplete' ).text();
+				alert( message );
+				canCompleted = false;
 			}
+			else
+			{
+				var messageTag = $( 'span.msg_ConfirmEventComplete' );
+				if( trCurrent.find('img.warmingOnComplete').length > 0 )
+				{
+					messageTag = $( 'span.Msg_ConfirmEventWarmingOnComplete' );
+				}
+				
+				if( confirm( messageTag.text() ) )
+				{
+					me.eventUpdate( trCurrent, _status_COMPLETED
+						, function( json_Event )
+						{
+							
+							trCurrent.find("input,select").each( function(){
+								Util.disableTag( $(this), true );
+							});
+						
+							// Find the next tabbing tag first.
+							var nextTabTag = EventUtil.getNextRowFocus_Event( trCurrent );
+
+							// Update the completeted row info/setting..
+							
+							me.setStatusRelated( trCurrent, json_Event, programStageId );
+
+							if ( nextTabTag !== undefined )
+							{
+								nextTabTag.focus();
+							}
+
+						}
+					);
+				}
+			}
+		}
+		else
+		{
+			alert( $( 'span.msg_ErrorEventComplete' ).text() );
 		}
 	}
 
@@ -1304,7 +1327,7 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 			{
 				
 				var deValue = Util.getFromList( deValueSet, DEID, "de" );
-
+				
 				// Get dataElement info
 				me.TabularDEObj.dataInMemory.retrieveDataElement( DEID, function( json_DataElement )
 				{
@@ -1347,11 +1370,14 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 									EventUtil.appendSelectOption_Option( controlTag, item_Option );
 								});
 
-								if ( deValue !== undefined ) controlTag.val( deValue.value );
+								if ( deValue !== undefined ){
+									var value = FormUtil.getFormattedAttributeValue( tdTag.attr("valType" ), deValue.value );
+									controlTag.val( value );
+								} 
 							});
 						}
 					}
-					else if( valType == "TEXT" || valType == "USERNAME" || valType == "LETTER" || valType == "PHONE_NUMBER" || valType == "EMAIL" || valType == "DATETIME" || valType == "FILE_RESOURCE" || valType == "COORDINATE" )
+					else if( valType == "TEXT" || valType == "USERNAME" || valType == "LETTER" || valType == "PHONE_NUMBER" || valType == "EMAIL" || valType == "FILE_RESOURCE" || valType == "COORDINATE" )
 					{
 						var controlTag = me.setAndGetControlTag( tdTag, ".textbox" );
 					}
@@ -1363,6 +1389,10 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 					{
 						var controlTag = me.setAndGetControlTag( tdTag, ".textbox" ).attr( "size", "5" );
 					}
+					else if ( valType.indexOf( "INTEGER_NEGATIVE" ) == 0 )
+					{
+						var controlTag = me.setAndGetControlTag( tdTag, ".textbox" );
+					}
 					else if ( valType == "NUMBER" || valType == "PERCENTAGE" )
 					{
 						var controlTag = me.setAndGetControlTag( tdTag, ".textbox" ).attr( "size", "8" );
@@ -1371,14 +1401,16 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 					{
 						var controlTag = me.setAndGetControlTag( tdTag, ".datepicker" );
 						Util.setupDatePicker( controlTag );
-						/*, function() 
-						{
-							setTimeout( function() 
-							{ 
-								console.log( 'cal changed: ' + controlTag.val() );
-								controlTag.focusout();
-							}, 500 );
-						} );*/
+					}
+					else if( valType == "TIME" )
+					{
+						var controlTag = me.setAndGetControlTag( tdTag, ".datepicker" );
+						Util.setTimePicker( controlTag );
+					}
+					else if( valType == "DATETIME" )
+					{
+						var controlTag = me.setAndGetControlTag( tdTag, ".datepicker" );
+						Util.setDateTimePicker( controlTag );
 					}
 					else if( valType == "TRUE_ONLY" || valType == "TRACKER_ASSOCIATE" )
 					{
@@ -1402,6 +1434,14 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 						{
 							controlTag.val( Util.formatDateBack( deValue.value ) );
 						}
+						else if( valType == "DATETIME" )
+						{
+							controlTag.val( Util.formatDateTimeBack( deValue.value ) );
+						}
+						else if( valType == "TIME" )
+						{
+							controlTag.val( Util.formatTimeBack( deValue.value ) );
+						}
 						else if( valType == "TRUE_ONLY" || valType == "TRACKER_ASSOCIATE" )
 						{
 							controlTag.prop( 'checked', deValue.value );
@@ -1411,7 +1451,7 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 							controlTag.val( deValue.value );
 						}
 					}
-
+					
 				});
 			}
 		});
@@ -1424,7 +1464,7 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 
 		if ( className == '.datepicker' )
 		{
-			controlTag = $( '<input class="datepicker" type="text" size="11" />' );
+			controlTag = $( '<input class="datepicker" type="text" size="19" />' );
 		}
 		else if ( className == '.textbox' )
 		{
@@ -1632,7 +1672,7 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 				var valType = tag.attr("valtype");
 				if( valType == "COORDINATE" )
 				{
-					dataValue = me.validCoordinatorsValue( dataValue );
+					dataValue = FormUtil.formatCoordinatorsValue( dataValue );
 					tag.val( dataValue );
 				}
 
@@ -1666,18 +1706,6 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 	};
 
 
-	me.validCoordinatorsValue = function( coordinates )
-	{
-		coordinates = coordinates.replace("[", "").replace("]", "");
-		
-		if( _settingForm.DHISVersion !== undefined && _settingForm.DHISVersion !== "2.25" )
-		{
-			coordinates = "[" + coordinates + "]";
-		}
-		
-		return coordinates;
-	};
-	
 	me.validateEventDEControlVal = function( inputTag )
 	{
 		var pass = true;
@@ -1773,9 +1801,17 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 		var dataValue = "";
 
 		// Check the class and covert the values
-		if( tag.hasClass( "datepicker" ) )
+		if( tag.attr("valType") == "DATE" )
 		{
 			dataValue = Util.formatDate( tag.val() );
+		}
+		else if( tag.attr("valType") === "TIME" )
+		{
+			dataValue = Util.formatTime( tag.val() );
+		}
+		else if( tag.attr("valType") === "DATETIME" )
+		{
+			dataValue = Util.formatDateTime( tag.val() );
 		}
 		else if( tag.hasClass( "checkbox" ) )
 		{

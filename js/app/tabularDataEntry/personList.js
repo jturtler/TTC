@@ -257,7 +257,7 @@ function PersonList( TabularDEObj )
 				{
 					var inputField = currentTd.find( 'input' );
 
-					var attributeValue = FormUtil.getFormattedAttributeValue( item_attribute );
+					var attributeValue = FormUtil.getFormattedAttributeValue( item_attribute.valueType, item_attribute.value );
 
 					if ( inputField.length > 0 )
 					{

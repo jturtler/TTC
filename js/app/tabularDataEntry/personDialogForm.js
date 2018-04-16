@@ -220,8 +220,8 @@ function PersonDialogForm( TabularDEObj )
 		me.personDialogFormTag.dialog({
 		  autoOpen: false,
 		  dialogClass: "noTitleStuff",
-		  width: 430,
-		  height: 400,
+		  width: 630,
+		  height: 500,
 		  modal: true,
 		  buttons: {
 			"Create": function() {
@@ -354,9 +354,9 @@ function PersonDialogForm( TabularDEObj )
 
 									// Enroll
 									me.TabularDEObj.checkProgramEnroll( personId, defaultProgramId, orgUnitId
-									, function() 
+									, function(activeEnrollment) 
 									{
-										if ( me.afterSaveAction !== undefined ){
+										if ( activeEnrollment === undefined ){
 											// DHIS 2.28 doesnt allow to change [EnrolmentDate] and [IncidentDate] after enrollmenent
 											me.TabularDEObj.programEnroll( personId, undefined, defaultProgramId, orgUnitId, enrollementDateInFormat, incidentDateInFormat, false, "POST"
 												, function( returnData )
@@ -369,7 +369,10 @@ function PersonDialogForm( TabularDEObj )
 												});
 												
 											// me.afterSaveAction();
-										} 
+										}
+										else {
+											me.afterSaveAction();
+										}
 									}
 									, function()
 									{
@@ -658,10 +661,26 @@ function PersonDialogForm( TabularDEObj )
 			{
 				PersonUtil.setTagTypeValidation( attributeControl, "LETTER" );
 			}
+			else if( valueType == "COORDINATE" )
+			{
+				PersonUtil.setTagTypeValidation( attributeControl, "COORDINATE" );
+			}
+		}
+		else if( valueType == "INTEGER_NEGATIVE" )
+		{
+			// TODO: For now, have 'username' display as textbox <-- should be user listing
+			attributeControl = trCurrent.find( ".textbox" ).val( value ).attr( _view, _view_Yes );
+			PersonUtil.setTagTypeValidation( attributeControl, "INTEGER_NEGATIVE" );
+		}
+		else if( valueType == "UNIT_INTERVAL" )
+		{
+			// TODO: For now, have 'username' display as textbox <-- should be user listing
+			attributeControl = trCurrent.find( ".textbox" ).val( value ).attr( _view, _view_Yes );
+			PersonUtil.setTagTypeValidation( attributeControl, "UNIT_INTERVAL" );
 		}
 		else if( valueType == "DATE" )
 		{
-			attributeControl = trCurrent.find( ".datepicker" ).val( value ).attr( _view, _view_Yes );
+			attributeControl = trCurrent.find( ".datepicker" ).val( value ).attr( _view, _view_Yes ).attr('valType', valueType );
 
 			// If it is birth date, set attribute for that, so that start/end year can be set appropriately.
 			if ( Util.stringSearch( trCurrent.find( 'span.attrname' ).text(), "birth" ) )
@@ -675,8 +694,18 @@ function PersonDialogForm( TabularDEObj )
 		}
 		else if( valueType == "TIME" )
 		{
-			attributeControl = trCurrent.find( ".textbox" ).val( value );
+			attributeControl = trCurrent.find( ".textbox" ).val( value ).attr( _view, _view_Yes ).attr('valType', valueType );
 			Util.setTimePicker( attributeControl );
+		}
+		else if( valueType == "DATETIME" )
+		{
+			attributeControl = trCurrent.find( ".textbox" ).val( value ).attr( _view, _view_Yes ).attr('valType', valueType );
+			Util.setDateTimePicker( attributeControl );
+		}
+		else if( valueType == "COORDINATE" )
+		{
+			attributeControl = trCurrent.find( ".textbox" ).val( value ).attr( _view, _view_Yes ).attr('valType', valueType );
+			PersonUtil.setTagTypeValidation( attributeControl, "COORDINATE" );
 		}
 		else if( valueType == "TRUE_ONLY" || valueType == "TRACKER_ASSOCIATE" )
 		{
@@ -709,7 +738,7 @@ function PersonDialogForm( TabularDEObj )
 			{
 				if ( Util.checkDefined( existingData ) )
 				{
-					var elementValue = FormUtil.getFormattedAttributeValue( item_element );
+					var elementValue = FormUtil.getFormattedAttributeValue( item_element.valueType, item_element.value  );
 
 					setRowControlsFunc( item_element.id, item_element.mandatory, elementValue, true );
 				}
@@ -849,9 +878,21 @@ function PersonDialogForm( TabularDEObj )
 			var dataValue;
 
 			// Check the class and covert the values
-			if( item.hasClass( "datepicker" ) )
+			if( item.attr("valType") === "DATE" )
 			{
 				dataValue = Util.formatDate( item.val() );
+			}
+			else if( item.attr("valType") === "TIME" )
+			{
+				dataValue = Util.formatTime( item.val() );
+			}
+			else if( item.attr("valType") === "DATETIME" )
+			{
+				dataValue = Util.formatDateTime( item.val() );
+			}
+			else if( item.attr("valType") === "COORDINATE" )
+			{
+				dataValue = FormUtil.formatCoordinatorsValue( item.val() );
 			}
 			else if( item.hasClass( "checkbox" ) )
 			{

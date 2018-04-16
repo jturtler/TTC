@@ -457,6 +457,14 @@ function ProgramRule( TabularDEObj )
 						{
 							targetTag.after( '<img class="action_Msg_' + action.id + ' ruleStatus ruleWarning" alt="Rule Status" title="' + action.content + '" src="img/status_yellow.png">' );
 						}
+						else if( action.programRuleActionType == 'WARNINGONCOMPLETE' )
+						{
+							targetTag.after( '<img class="action_Msg_' + action.id + ' ruleStatus ruleWarning warmingOnComplete" alt="Rule Status" title="' + action.content + '" src="img/status_yellow.png">' );
+						}
+						else if( action.programRuleActionType == 'ERRORONCOMPLETE' )
+						{
+							targetTag.after( '<img class="action_Msg_' + action.id + ' ruleStatus ruleWarning errorOnComplete" alt="Rule Status" title="' + action.content + '" src="img/status_yellow.png">' );
+						}
 					}
 				}
 			});

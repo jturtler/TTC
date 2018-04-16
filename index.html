@@ -15,6 +15,10 @@
 	<script src="js/jQuery/jquery.ui.core.js"></script>
 	<script src="js/jQuery/jquery.ui.widget.js"></script>
 	<script src="js/jQuery/jquery.ui.datepicker.js"></script>
+	<script src="js/jQuery/jquery.ui.timepicker.js"></script>
+	
+	
+	
 	<script src="js/jQuery/jquery.dateFormat-1.0.js"></script>
 	<script src="js/jQuery/jquery.watermark.js"></script>
 	<script src="js/jQuery/jquery.cookie.js"></script>
@@ -28,11 +32,20 @@
 	<script> document.write("<script src='js/app/util.js?v=" + _jsIncludeDate + "'><\/script>"); </script>
 	<script src="js/app/RESTUtil.js"></script>
 	
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap-theme.min.css">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+	<script src="js/bootstrap/moment-with-locales.js"></script>
+	<link rel="stylesheet" href="js/bootstrap/bootstrap-datetimepicker.css">
+	<script src="js/bootstrap/bootstrap-datetimepicker.js"></script>
+	
 	<link rel="stylesheet" href="css/jQuery/jquery.ui.all.css">
 	<link rel="stylesheet" href="css/jQuery/jquery-ui.css" />
+	<link rel="stylesheet" href="css/jQuery/jquery.ui.timepicker.css">
 	<link rel="stylesheet" href="css/gmap3/gmap3-menu.css" />
 	<link rel="stylesheet" href="css/app/style.css">
-
+	
 	<link rel="resource" type="application/l10n" href="locales/locales.ini" />
 	<script src="js/l10n.js"></script>
 	
@@ -81,14 +94,16 @@
 		var _queryURL_TrackedEntities = _queryURL_api + "trackedEntities";
 
 		var _queryURL_Enrollments = _queryURL_api + "enrollments.json?ouMode=ACCESSIBLE";
-		var _queryURL_EventQuery = _queryURL_api + "26/events.json?paging=false&skipPaging=true";
+		// var _queryURL_EventQuery = _queryURL_api + "26/events.json?paging=false&skipPaging=true";
+		var _queryURL_EventQuery = _queryURL_api + "events.json?paging=false&skipPaging=true";
 		var _queryURL_EventSubmit = _queryURL_api + "events";
 
 		var _queryURL_TEIFromEventQuery = _queryURL_api + "events/eventRows.json?paging=false&skipPaging=true";
 
 		// var _queryURL_ProgramEnrollmentSubmit = _queryURL_api + "enrollments";
+		//var _queryURL_ProgramEnrollmentQuery = _queryURL_api + "26/enrollments.json";
 		var _queryURL_ProgramEnrollmentSubmit = _queryURL_api + "enrollments";
-		var _queryURL_ProgramEnrollmentQuery = _queryURL_api + "26/enrollments.json";
+		var _queryURL_ProgramEnrollmentQuery = _queryURL_api + "enrollments.json";
 
 		var _queryURL_ProgramRules = _queryURL_api + "programRules";
 		var _queryURL_ProgramRuleVariables = _queryURL_api + "programRuleVariables";
@@ -724,6 +739,9 @@
 
 			<span class="msg_ConfirmDelete" nameId='Msg_ConfirmDelete'>[Confirm] Are you sure that you want to delete?</span>
 			<span class="msg_ConfirmEventComplete" nameId='Msg_ConfirmEventComplete'>[Confirm] Are you sure that you want to complete this event?</span>
+			<span class="Msg_ConfirmEventWarmingOnComplete" nameId='Msg_ConfirmEventWarmingOnComplete'>[Confirm] Are you sure that you want to complete with some rules violated?</span>
+			<span class="Msg_ConfirmEventErrorOnComplete" nameId='Msg_ConfirmEventErrorOnComplete'>[Confirm] Please check rules violated before completing</span>
+			<span class="msg_ErrorEventComplete" nameId='Msg_ErrorEventComplete'>[Warming] Please check values in red fields ?</span>
 			<span class="msg_ConfirmEventIncomplete" nameId='Msg_ConfirmEventIncomplete'>[Confirm] Are you sure that you want to incomplete this event?</span>
 		</div>
 	</div>

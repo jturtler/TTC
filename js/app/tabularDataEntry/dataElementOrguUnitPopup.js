@@ -101,7 +101,7 @@ function DataElementOrguUnitPopup( _TabularDEObj )
 				if( coordinates !== undefined )
 				{
 					villageCode = searchVillageCode;
-					coordinates = me.formatCoordinatorsValue( coordinates );
+					coordinates = FormUtil.formatCoordinatorsValue( coordinates );
 				}
 				else
 				{
@@ -111,7 +111,7 @@ function DataElementOrguUnitPopup( _TabularDEObj )
 					{
 						villageCode = villageFound.villageObj.code;
 						
-						coordinates = me.formatCoordinatorsValue( villageFound.villageObj.coordinates );
+						coordinates = FormUtil.formatCoordinatorsValue( villageFound.villageObj.coordinates );
 					}
 					else
 					{
@@ -131,16 +131,6 @@ function DataElementOrguUnitPopup( _TabularDEObj )
 			}
 		  }
 		});		
-	};
-	
-	me.formatCoordinatorsValue = function( coordinates )
-	{
-		if( _settingForm.DHISVersion == "2.25" || _settingForm.DHISVersion == "2.26" )
-		{
-			return coordinates.replace("[", "").replace("]", "");
-		}
-		
-		return coordinates;
 	};
 	
 	me.openForm = function()

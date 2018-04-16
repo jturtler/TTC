@@ -158,16 +158,26 @@ FormUtil.setTabBackgroundColor_Switch = function( ctrlTags )
 
 }
 
-FormUtil.getFormattedAttributeValue = function( attributeObj )
+FormUtil.getFormattedAttributeValue = function( attrType, attrValue )
 {
-	var attributeValue = attributeObj.value;
-
-	if ( attributeObj.type == "date" )
+	if ( attrType == "DATE" )
 	{
-		attributeValue = attributeValue.substring( 0, 10 );
+		attrValue = Util.formatDateBack( attrValue.substring( 0, 10 ) );
 	}
-
-	return attributeValue;
+	else if ( attrType == "TIME" )
+	{
+		attrValue = Util.formatTimeBack( attrValue );
+	}
+	else if ( attrType == "DATETIME" )
+	{
+		attrValue =Util.formatDateTimeBack( attrValue );
+	}
+	else if ( attrType == "COORDINATE" )
+	{
+		attrValue = FormUtil.formatCoordinatorsValue( attrValue );
+	}
+	
+	return attrValue;
 }
 
 FormUtil.abortAndClear_XhrRequest = function( xhrRequests )
@@ -201,6 +211,71 @@ FormUtil.validateValueType = function( tag, inputType )
 			pass = false;
 		}
 	}
+	else if ( inputType == "INTEGER_NEGATIVE" )
+	{
+		var reg = new RegExp( '^(-)[0-9]*$' );
+
+		if ( !reg.test( tag.val() ) )
+		{
+			Util.paintWarning( tag );
+			tag.attr( 'title', 'This field is Negative Integer Only field.' );
+			tag.attr( 'notvalid', 'Y' );
+			pass = false;
+		}
+	}
+	else if ( inputType == "UNIT_INTERVAL" )
+	{
+		var reg = new RegExp( '^(0\\.)[0-9]*$' );
+
+		if ( !reg.test( tag.val() ) )
+		{
+			Util.paintWarning( tag );
+			tag.attr( 'title', 'This field only accepts a decimal value between 0 and 1.' );
+			tag.attr( 'notvalid', 'Y' );
+			pass = false;
+		}
+	}
+	else if ( inputType == "COORDINATE" )
+	{
+		if( tag.val() == "" )
+		{
+			pass = true;
+		}
+		else
+		{
+			var coordinators = tag.val().replace("[", "" ).replace("]", "" );
+		
+			var reg = new RegExp( '^[0-9]+\.*[0-9]*,\s?[0-9]+\.*[0-9]*$' );
+			
+			if ( !reg.test( coordinators ) )
+			{
+				pass = false;
+			}
+			else
+			{
+				var coordinators = tag.val().replace("[", "" ).replace("]", "" ).split(",");
+			
+				var reg = new RegExp( '^[0-9]*$' );
+				if ( reg.test( coordinators[0] ) && reg.test( coordinators[1] ) )
+				{
+					var lng = eval( coordinators[0] );
+					var lat = eval( coordinators[1] );
+					pass = (lng >= -180 && lng <= 180 && lat >= -90 && lat <= 90);
+				}
+				else
+				{
+					pass = false;
+				}
+			}
+		}
+		
+		if( !pass )
+		{
+			Util.paintWarning( tag );
+			tag.attr( 'title', 'This field in valid coordinators.' );
+			tag.attr( 'notvalid', 'Y' );
+		}
+	}
 	else if ( inputType == "LETTER" )
 	{
 		var reg = new RegExp( '^[a-zA-Z]*$' );
@@ -228,6 +303,20 @@ FormUtil.validateValueType = function( tag, inputType )
 	}
 
 	return pass;
+};
+
+
+FormUtil.formatCoordinatorsValue = function( coordinates )
+{
+	coordinates = coordinates.replace("[", "").replace("]", "");
+	coordinates = "[" + coordinates + "]";
+	
+	if( _settingForm.DHISVersion == "2.25" || _settingForm.DHISVersion == "2.26" )
+	{
+		return coordinates.replace("[", "").replace("]", "");
+	}
+	
+	return coordinates;
 };
 
 
