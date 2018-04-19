@@ -39,13 +39,13 @@ RESTUtil.submitData_Text = function( settingName, data )
 */
 
 
-RESTUtil.submitData_Text = function( url, jsonData, successFunc, failFunc )
+RESTUtil.submitData_Text = function( submitType, url, jsonData, successFunc, failFunc )
 {		
 	$.ajax({
-	  type: "POST",
+	  type: submitType,
 	  url: url,
 	  data: JSON.stringify( jsonData ),
-	  contentType: "text/plain; charset=utf-8",
+	  contentType: "application/json",
 	  success: function( msg ) {
 		  successFunc();
 		},

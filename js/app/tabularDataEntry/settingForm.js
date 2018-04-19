@@ -187,9 +187,9 @@ function SettingForm( _TabularDEObj, _matrixObj )
 						}
 					});
 					
+					var submitType = ( me.settingData === undefined ) ? "POST" : "PUT";
 					
-					
-					DBSetting.saveSettingValue( me.dbSettingName, json_SettingData
+					DBSetting.saveSettingValue( submitType, me.dbSettingName, json_SettingData
 					, function()
 					{
 						me.settingData = json_SettingData;
