@@ -63,7 +63,7 @@ function SettingForm( _TabularDEObj, _matrixObj )
 
 	me.queryURL_orgUnitLevels = _queryURL_api + 'organisationUnitLevels.json?paging=false&fields=id,name,level';
 	me.queryURL_orgUnitGroups = _queryURL_api + 'organisationUnitGroups.json?paging=false&fields=id,name';
-	me.queryURL_trackedDataElements = _queryURL_api + 'dataElements.json?paging=false&fields=id,displayName,domainType,dataSetElements[dataSet[id]]'; // TRACKER
+	me.queryURL_trackedDataElements = _queryURL_api + 'dataElements.json?paging=false&fields=id,displayName&filter=domainType:eq:TRACKER'; // TRACKER
 	me.queryURL_aggregateDataElements = _queryURL_api + 'dataSets/XURYYYvxH9z.json?fields=dataSetElements[dataElement[id,displayName,domainType]]'; // AGGEGATE
 
 	me.settingData;
@@ -187,9 +187,9 @@ function SettingForm( _TabularDEObj, _matrixObj )
 						}
 					});
 					
-					var submitType = ( me.settingData === undefined ) ? "POST" : "PUT";
 					
-					DBSetting.saveSettingValue( submitType, me.dbSettingName, json_SettingData
+					
+					DBSetting.saveSettingValue( me.dbSettingName, json_SettingData
 					, function()
 					{
 						me.settingData = json_SettingData;
@@ -748,7 +748,7 @@ function SettingForm( _TabularDEObj, _matrixObj )
 
 		$.each( list, function( i, item ) {
 
-			listTag.append( $( '<option></option>' ).attr( "value", item.id ).text( item.displayName ) );
+			listTag.append( $( '<option></option>' ).attr( "value", item.id ).text( item.name ) );
 		});
 		
 		return listTag;
