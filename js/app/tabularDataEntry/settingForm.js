@@ -63,7 +63,7 @@ function SettingForm( _TabularDEObj, _matrixObj )
 
 	me.queryURL_orgUnitLevels = _queryURL_api + 'organisationUnitLevels.json?paging=false&fields=id,name,level';
 	me.queryURL_orgUnitGroups = _queryURL_api + 'organisationUnitGroups.json?paging=false&fields=id,name';
-	me.queryURL_trackedDataElements = _queryURL_api + 'dataElements.json?paging=false&fields=id,displayName&filter=domainType:eq:TRACKER'; // TRACKER
+	me.queryURL_trackedDataElements = _queryURL_api + 'dataElements.json?paging=false&fields=id,displayName,domainType&filter=domainType:eq:TRACKER'; // TRACKER
 	me.queryURL_aggregateDataElements = _queryURL_api + 'dataSets/XURYYYvxH9z.json?fields=dataSetElements[dataElement[id,displayName,domainType]]'; // AGGEGATE
 
 	me.settingData;
@@ -72,10 +72,11 @@ function SettingForm( _TabularDEObj, _matrixObj )
 	me.defaultCatOption;
 	me.defaultCatCombo;
 	me.loadedOUGroups = false;
-	me.loadedTrackerDataElements = false;
-	me.loadedAggDataElements = false;
+	// me.loadedTrackerDataElements = false;
+	// me.loadedAggDataElements = false;
 	me.loadedDHISVersion = false;
 	me.loadedDefaultCatOptionCombo = false;
+	me.isOpenForm = false;
 	
 	me.FormPopupSetup = function()
 	{
@@ -233,7 +234,14 @@ function SettingForm( _TabularDEObj, _matrixObj )
 		}
 
 		me.populateSettingData();
-
+		
+		if( !me.isOpenForm )
+		{
+			me.loadTrackerDataElementList();
+			me.loadAggDataElementList();
+			me.isOpenForm = true;
+		}
+		
 		me.dialogFormTag.dialog( "open" );
 	}
 
@@ -269,7 +277,7 @@ function SettingForm( _TabularDEObj, _matrixObj )
 			me.populateMatrixPeriodSetting();
 			
 			
-			// Traker data element in OU Group list
+			/* // Traker data element in OU Group list
 			me.dialogFormTag.find(".ouGroupList").closest("tr").remove();
 			if( me.settingData.orgUnitGroups != undefined )
 			{
@@ -301,7 +309,7 @@ function SettingForm( _TabularDEObj, _matrixObj )
 						me.addMoreDEListTag( deListCellTag, deList[j], "AGGREGATE" );
 					}
 				}
-			}
+			} */
 		}
 	}
 	
@@ -564,11 +572,12 @@ function SettingForm( _TabularDEObj, _matrixObj )
 		{
 			me.trackerDataElementList = Util.sortByKey( json_Data.dataElements, "displayName" );
 			me.loadedTrackerDataElements = true;
-			me.afterLoadedMetaData();
+			
+			me.afterOpenFormFirstTime();
 		}
 		, function() 
 		{  
-			alert( $( 'span.msg_SettingData_OrgUnitLevelNotFound' ).text() );
+			me.afterOpenFormFirstTime();
 		});
 	};
 
@@ -586,21 +595,70 @@ function SettingForm( _TabularDEObj, _matrixObj )
 			
 			me.aggDataElementList = Util.sortByKey( me.aggDataElementList, "displayName" );
 			me.loadedAggDataElements = true;
-			me.afterLoadedMetaData();
+			
+			me.afterOpenFormFirstTime();
 		}
 		, function() 
 		{  
-			me.loadedAggDataElements = true;
-			me.afterLoadedMetaData();
+			me.afterOpenFormFirstTime();
 		});
 	};
 	
 	
-	me.afterLoadedMetaData = function()
+	me.afterOpenFormFirstTime = function()
 	{
-		if( me.loadedOUGroups && me.loadedTrackerDataElements && me.loadedAggDataElements && me.loadedDHISVersion && me.loadedDefaultCatOptionCombo )
+		if( me.loadedTrackerDataElements && me.loadedAggDataElements )
 		{
 			me.addTrackerOrgUnitGroupRow();
+			
+			me.populateDEList();
+			
+			MsgManager.appUnblock();
+		}
+	};
+	
+	me.populateDEList = function()
+	{
+		// Traker data element in OU Group list
+		me.dialogFormTag.find(".ouGroupList").closest("tr").remove();
+		if( me.settingData.orgUnitGroups != undefined )
+		{
+			for( var i in me.settingData.orgUnitGroups )
+			{
+				var ouGroupSetting = me.settingData.orgUnitGroups[i];
+				var deList =  ouGroupSetting.deList;
+				var ouGroupRowTag = me.addTrackerOrgUnitGroupRow( ouGroupSetting.ouGroupId, deList[0] );
+				var deListCellTag = ouGroupRowTag.find("select.deList").closest("td");
+				for( var j=1; j<deList.length; j++ )
+				{
+					me.addMoreDEListTag( deListCellTag, deList[j], "TRACKER" );
+				}
+			}
+		}
+		
+		// Aggregate data element in OU Group list
+		me.dialogFormTag.find(".aggOuGroupList").closest("tr").remove();
+		if( me.settingData.aggOrgUnitGroups != undefined )
+		{
+			for( var i in me.settingData.aggOrgUnitGroups )
+			{
+				var ouGroupSetting = me.settingData.aggOrgUnitGroups[i];
+				var deList =  ouGroupSetting.deList;
+				var ouGroupRowTag = me.addAggOrgUnitGroupRow( ouGroupSetting.ouGroupId, deList[0] );
+				var deListCellTag = ouGroupRowTag.find("select.deList").closest("td");
+				for( var j=1; j<deList.length; j++ )
+				{
+					me.addMoreDEListTag( deListCellTag, deList[j], "AGGREGATE" );
+				}
+			}
+		}
+	};
+	
+	me.afterLoadedMetaData = function()
+	{
+		if( me.loadedOUGroups && me.loadedDHISVersion && me.loadedDefaultCatOptionCombo )
+		{
+			// me.addTrackerOrgUnitGroupRow();
 			me.populateSettingData();
 			
 			MsgManager.appUnblock();
@@ -849,8 +907,8 @@ function SettingForm( _TabularDEObj, _matrixObj )
 			me.setOrgUnitList( me.countryLevelTag );
 		
 			me.loadOrgUnitGroupList();
-			me.loadAggDataElementList();
-			me.loadTrackerDataElementList();
+			// me.loadAggDataElementList();
+			// me.loadTrackerDataElementList();
 			me.getDHISVersion();
 			me.getDefaultCatOptionCombo();
 			
