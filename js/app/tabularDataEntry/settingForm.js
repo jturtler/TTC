@@ -72,8 +72,8 @@ function SettingForm( _TabularDEObj, _matrixObj )
 	me.defaultCatOption;
 	me.defaultCatCombo;
 	me.loadedOUGroups = false;
-	// me.loadedTrackerDataElements = false;
-	// me.loadedAggDataElements = false;
+	me.loadedTrackerDataElements = false;
+        me.loadedAggDataElements = false;
 	me.loadedDHISVersion = false;
 	me.loadedDefaultCatOptionCombo = false;
 	me.isOpenForm = false;
@@ -236,13 +236,17 @@ function SettingForm( _TabularDEObj, _matrixObj )
 		me.populateSettingData();
 		
 		if( !me.isOpenForm )
-		{
+		{	
+			MsgManager.appBlock();
 			me.loadTrackerDataElementList();
 			me.loadAggDataElementList();
 			me.isOpenForm = true;
 		}
+		else
+		{
+			me.dialogFormTag.dialog( "open" );
+		}
 		
-		me.dialogFormTag.dialog( "open" );
 	}
 
 	me.populateSettingData = function()
@@ -577,6 +581,7 @@ function SettingForm( _TabularDEObj, _matrixObj )
 		}
 		, function() 
 		{  
+			me.loadedTrackerDataElements = true;
 			me.afterOpenFormFirstTime();
 		});
 	};
@@ -600,6 +605,7 @@ function SettingForm( _TabularDEObj, _matrixObj )
 		}
 		, function() 
 		{  
+			me.loadedAggDataElements = true;
 			me.afterOpenFormFirstTime();
 		});
 	};
@@ -614,6 +620,8 @@ function SettingForm( _TabularDEObj, _matrixObj )
 			me.populateDEList();
 			
 			MsgManager.appUnblock();
+			
+			me.dialogFormTag.dialog( "open" );
 		}
 	};
 	
@@ -827,10 +835,7 @@ function SettingForm( _TabularDEObj, _matrixObj )
 		}
 		
 		$.each( list, function( i, item ) {
-			if( item.domainType == domainType )
-			{
-				listTag.append( $( '<option></option>' ).attr( "value", item.id ).text( item.displayName ) );
-			}
+			listTag.append( $( '<option></option>' ).attr( "value", item.id ).text( item.displayName ) );
 		});
 		
 		return listTag;
