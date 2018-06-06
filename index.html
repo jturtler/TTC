@@ -16,9 +16,6 @@
 	<script src="js/jQuery/jquery.ui.widget.js"></script>
 	<script src="js/jQuery/jquery.ui.datepicker.js"></script>
 	<script src="js/jQuery/jquery.ui.timepicker.js"></script>
-	
-	
-	
 	<script src="js/jQuery/jquery.dateFormat-1.0.js"></script>
 	<script src="js/jQuery/jquery.watermark.js"></script>
 	<script src="js/jQuery/jquery.cookie.js"></script>
@@ -27,10 +24,6 @@
 
 	<script src="js/gmap3/gmap3.min.js"></script> 
 	<script src="js/gmap3/gmap3-menu.js"></script>
-
-	<script src="js/app/dialogLoading.js"></script>
-	<script> document.write("<script src='js/app/util.js?v=" + _jsIncludeDate + "'><\/script>"); </script>
-	<script src="js/app/RESTUtil.js"></script>
 	
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap-theme.min.css">
@@ -48,7 +41,11 @@
 	
 	<link rel="resource" type="application/l10n" href="locales/locales.ini" />
 	<script src="js/l10n.js"></script>
-	
+
+	<!-- Some Util Files -->
+	<script src="js/app/dialogLoading.js"></script>
+	<script> document.write("<script src='js/app/utils/util.js?v=" + _jsIncludeDate + "'><\/script>"); </script>
+	<script src="js/app/utils/RESTUtil.js"></script>
 
 	<!-- URL addresses (Dhis site, home, api) -->
 	<script>
@@ -67,17 +64,12 @@
 		// -------------------
 
 		var _dhisHomeURL = _dhisSiteURL + 'dhis-web-dashboard-integration/index.action';
-
 		var _queryURL_api = _dhisSiteURL + 'api/';
-
 		var _queryURL_me = _queryURL_api + "me";
-
 		var _queryURL_systemInfo = _queryURL_api + "system/info"
 
 		var _queryURL_appTitle = _queryURL_api + 'systemSettings?key=applicationTitle';
-
 		var _queryURL_OrgUnit = _queryURL_api + "organisationUnits";
-
 		var _queryURL_Program = _queryURL_api + "programs/";
 		var _queryURL_ProgramList = _queryURL_api + "programs.json";
 		var _queryURL_ProgramStages = _queryURL_api + "programStages";
@@ -112,15 +104,23 @@
 
 	</script>
 
-
 	<!-- OrgUnit Tree Related -->
-	<script type="text/javascript" src="js/DHIS/oust_v2.js"></script>
-
+	<script src="js/DHIS/oust_v2.js"></script>
+	<script src="js/app/period/weekly.js"></script>
+	<script src="js/app/period/monthly.js"></script>
 	<script src="js/app/settings/dbSetting.js"></script>
-	
+	<script src="js/app/settings/userSecurityManager.js"></script>
+
+	<!-- Some Util Files -->
+	<script src="js/app/utils/AppUtil.js"></script>
+	<script src="js/app/utils/DHISUtil.js"></script>
+	<script src="js/app/utils/FormUtil.js"></script>
+	<script src="js/app/utils/EventUtil.js"></script>
+	<script src="js/app/utils/PersonUtil.js"></script>	
+
+	<!-- Main Tabule DataEntry and Other support classes -->
 	<script src="js/app/tabularDataEntry/tabularDataEntry.js"></script>
-	<script> document.write("<script src='js/app/tabularDataEntry/searchPanel.js?v=" + _jsIncludeDate + "'><\/script>"); </script>
-	
+	<script src="js/app/tabularDataEntry/searchPanel.js"></script>	
 	<script src="js/app/tabularDataEntry/defaultProgramTEAManager.js"></script>
 	<script src="js/app/tabularDataEntry/programManager.js"></script>
 	<script src="js/app/tabularDataEntry/catOptionComboManager.js"></script>
@@ -129,18 +129,13 @@
 	<script src="js/app/tabularDataEntry/dataInMemory.js"></script>
 	<script src="js/app/tabularDataEntry/programRule.js"></script>
 	<script src="js/app/tabularDataEntry/personDialogForm.js"></script>
-	<script src="js/app/settings/userSecurityManager.js"></script>
 	<script src="js/app/tabularDataEntry/settingForm.js"></script>
 	<script src="js/app/tabularDataEntry/orgUnitSelectionTreePopup.js"></script>
 	<script src="js/app/tabularDataEntry/orgUnitMapPopup.js"></script>
 	<script src="js/app/tabularDataEntry/dataElementOrguUnitPopup.js"></script>
 	<script src="js/app/tabularDataEntry/dataSetValues.js"></script>
 	<script src="js/app/orgunit/orgUnitHierarchy.js"></script>
-	<script src="js/app/tabularDataEntry/period/weekly.js"></script>
-	<script src="js/app/tabularDataEntry/period/monthly.js"></script>
-	<script src="js/app/tabularDataEntry/util/appUtil.js"></script>
-	
-	
+
 	<script src="js/app/matrixOrgUnit/relativePeriod.js"></script>
 	<script src="js/app/matrixOrgUnit/searchMatrixOrgUnit.js"></script>
 	<script src="js/app/matrixOrgUnit/matrixOrgunitPeriod.js"></script>

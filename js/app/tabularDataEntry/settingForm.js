@@ -629,7 +629,7 @@ function SettingForm( _TabularDEObj, _matrixObj )
 	{
 		// Traker data element in OU Group list
 		me.dialogFormTag.find(".ouGroupList").closest("tr").remove();
-		if( me.settingData.orgUnitGroups != undefined )
+		if( me.settingData !== undefined && me.settingData.orgUnitGroups != undefined )
 		{
 			for( var i in me.settingData.orgUnitGroups )
 			{
@@ -646,7 +646,7 @@ function SettingForm( _TabularDEObj, _matrixObj )
 		
 		// Aggregate data element in OU Group list
 		me.dialogFormTag.find(".aggOuGroupList").closest("tr").remove();
-		if( me.settingData.aggOrgUnitGroups != undefined )
+		if( me.settingData !== undefined && me.settingData.aggOrgUnitGroups != undefined )
 		{
 			for( var i in me.settingData.aggOrgUnitGroups )
 			{
