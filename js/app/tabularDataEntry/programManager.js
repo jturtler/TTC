@@ -230,20 +230,24 @@ function ProgramManager( TabularDEObj, defaultProgramTag )
 
 						$.each( json_ProgramList.programs, function( i_program, item_program ) 
 						{
-							programList_Temp.push( { "id": item_program.id, "name":  item_program.displayName
-								, "programType": item_program.programType
-								, "expiryPeriodType" : item_program.expiryPeriodType 
-								, "expiryDays" : item_program.expiryDays
-								, "completeEventsExpiryDays" : item_program.completeEventsExpiryDays
-								, "selectEnrollmentDatesInFuture" : item_program.selectEnrollmentDatesInFuture
-								, "selectIncidentDatesInFuture" : item_program.selectIncidentDatesInFuture
-								, "enrollmentDateLabel" : item_program.enrollmentDateLabel
-								, "incidentDateLabel" : item_program.incidentDateLabel
-								, "programStages":  me.getProgramStageList_FromSource( item_program.id, json_programListWithStage_Full ) 
-								, "categoryComboId":  item_program.categoryCombo.id
-								, "categoryOptions" : item_program.categoryCombo.categories[0].categoryOptions
-							} );
-
+							var foundProgram = Util.findItemFromList( _settingForm.userProgramList, "id", item_program.id );
+							
+							if( foundProgram != undefined || _settingForm.isDhisSuperUser() )
+							{
+								programList_Temp.push( { "id": item_program.id, "name":  item_program.displayName
+									, "programType": item_program.programType
+									, "expiryPeriodType" : item_program.expiryPeriodType 
+									, "expiryDays" : item_program.expiryDays
+									, "completeEventsExpiryDays" : item_program.completeEventsExpiryDays
+									, "selectEnrollmentDatesInFuture" : item_program.selectEnrollmentDatesInFuture
+									, "selectIncidentDatesInFuture" : item_program.selectIncidentDatesInFuture
+									, "enrollmentDateLabel" : item_program.enrollmentDateLabel
+									, "incidentDateLabel" : item_program.incidentDateLabel
+									, "programStages":  me.getProgramStageList_FromSource( item_program.id, json_programListWithStage_Full ) 
+									, "categoryComboId":  item_program.categoryCombo.id
+									, "categoryOptions" : item_program.categoryCombo.categories[0].categoryOptions
+								} );
+							}
 						});
 
 						QuickLoading.dialogShowRemove( 'programLoading' );

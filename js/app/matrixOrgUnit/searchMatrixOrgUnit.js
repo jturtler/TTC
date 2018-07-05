@@ -334,7 +334,17 @@ function SearchMatrixOrgUnit( MatrixObj )
 			{
 				me.programListTag.find("option").remove();
 				me.programListTag.append("<option value=''>[Please select]</option>");
-				var programs = jsonData.programs;
+				
+				var programs = [];
+				$.each( jsonData.programs, function( i_program, item_program ) 
+				{
+					var foundProgram = Util.findItemFromList( _settingForm.userProgramList, "id", item_program.id );
+					if( foundProgram != undefined || _settingForm.isDhisSuperUser() )
+					{
+						programs.push(item_program);
+					}
+				});
+						
 				for( var i in programs )
 				{
 					var id = programs[i].id;

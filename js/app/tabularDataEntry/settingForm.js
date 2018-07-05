@@ -68,6 +68,8 @@ function SettingForm( _TabularDEObj, _matrixObj )
 
 	me.settingData;
 	me.ouGroupList = [];
+	me.userProgramList = [];
+	me.isDhisSuperUser = false;
 	me.DHISVersion;
 	me.defaultCatOption;
 	me.defaultCatCombo;
@@ -188,7 +190,8 @@ function SettingForm( _TabularDEObj, _matrixObj )
 						}
 					});
 					
-					var submitType = ( me.settingData === undefined ) ? "POST" : "PUT";
+					// var submitType = ( me.settingData === undefined ) ? "POST" : "PUT";
+					var submitType = "POST";
 					
 					DBSetting.saveSettingValue( submitType, me.dbSettingName, json_SettingData
 					, function()
@@ -627,49 +630,56 @@ function SettingForm( _TabularDEObj, _matrixObj )
 	
 	me.populateDEList = function()
 	{
-		// Traker data element in OU Group list
-		me.dialogFormTag.find(".ouGroupList").closest("tr").remove();
-		if( me.settingData.orgUnitGroups != undefined )
-		{
-			for( var i in me.settingData.orgUnitGroups )
+		//me.getSettingData( function( settingData ) 
+		//{
+			
+			// Traker data element in OU Group list
+			me.dialogFormTag.find(".ouGroupList").closest("tr").remove();
+			if( me.settingData.orgUnitGroups != undefined )
 			{
-				var ouGroupSetting = me.settingData.orgUnitGroups[i];
-				var deList =  ouGroupSetting.deList;
-				var ouGroupRowTag = me.addTrackerOrgUnitGroupRow( ouGroupSetting.ouGroupId, deList[0] );
-				var deListCellTag = ouGroupRowTag.find("select.deList").closest("td");
-				for( var j=1; j<deList.length; j++ )
+				for( var i in me.settingData.orgUnitGroups )
 				{
-					me.addMoreDEListTag( deListCellTag, deList[j], "TRACKER" );
+					var ouGroupSetting = me.settingData.orgUnitGroups[i];
+					var deList =  ouGroupSetting.deList;
+					var ouGroupRowTag = me.addTrackerOrgUnitGroupRow( ouGroupSetting.ouGroupId, deList[0] );
+					var deListCellTag = ouGroupRowTag.find("select.deList").closest("td");
+					for( var j=1; j<deList.length; j++ )
+					{
+						me.addMoreDEListTag( deListCellTag, deList[j], "TRACKER" );
+					}
 				}
 			}
-		}
-		
-		// Aggregate data element in OU Group list
-		me.dialogFormTag.find(".aggOuGroupList").closest("tr").remove();
-		if( me.settingData.aggOrgUnitGroups != undefined )
-		{
-			for( var i in me.settingData.aggOrgUnitGroups )
+			
+			// Aggregate data element in OU Group list
+			me.dialogFormTag.find(".aggOuGroupList").closest("tr").remove();
+			if( me.settingData.aggOrgUnitGroups != undefined )
 			{
-				var ouGroupSetting = me.settingData.aggOrgUnitGroups[i];
-				var deList =  ouGroupSetting.deList;
-				var ouGroupRowTag = me.addAggOrgUnitGroupRow( ouGroupSetting.ouGroupId, deList[0] );
-				var deListCellTag = ouGroupRowTag.find("select.deList").closest("td");
-				for( var j=1; j<deList.length; j++ )
+				for( var i in me.settingData.aggOrgUnitGroups )
 				{
-					me.addMoreDEListTag( deListCellTag, deList[j], "AGGREGATE" );
+					var ouGroupSetting = me.settingData.aggOrgUnitGroups[i];
+					var deList =  ouGroupSetting.deList;
+					var ouGroupRowTag = me.addAggOrgUnitGroupRow( ouGroupSetting.ouGroupId, deList[0] );
+					var deListCellTag = ouGroupRowTag.find("select.deList").closest("td");
+					for( var j=1; j<deList.length; j++ )
+					{
+						me.addMoreDEListTag( deListCellTag, deList[j], "AGGREGATE" );
+					}
 				}
 			}
-		}
+		//});
 	};
 	
 	me.afterLoadedMetaData = function()
 	{
 		if( me.loadedOUGroups && me.loadedDHISVersion && me.loadedDefaultCatOptionCombo )
 		{
-			// me.addTrackerOrgUnitGroupRow();
-			me.populateSettingData();
+			// me.getSettingData( function(){
+				// me.addTrackerOrgUnitGroupRow();
+				me.populateSettingData();
 			
-			MsgManager.appUnblock();
+				MsgManager.appUnblock();
+			// });
+			
 		}
 	};
 	
@@ -844,13 +854,14 @@ function SettingForm( _TabularDEObj, _matrixObj )
 	// ---------------------------------------------------------------------------------------------
 	// Get current DHIS version
 	
-	me.getDHISVersion = function()
+	me.getDHISVersion = function(exeFunc)
 	{
 		RESTUtil.getAsynchData( me.queryURL_DHIS_version
 		, function( json_Data )
 		{
 			me.DHISVersion = json_Data.version;
 			me.loadedDHISVersion = true;
+			exeFunc();
 			me.afterLoadedMetaData();
 		}, function()
 		{
@@ -899,6 +910,9 @@ function SettingForm( _TabularDEObj, _matrixObj )
 		var userSecurityManager = new UserSecurityManager();
 		userSecurityManager.performSetup( function(){
 			
+			me.userProgramList = userSecurityManager.programs;
+			me.isDhisSuperUser = userSecurityManager.isDhisSuperUser;
+			
 			var authorities = userSecurityManager.getUserPermission_Authorities();
 			if( authorities.Settings_Edit )
 			{
@@ -914,12 +928,14 @@ function SettingForm( _TabularDEObj, _matrixObj )
 			me.loadOrgUnitGroupList();
 			// me.loadAggDataElementList();
 			// me.loadTrackerDataElementList();
-			me.getDHISVersion();
-			me.getDefaultCatOptionCombo();
+			me.getDHISVersion( function(){
+				me.getDefaultCatOptionCombo();
 			
-			me.FormPopupSetup();
+				me.FormPopupSetup();
 			
-			me.loadSettingDataInitially_AndCheckRequired();
+				me.loadSettingDataInitially_AndCheckRequired();
+			});
+			
 		
 			me.addProgramRuleBtnTag.click( function(){
 				me.addTrackerOrgUnitGroupRow();

@@ -6,7 +6,7 @@ function UserSecurityManager()
 	me.userInfo;
 	me.userGroups = [];
 
-	me.queryURL_me = _queryURL_api + "me.json?fields=*,userGroups[id,name],userCredentials[username,userRoles[name,authorities]]";
+	me.queryURL_me = _queryURL_api + "me.json?fields=*,userGroups[id,name],userCredentials[username,userRoles[name,authorities,programs]]";
 	me.queryURL_createUserGroup = _queryURL_api + "userRoles";
 	me.queryURL_userRoleList = _queryURL_api + "userRoles.json?paging=false&fields=id,name,authorities";
 	
@@ -29,7 +29,14 @@ function UserSecurityManager()
 	{
 		return me.userInfo.userCredentials.username;
 	};
-
+	
+	me.isDhisSuperUser = function()
+	{
+		var roleAuthorities = me.getRoleAuthorities();
+		
+		return ( roleAuthorities.indexOf( "ALL" ) >= 0 ) || me.isAppSuperUser();
+	};
+	
 	me.isAppSuperUser = function()
 	{
 		var userLoginId = me.getUserLoginId();
@@ -124,7 +131,16 @@ function UserSecurityManager()
 		, function( json_Data ) 
 		{
 			me.userInfo = json_Data;
-
+			me.programs = []
+			var userRoles = json_Data.userCredentials.userRoles;
+			for( var i=0; i<userRoles.length; i++ )
+			{
+				if( userRoles[i].programs!= undefined )
+				{
+					me.programs = me.programs.concat( userRoles[i].programs );
+				}
+			}
+			
 			if ( json_Data.userGroups !== undefined )
 			{					
 				me.userGroups = json_Data.userGroups;
