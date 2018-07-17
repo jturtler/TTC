@@ -29,14 +29,22 @@ RESTUtil.getSynchData = function( url ) {
 	}).responseText;
 }
 
-/*
-RESTUtil.submitData_Text = function( settingName, data )
-{
-	RESTUtil.submitData_URL( _queryURL_SystemSettings + settingName, data
-		, function() { alert( 'Saved Successfully!' ); }
-		, function() { alert( 'Failed to Save the value.' ); } );
+RESTUtil.submitData_JSON = function( submitType, url, jsonData, successFunc, failFunc )
+{		
+	$.ajax({
+	  type: submitType,
+	  url: url,
+	  data: JSON.stringify( jsonData ),
+	  contentType: "application/json",
+	  success: function( msg ) {
+		  successFunc();
+		},
+	  error: function( msg ) {
+		  failFunc();
+		}			   
+	});
 }
-*/
+
 
 
 RESTUtil.submitData_Text = function( submitType, url, jsonData, successFunc, failFunc )
@@ -45,7 +53,7 @@ RESTUtil.submitData_Text = function( submitType, url, jsonData, successFunc, fai
 	  type: submitType,
 	  url: url,
 	  data: JSON.stringify( jsonData ),
-	  contentType: "application/json",
+	  contentType: "text/plain",
 	  success: function( msg ) {
 		  successFunc();
 		},

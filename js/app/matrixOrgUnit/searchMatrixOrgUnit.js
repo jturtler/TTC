@@ -339,7 +339,7 @@ function SearchMatrixOrgUnit( MatrixObj )
 				$.each( jsonData.programs, function( i_program, item_program ) 
 				{
 					var foundProgram = Util.findItemFromList( _settingForm.userProgramList, "id", item_program.id );
-					if( foundProgram != undefined || _settingForm.isDhisSuperUser() )
+					if( foundProgram != undefined || _settingForm.isDhisSuperUser )
 					{
 						programs.push(item_program);
 					}

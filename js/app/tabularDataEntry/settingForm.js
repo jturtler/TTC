@@ -192,7 +192,16 @@ function SettingForm( _TabularDEObj, _matrixObj )
 					
 					// var submitType = ( me.settingData === undefined ) ? "POST" : "PUT";
 					var submitType = "POST";
-					
+					if( _settingForm.DHISVersion == "2.25" || _settingForm.DHISVersion == "2.26" 
+						|| _settingForm.DHISVersion == "2.27" )
+					{
+						submitType = "POST";
+					}
+					else
+					{
+						submitType = ( me.settingData === undefined ) ? "POST" : "PUT";
+					}
+
 					DBSetting.saveSettingValue( submitType, me.dbSettingName, json_SettingData
 					, function()
 					{
@@ -402,7 +411,7 @@ function SettingForm( _TabularDEObj, _matrixObj )
 			, function( json_Data ) 
 			{
 				me.settingData = json_Data;
-
+				
 				execFunc( me.settingData );
 			}
 			, function( json_Data ) 
@@ -630,11 +639,12 @@ function SettingForm( _TabularDEObj, _matrixObj )
 	
 	me.populateDEList = function()
 	{
-		//me.getSettingData( function( settingData ) 
-		//{
-			
+		me.dialogFormTag.find(".ouGroupList").closest("tr").remove();
+		me.dialogFormTag.find(".aggOuGroupList").closest("tr").remove();
+
+		if( me.settingData != undefined )
+		{
 			// Traker data element in OU Group list
-			me.dialogFormTag.find(".ouGroupList").closest("tr").remove();
 			if( me.settingData.orgUnitGroups != undefined )
 			{
 				for( var i in me.settingData.orgUnitGroups )
@@ -666,7 +676,7 @@ function SettingForm( _TabularDEObj, _matrixObj )
 					}
 				}
 			}
-		//});
+		}
 	};
 	
 	me.afterLoadedMetaData = function()

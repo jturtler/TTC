@@ -21,6 +21,7 @@ function PersonDialogForm( TabularDEObj )
 
 	me.afterSaveAction;
 
+	me.enrollmentTableTag = $("#enrollment_Table");
 	me.enrolmentDateLabelTag = $("#enrolmentDateLabel");
 	me.incidentDateLabelTag = $("#incidentDateLabel");
 	me.enrolmentDateTag = $("#enrolmentDate");
@@ -36,39 +37,117 @@ function PersonDialogForm( TabularDEObj )
 		me.afterSaveAction = afterSaveAction;
 		
 		// Get selected program configuration
-		var selectedProgram = me.TabularDEObj.getSelectedProgram();
-		
-		if( formType == "Exist" )
+		/* var selectedProgram = me.TabularDEObj.getSelectedProgram();
+		if( _settingForm.DHISVersion == "2.25" || _settingForm.DHISVersion == "2.26" )
 		{
-			Util.disableTag( me.enrolmentDateTag, true );
-			Util.disableTag( me.incidentDateTag, true );
+			me.enrollmentTableTag.hide();
+			if( formType == "New" )	
+			{
+				me.enrolmentDateTag.val( Util.getCurrentDate() );
+				me.incidentDateTag.val( Util.getCurrentDate() );
+			}
+
 		}
 		else
 		{
-			Util.disableTag( me.enrolmentDateTag, false );
-			Util.disableTag( me.incidentDateTag, false );
-			
-			
-			// Set date picker for Enrollment Date and Incident Date fields
-			Util.setDatePickerInRange( "incidentDate", "enrolmentDate", function(){
-				if( !eval( selectedProgram.selectIncidentDatesInFuture ) )
-				{
-					Util.datePicker_SetMaxDate( me.incidentDateTag, new Date() );
-				}
-				
-			}, true );
-			
-			// Set Current date for [Enrollment Date] field and [Incident Date] field
-			me.enrolmentDateTag.val( Util.getCurrentDate() );
-			me.incidentDateTag.val("");
-			
-			// Set the Enrollment date in future if any
-			if( eval( selectedProgram.selectEnrollmentDatesInFuture ) )
+			me.enrollmentTableTag.show();
+			if( formType == "Exist" )
 			{
-				var futureDate = new Date();
-				futureDate.setFullYear( futureDate.getFullYear() + 100 );
-				Util.datePicker_SetMaxDate( me.enrolmentDateTag, futureDate );
+				Util.disableTag( me.enrolmentDateTag, true );
+				Util.disableTag( me.incidentDateTag, true );
 			}
+			else
+			{
+				Util.disableTag( me.enrolmentDateTag, false );
+				Util.disableTag( me.incidentDateTag, false );
+			}
+		} */
+
+	
+		if( formType == "Exist" )
+ 		{	
+			var personId = currentTr.attr( 'uid' );
+
+			me.TabularDEObj.checkProgramEnroll( personId, me.TabularDEObj.getSelectedProgramId(), me.TabularDEObj.getOrgUnitId(), function( enrollmentData ) // has ACTIVE program
+			{
+				me.enrollmentTableTag.hide();
+				Util.disableTag( me.enrolmentDateTag, true );
+				Util.disableTag( me.incidentDateTag, true );
+			}, function(){
+				me.enrollmentTableTag.show();
+				Util.disableTag( me.enrolmentDateTag, false );	
+				Util.disableTag( me.incidentDateTag, false );
+
+				me.initFormBeforeOpen( currentTr, formType, returnFunc );
+				
+			}, function()
+			{
+				me.initFormBeforeOpen( currentTr, formType, returnFunc );
+			});
+		 }
+		 else
+		 {
+			 me.enrollmentTableTag.show();
+			 Util.disableTag( me.enrolmentDateTag, false );
+			 Util.disableTag( me.incidentDateTag, false );
+
+			 me.initFormBeforeOpen( currentTr, formType, returnFunc );
+		 }
+	}
+
+	// ----------------------------------------------
+
+
+	me.initFormBeforeOpen = function( currentTr, formType, returnFunc )
+	{
+		var selectedProgram = me.TabularDEObj.getSelectedProgram();
+		
+		// Set date picker for Enrollment Date and Incident Date fields
+		Util.setDatePickerInRange( "incidentDate", "enrolmentDate", function(){
+			if( !eval( selectedProgram.selectIncidentDatesInFuture ) )
+			{
+				Util.datePicker_SetMaxDate( me.incidentDateTag, new Date() );
+			}
+		}, true );
+
+		// Set Current date for [Enrollment Date] field and [Incident Date] field
+		me.enrolmentDateTag.val( Util.getCurrentDate() );
+		me.incidentDateTag.val("");
+		
+		// Set the Enrollment date in future if any
+		if( eval( selectedProgram.selectEnrollmentDatesInFuture ) )
+		{
+			var futureDate = new Date();
+			futureDate.setFullYear( futureDate.getFullYear() + 100 );
+			Util.datePicker_SetMaxDate( me.enrolmentDateTag, futureDate );
+		}
+
+
+		if( formType == "New" )	
+		{
+			me.enrolmentDateTag.val( Util.getCurrentDate() );
+			me.incidentDateTag.val( Util.getCurrentDate() );
+
+			// // Set date picker for Enrollment Date and Incident Date fields
+			// Util.setDatePickerInRange( "incidentDate", "enrolmentDate", function(){
+			// 	if( !eval( selectedProgram.selectIncidentDatesInFuture ) )
+			// 	{
+			// 		Util.datePicker_SetMaxDate( me.incidentDateTag, new Date() );
+			// 	}
+				
+			// }, true );
+			
+			// // Set Current date for [Enrollment Date] field and [Incident Date] field
+			// me.enrolmentDateTag.val( Util.getCurrentDate() );
+			// me.incidentDateTag.val("");
+			
+			// // Set the Enrollment date in future if any
+			// if( eval( selectedProgram.selectEnrollmentDatesInFuture ) )
+			// {
+			// 	var futureDate = new Date();
+			// 	futureDate.setFullYear( futureDate.getFullYear() + 100 );
+			// 	Util.datePicker_SetMaxDate( me.enrolmentDateTag, futureDate );
+			// }
 
 		}
 		
@@ -82,8 +161,6 @@ function PersonDialogForm( TabularDEObj )
 		{
 			if ( me.setupForm( currentTr, formType ) )
 			{
-				// Set Program Rules - Attribute ones..
-				var selectedProgram = me.TabularDEObj.getSelectedProgram();
 				var personId = currentTr.attr( 'uid' );
 
 				// Clear Memory Stored Event data.
@@ -98,10 +175,7 @@ function PersonDialogForm( TabularDEObj )
 
 			if ( returnFunc !== undefined ) returnFunc();
 		});
-	}
-
-	// ----------------------------------------------
-
+	};
 
 	me.setupForm = function( trCurrent, type )
 	{

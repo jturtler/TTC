@@ -13,10 +13,12 @@ DBSetting.getQueryURL_SystemSettings = function()
 		url = DBSetting._queryURL_SystemSettings_DHIS225;
 	}
 
+	return url;
 };
 
 DBSetting.getSettingValue = function( settingName, successFunc, failFunc )
 {
+	var url = DBSetting.getQueryURL_SystemSettings() + settingName;
 	RESTUtil.getAsynchData( url
 	, function( data )
 	{
@@ -31,7 +33,18 @@ DBSetting.getSettingValue = function( settingName, successFunc, failFunc )
 
 DBSetting.saveSettingValue = function( submitType, settingName, jsonData, successFunc, failFunc )
 {
-	RESTUtil.submitData_Text( submitType, url, jsonData
-	,successFunc, failFunc );
+	var url = DBSetting.getQueryURL_SystemSettings() + settingName;
+	if( _settingForm.DHISVersion == "2.25" || _settingForm.DHISVersion == "2.26" 
+		|| _settingForm.DHISVersion == "2.27" )
+	{
+		RESTUtil.submitData_Text( submitType, url, jsonData
+			,successFunc, failFunc );
+	}
+	else
+	{
+		RESTUtil.submitData_JSON( submitType, url, jsonData
+			,successFunc, failFunc );
+	}
+	
 }
 

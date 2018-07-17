@@ -424,7 +424,6 @@ function RelativePeriod()
 			}
 			
 		}
-		
 	};
 		
 	

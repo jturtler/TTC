@@ -216,9 +216,9 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 	
 
 		var defaultDate = $.format.date( startDate, _dateFormat_YYYYMMDD );
-		if( validEventDateRange.startDate !== undefined && startDateStr < validMinDateStr )
+		if( validEventDateRange.startDate !== undefined )
 		{
-			if( validMinDateStr >= startDateStr && validMinDateStr <= endDateStr )
+			if( validMinDateStr >= startDateStr && validMinDateStr <= endDateStr ) // startDateStr <= validMinDateStr <= endDateStr
 			{
 				defaultDate = $.format.date( validEventDateRange.startDate, _dateFormat_YYYYMMDD );
 			}
@@ -228,7 +228,7 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 			}
 		}
 		
-		if( startDateStr <= todayStr && todayStr <= endDateStr )
+		if( startDateStr <= todayStr && todayStr <= endDateStr ) // startDateStr <= todayStr <= endDateStr 
 		{
 			eventDate.val( $.format.date( new Date(), _dateFormat_YYYYMMDD ) );
 		}
@@ -238,6 +238,7 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 		}
 		else
 		{
+			defaultDate = "";
 			eventDate.val( defaultDate );
 		}
 		

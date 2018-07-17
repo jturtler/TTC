@@ -267,9 +267,9 @@ function TabularDataEntry( _orgUnitSelectionTreePopup )
 	}
 	*/
 
-	me.checkProgramEnroll = function( personId, programId, orgUnitId, enrolledAction, notEnrolledAction )
+	me.checkProgramEnroll = function( personId, programId, orgUnitId, enrolledAction, notEnrolledAction, doneAction )
 	{
-		me.personList.checkProgramEnroll( personId, programId, orgUnitId, enrolledAction, notEnrolledAction );
+		me.personList.checkProgramEnroll( personId, programId, orgUnitId, enrolledAction, notEnrolledAction, doneAction );
 	}
 
 	me.programEnroll = function( personId, enrollmentId, programId, orgUnitId, enrolmentDateInFormat, incidentDateInFormat, followup, actionType,successAction, failAction )

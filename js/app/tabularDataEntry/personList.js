@@ -1078,7 +1078,7 @@ function PersonList( TabularDEObj )
 	// -- Person Auto Selected Related -------------------
 	// ---------------------------------------------------
 
-	me.checkProgramEnroll = function( personId, programId, orgUnitId, enrolledAction, notEnrolledAction )
+	me.checkProgramEnroll = function( personId, programId, orgUnitId, enrolledAction, notEnrolledAction, doneAction )
 	{
 		// Check Enrollment first. //'&ou=' + orgUnitId
 		RESTUtil.getAsynchData( _queryURL_ProgramEnrollmentQuery + '?trackedEntityInstance=' + personId + '&program=' + programId + '&ouMode=ALL'
@@ -1110,7 +1110,11 @@ function PersonList( TabularDEObj )
 					notEnrolledAction();
 				}
 			}
-			, notEnrolledAction
+			, notEnrolledAction // Error
+			, undefined
+			, function(){
+				if(doneAction != undefined ) doneAction();
+			}
 		);
 	}
 
