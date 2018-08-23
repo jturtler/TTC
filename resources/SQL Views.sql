@@ -1,5 +1,23 @@
 
----------------- TABULAR MATRIX ------------------------------------------------
+---------------- TABULAR MATRIX DHIS FROM 2.30 ------------------------------------------------
+
+select org.uid
+			, EXTRACT(${periodType} FROM event.executiondate ) AS periodIdx
+      , extract(year from event.executiondate) as yyyy
+			, count( event.programstageinstanceid )
+from programstageinstance event
+inner join programinstance pi on pi.programinstanceid=event.programinstanceid
+inner join program prg on prg.programid=pi.programid
+inner join organisationunit org on event.organisationunitid=org.organisationunitid
+
+where prg.uid='${programId}'
+and org.parentid = ( select organisationunitid from organisationunit where uid='${ouParentId}' )
+and event.deleted = false
+
+group by 1,2,3
+
+
+---------------- TABULAR MATRIX DHIS FROM 2.25 to 2.29 ------------------------------------------------
 
 select org.uid
 			, EXTRACT(${periodType} FROM event.executiondate ) AS periodIdx

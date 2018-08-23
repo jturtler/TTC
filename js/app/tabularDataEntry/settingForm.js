@@ -683,13 +683,20 @@ function SettingForm( _TabularDEObj, _matrixObj )
 	{
 		if( me.loadedOUGroups && me.loadedDHISVersion && me.loadedDefaultCatOptionCombo )
 		{
-			// me.getSettingData( function(){
-				// me.addTrackerOrgUnitGroupRow();
+			if( me.settingData === undefined )
+			{
+				me.getSettingData( function(){
+					me.addTrackerOrgUnitGroupRow();
+					me.populateSettingData();
+				
+					MsgManager.appUnblock();
+				});
+			}
+			else
+			{
 				me.populateSettingData();
-			
 				MsgManager.appUnblock();
-			// });
-			
+			}
 		}
 	};
 	
@@ -854,9 +861,12 @@ function SettingForm( _TabularDEObj, _matrixObj )
 			list = me.aggDataElementList;
 		}
 		
-		$.each( list, function( i, item ) {
-			listTag.append( $( '<option></option>' ).attr( "value", item.id ).text( item.displayName ) );
-		});
+		if( list != undefined )
+		{
+			$.each( list, function( i, item ) {
+				listTag.append( $( '<option></option>' ).attr( "value", item.id ).text( item.displayName ) );
+			});
+		}
 		
 		return listTag;
 	};

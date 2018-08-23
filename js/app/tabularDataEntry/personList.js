@@ -406,7 +406,7 @@ function PersonList( TabularDEObj )
 						else
 						{
 							// ou Added for the limited feature..
-							var requestUrl = _queryURL_PersonQuery + ".json?filter=" + attribute0_id + ":LIKE:" + request.term + "&ouMode=DESCENDANTS&ou=" + me.TabularDEObj.searchPanel.getCountryId();
+							var requestUrl = _queryURL_PersonQuery + ".json?filter=" + attribute0_id + ":LIKE:" + request.term + "&ouMode=DESCENDANTS&ou=" + me.TabularDEObj.searchPanel.getCountryId() + "&trackedEntityType=" + me.TabularDEObj.getSelectedProgram().trackedEntityType;
 
 							// Step 0. Check the search count first!!
 							me.checkSearchMaxLimit( requestUrl, function( pass ) {

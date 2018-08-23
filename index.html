@@ -84,14 +84,17 @@
 		var _queryURL_DataElementDetail = _queryURL_api + "dataElements/";
 		var _queryURL_OptionSets = _queryURL_api + "optionSets/";
 
-		var _queryURL_ProgramStageInstance = _queryURL_api + "events/"; 
+		var _queryURL_ProgramStageInstance = _queryURL_api + "events"; 
 
 		var _queryURL_PersonSubmit = _queryURL_api + "trackedEntityInstances";
 		var _queryURL_PersonQuery = _queryURL_api + "trackedEntityInstances"; 
 
 		var _queryURL_PersonAttributes = _queryURL_api + "trackedEntityAttributes.json?paging=false&viewClass=detail&fields=id,displayName,valueType,optionSetValue,optionSet[id,displayName,options[id,code,displayName]]";
 
-		var _queryURL_TrackedEntities = _queryURL_api + "trackedEntities";
+		// < DHIS 2.30
+		// var _queryURL_TrackedEntities = _queryURL_api + "trackedEntities";
+		// DHIS 2.30
+		var _queryURL_TrackedEntities = _queryURL_api + "trackedEntityTypes";
 
 		var _queryURL_Enrollments = _queryURL_api + "enrollments.json?ouMode=ACCESSIBLE";
 		// var _queryURL_EventQuery = _queryURL_api + "26/events.json?paging=false&skipPaging=true";
@@ -461,8 +464,9 @@
 					<td style="color: White;" data-l10n-id="specificPeriodMode">Specific Period</td>
 					<td>	
 						<span id="settingLink" style="display:none;">
-							| <a href="" id="settingFormOpen" style="color: White;" data-l10n-id="setting">Setting</a> | <a href="https://docs.google.com/document/d/1S6WD_oYdewVWFvsDnr1CL8yM2easN5mDc7j8QWI09Sw" target="_blank" style="color: White;">v <span id="currentVersion">1.66.5 - SNAPSHOT</span></a>
+							| <a href="" id="settingFormOpen" style="color: White;" data-l10n-id="setting">Setting</a> 
 						</span>
+						| <a href="https://docs.google.com/document/d/1S6WD_oYdewVWFvsDnr1CL8yM2easN5mDc7j8QWI09Sw" target="_blank" style="color: White;">v <span id="currentVersion">1.66.5 - SNAPSHOT</span></a>
 						| <button type="button" id="closeButton" class="button" style="font-size: 11px;"><span data-l10n-id="close" nameid="closeButton">Close</span></button>
 					</td>
 				</tr>

@@ -213,7 +213,7 @@ function ProgramManager( TabularDEObj, defaultProgramTag )
 
 	me.retrieveProgram_ProgramList = function( orgUnitId, populateFunc )
 	{
-		var queryUrl = _queryURL_OrgUnit + "/" + orgUnitId + ".json?fields=id,programs[id,displayName,programType,expiryPeriodType,expiryDays,completeEventsExpiryDays,selectIncidentDatesInFuture,selectEnrollmentDatesInFuture,enrollmentDateLabel,incidentDateLabel,categoryCombo[id,categories[categoryOptions[id,displayName]]]]";
+		var queryUrl = _queryURL_OrgUnit + "/" + orgUnitId + ".json?fields=id,programs[trackedEntityType[id],id,displayName,programType,expiryPeriodType,expiryDays,completeEventsExpiryDays,selectIncidentDatesInFuture,selectEnrollmentDatesInFuture,enrollmentDateLabel,incidentDateLabel,categoryCombo[id,categories[categoryOptions[id,displayName]]]]";
 
 		RESTUtil.getAsynchData( queryUrl, function ( json_ProgramList )
 		{
@@ -232,8 +232,14 @@ function ProgramManager( TabularDEObj, defaultProgramTag )
 						{
 							var foundProgram = Util.findItemFromList( _settingForm.userProgramList, "id", item_program.id );
 							
-							if( foundProgram != undefined || _settingForm.isDhisSuperUser() )
+							if( foundProgram != undefined || _settingForm.isDhisSuperUser )
 							{
+								var trackedEntityType = "";
+								if( item_program.trackedEntityType != undefined )
+								{
+									trackedEntityType = item_program.trackedEntityType.id;
+								}
+								
 								programList_Temp.push( { "id": item_program.id, "name":  item_program.displayName
 									, "programType": item_program.programType
 									, "expiryPeriodType" : item_program.expiryPeriodType 
@@ -246,6 +252,7 @@ function ProgramManager( TabularDEObj, defaultProgramTag )
 									, "programStages":  me.getProgramStageList_FromSource( item_program.id, json_programListWithStage_Full ) 
 									, "categoryComboId":  item_program.categoryCombo.id
 									, "categoryOptions" : item_program.categoryCombo.categories[0].categoryOptions
+									, "trackedEntityType": trackedEntityType
 								} );
 							}
 						});

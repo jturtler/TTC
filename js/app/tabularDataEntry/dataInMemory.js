@@ -121,7 +121,10 @@ function DataInMemory()
 		}
 		else
 		{
-			me.retrieveFromMemory( me.programList_Full, 'id', 'programFull', _queryURL_ProgramList + '?paging=false&fields=id,displayName,programType,onlyEnrollOnce,executionDateLabel,trackedEntity[id,displayName]'
+			// < DHIS 2.30
+			// me.retrieveFromMemory( me.programList_Full, 'id', 'programFull', _queryURL_ProgramList + '?paging=false&fields=id,displayName,programType,onlyEnrollOnce,executionDateLabel,trackedEntity[id,displayName]'
+			// < DHIS 2.30
+			me.retrieveFromMemory( me.programList_Full, 'id', 'programFull', _queryURL_ProgramList + '?paging=false&fields=id,displayName,programType,onlyEnrollOnce,executionDateLabel,trackedEntityType[id,displayName]'
 				, function( json_programList )
 				{	
 					me.retrieveProgramStageList( function( json_programStageList )

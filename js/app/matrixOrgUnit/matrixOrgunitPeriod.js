@@ -209,7 +209,10 @@ function MatrixOrgunitPeriod( _orgUnitSelectionTreePopup, _TabularDEObj )
 			, function( jsonData )
 			{
 				me.matrixDataLoaded = true;
-				me.matrixData = jsonData.rows;
+				// Lower DHIS 2.30
+				// me.matrixData = jsonData.rows;
+				// DHIS 2.30
+				me.matrixData = jsonData.listGrid.rows;
 				
 				me.afterLoadMatrix();
 			}
@@ -385,15 +388,18 @@ function MatrixOrgunitPeriod( _orgUnitSelectionTreePopup, _TabularDEObj )
 	
 	me.populateMatrixData = function()
 	{
-		for( var i = 0; i < me.matrixData.length; i++ )
+		if( me.matrixData !== undefined )
 		{
-			var ouId = me.matrixData[i][0];
-			var periodIdx = me.matrixData[i][1];
-			var year = me.matrixData[i][2];
-			var value = me.matrixData[i][3];
-			
-			var key = ouId + "_" + me.relativePeriod.generatePeriodCode( periodIdx, year );
-			me.matrixOuDataTag.find( "td[key='" + key + "']" ).find("span.value").html( value );
+			for( var i = 0; i < me.matrixData.length; i++ )
+			{
+				var ouId = me.matrixData[i][0];
+				var periodIdx = me.matrixData[i][1];
+				var year = me.matrixData[i][2];
+				var value = me.matrixData[i][3];
+				
+				var key = ouId + "_" + me.relativePeriod.generatePeriodCode( periodIdx, year );
+				me.matrixOuDataTag.find( "td[key='" + key + "']" ).find("span.value").html( value );
+			}
 		}
 	};
 	

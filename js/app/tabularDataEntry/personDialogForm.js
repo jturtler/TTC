@@ -519,9 +519,14 @@ function PersonDialogForm( TabularDEObj )
 		{
 			var json_TrackedEntities = $.parseJSON( RESTUtil.getSynchData( _queryURL_TrackedEntities + '.json?query=Person' ) );
 
-			for ( i = 0; i < json_TrackedEntities.trackedEntities.length ; i++ )
+			// Lower DHIS 2.30
+			// var trackedEntities = json_TrackedEntities.trackedEntities;
+			// DHIS 2.30
+			var trackedEntities = json_TrackedEntities.trackedEntityTypes;
+			
+			for ( i = 0; i < trackedEntities.length ; i++ )
 			{
-				var trackedEntity = json_TrackedEntities.trackedEntities[i];
+				var trackedEntity = trackedEntities[i];
 
 				if ( trackedEntity.displayName == "Person" )
 				{
@@ -831,7 +836,10 @@ function PersonDialogForm( TabularDEObj )
 
 		newPersonObj[ "orgUnit" ] = orgUnitId;
 
-		newPersonObj[ "trackedEntity" ] = me.getTrackedEntityId_Person();
+		// Lover DHIS 2.30
+		// newPersonObj[ "trackedEntity" ] = me.getTrackedEntityId_Person();
+		// DHIS 2.30
+		newPersonObj[ "trackedEntityType" ] = me.getTrackedEntityId_Person();
 
 		newPersonObj[ "attributes" ] = me.constructAttributes();
 
