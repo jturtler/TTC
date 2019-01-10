@@ -328,22 +328,22 @@ function PersonUtil() {}
 
 PersonUtil.primaryAttributeVal = "PrimaryAttributeVal";
 
-PersonUtil.getPersonByID = function( personId )
+PersonUtil.getPersonByID = function( personId, programId )
 {
-	return $.parseJSON( RESTUtil.getSynchData( _queryURL_PersonQuery + "/" + personId + ".json?fields=*" ) );			
+	return $.parseJSON( RESTUtil.getSynchData( _queryURL_PersonQuery + "/" + personId + ".json?fields=*&program=" + programId ) );			
 }
 
-PersonUtil.clearPersonByID_Reuse = function( personId )
+PersonUtil.clearPersonByID_Reuse = function( personId, programId )
 {
-	var queryUrl = _queryURL_PersonQuery + "/" + personId + ".json?fields=*";
+	var queryUrl = _queryURL_PersonQuery + "/" + personId + ".json?fields=*&program=" + programId;
 	
 	// remove any saved data from memory
 	RESTUtil.retrieveManager.removeFromMemory( queryUrl );
 };
 
-PersonUtil.getPersonByID_Reuse = function( personId, successFunc, finalFunc )
+PersonUtil.getPersonByID_Reuse = function( personId, programId, successFunc, finalFunc )
 {			
-	var queryUrl = _queryURL_PersonQuery + "/" + personId + ".json?fields=*";
+	var queryUrl = _queryURL_PersonQuery + "/" + personId + ".json?fields=*&program=" + programId;
 
 	RESTUtil.retrieveManager.retrieveData( queryUrl
 	, successFunc

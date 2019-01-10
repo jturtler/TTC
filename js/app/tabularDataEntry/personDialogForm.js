@@ -231,17 +231,17 @@ function PersonDialogForm( TabularDEObj )
 
 				button_Update.show();
 				
-
+				var programId = me.TabularDEObj.searchPanel.programManager.selectedProgramId;
 				var personId = trCurrent.attr( 'uid' );
 				me.personDialogFormTag.find( "#person_id" ).val( personId );
 
 
 
 				// Clear the memory data - so that new data gets
-				PersonUtil.clearPersonByID_Reuse( personId );
+				PersonUtil.clearPersonByID_Reuse( personId, programId );
 
 				// ?? TODO: Question: Why is this done by Synch??
-				var item_Person = PersonUtil.getPersonByID( personId );
+				var item_Person = PersonUtil.getPersonByID( personId, programId );
 
 
 
@@ -375,7 +375,8 @@ function PersonDialogForm( TabularDEObj )
 										
 										if ( me.afterSaveAction !== undefined ) me.afterSaveAction();
 										
-										PersonUtil.getPersonByID_Reuse( personId, function( item_Person )
+										var programId = me.TabularDEObj.searchPanel.programManager.selectedProgramId;
+										PersonUtil.getPersonByID_Reuse( personId, programId, function( item_Person )
 										{
 											me.TabularDEObj.setPersonInfoRow( me.currentPersonTr, item_Person );
 
@@ -464,9 +465,9 @@ function PersonDialogForm( TabularDEObj )
 
 
 									// Clear the memory data
-									PersonUtil.clearPersonByID_Reuse( personId );
+									PersonUtil.clearPersonByID_Reuse( personId, defaultProgramId );
 
-									PersonUtil.getPersonByID_Reuse( personId, function( item_Person )
+									PersonUtil.getPersonByID_Reuse( personId, defaultProgramId, function( item_Person )
 									{
 										me.TabularDEObj.populatePersonAttirbutesToRow( me.currentPersonTr, item_Person.attributes );
 

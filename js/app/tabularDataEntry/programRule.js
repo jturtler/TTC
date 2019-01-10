@@ -613,8 +613,8 @@ function ProgramRule( TabularDEObj )
 				}
 				else if ( item_obj.type == EventUtil.varSrcType_TEI_Attribute )
 				{
-					// Retrieve TEI_Attribute values first, and then, get data..
-					PersonUtil.getPersonByID_Reuse( personId, function( item_Person )
+					var programId = me.TabularDEObj.searchPanel.programManager.selectedProgramId;// Retrieve TEI_Attribute values first, and then, get data..
+					PersonUtil.getPersonByID_Reuse( personId, programId, function( item_Person )
 					{
 						// Check the count and only if the count is filled, call returnFunc
 						var attributeData = Util.getFromList( item_Person.attributes, item_obj.id, "attribute" );

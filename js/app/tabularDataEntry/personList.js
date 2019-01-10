@@ -405,8 +405,12 @@ function PersonList( TabularDEObj )
 						}
 						else
 						{
+							var programId = me.TabularDEObj.searchPanel.programManager.selectedProgramId;
+							
 							// ou Added for the limited feature..
-							var requestUrl = _queryURL_PersonQuery + ".json?filter=" + attribute0_id + ":LIKE:" + request.term + "&ouMode=DESCENDANTS&ou=" + me.TabularDEObj.searchPanel.getCountryId() + "&trackedEntityType=" + me.TabularDEObj.getSelectedProgram().trackedEntityType;
+							// var requestUrl = _queryURL_PersonQuery + ".json?filter=" + attribute0_id + ":LIKE:" + request.term + "&ouMode=DESCENDANTS&ou=" + me.TabularDEObj.searchPanel.getCountryId() + "&trackedEntityType=" + me.TabularDEObj.getSelectedProgram().trackedEntityType + "&program=" + programId;
+							
+							var requestUrl = _queryURL_PersonQuery + ".json?filter=" + attribute0_id + ":LIKE:" + request.term + "&ouMode=DESCENDANTS&ou=" + me.TabularDEObj.searchPanel.getCountryId() + "&program=" + programId;
 
 							// Step 0. Check the search count first!!
 							me.checkSearchMaxLimit( requestUrl, function( pass ) {
@@ -549,7 +553,8 @@ function PersonList( TabularDEObj )
 
 	me.getPersonById = function( personId, execFunc )
 	{
-		PersonUtil.getPersonByID_Reuse( personId, function( item_person )
+		var programId = me.TabularDEObj.searchPanel.programManager.selectedProgramId;
+		PersonUtil.getPersonByID_Reuse( personId, programId, function( item_person )
 		{
 			execFunc( item_person );
 		});
@@ -558,7 +563,8 @@ function PersonList( TabularDEObj )
 
 	me.getPerson_WithDoneStage = function( personId, execFunc )
 	{
-		PersonUtil.getPersonByID_Reuse( personId, function( item_person )
+		var programId = me.TabularDEObj.searchPanel.programManager.selectedProgramId;
+		PersonUtil.getPersonByID_Reuse( personId, programId, function( item_person )
 		{
 			me.retrieveAndSetDoneProgramStages( item_person, function()
 			{
