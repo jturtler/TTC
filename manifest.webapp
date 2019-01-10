@@ -1,7 +1,7 @@
 {
-	"version":"1.66.5 - SNAPSHOT"
-	,"name":"Tabular Tracker Capture - v1.66.5 - SNAPSHOT"
-	,"description":"Tabular Tracker Capture - v1.66.5 - SNAPSHOT"
+	"version":"1.66.6"
+	,"name":"ttc"
+	,"description":"Tabular Tracker Capture 1.66.6"
 	,"icons":{"16":null,"48":"img/icons/icon.png","128":null}
 	,"developer":{"url":"","name":"James Chang","company":null,"email":null}
 	,"launch_path":"index.html"

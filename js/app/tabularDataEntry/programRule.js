@@ -584,7 +584,7 @@ function ProgramRule( TabularDEObj )
 		var orgUnitId = TabularDEObj.getOrgUnitId();
 		var programId = TabularDEObj.getSelectedProgramId();
 
-
+		console.log( 'programRule.getConditionObjValues, programId: ' + programId );
 		// CONSOLE
 		// Run the loading progress bar for this!!!!
 		// $( '#programRuleLoading' ).show();
@@ -613,7 +613,10 @@ function ProgramRule( TabularDEObj )
 				}
 				else if ( item_obj.type == EventUtil.varSrcType_TEI_Attribute )
 				{
-					var programId = me.TabularDEObj.searchPanel.programManager.selectedProgramId;// Retrieve TEI_Attribute values first, and then, get data..
+					// TODO: 2.30
+					
+					//programId = me.TabularDEObj.searchPanel.programManager.selectedProgramId;// Retrieve TEI_Attribute values first, and then, get data..
+
 					PersonUtil.getPersonByID_Reuse( personId, programId, function( item_Person )
 					{
 						// Check the count and only if the count is filled, call returnFunc
