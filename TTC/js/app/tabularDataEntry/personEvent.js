@@ -28,7 +28,7 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 
 		+ "<td class='orig tdEventDelete'><input type='image' class='eventRowDelete dimImgWHover' alt='Delete Row' title='Delete Row' src='img/cross.png' style='border: 0px solid;' /><input type='image' class='eventDelete dimImgWHover' alt='Delete Event' title='Delete Event' src='img/cross.png' style='display:none; border: 0px solid;' /></td>";
 
-	me.AttributeControlsTemplate = "<input type='text' class='datepicker' style='display:none;' size='11' /><input class='textbox' style='display:none;' type='text' size='25' height='20px' /><textarea class='textarea' style='display:none;' cols='15' rows='2'></textarea><input class='checkbox' style='display:none;' type='checkbox' /><select class='dropdown' style='display:none;'><option value=''>" + l10n.get('selectValue') + "</option></select><span class='label' style='display:none;'></span>";  
+	me.AttributeControlsTemplate = "<input type='text' class='datepicker' style='display:none;' size='11' /><input class='textbox' style='display:none;' type='text' size='25' height='20px' /><textarea class='textarea' style='display:none;' cols='15' rows='2'></textarea><input class='checkbox' style='display:none;' type='checkbox' /><select class='dropdown' style='display:none;'><option value=''>" + l10n.get('selectValue') + "</option></select><span class='labelMsg' style='display:none;'></span>";  
 	// Should use separate for 'AttributeControl'
 	// Larger Text fields, etc..
 
@@ -1420,7 +1420,7 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 					else
 					{
 						//alert( "Unknown Column(DataElement) Type Found.  [Name: " + json_DataElement.displayName + ", ID: " + json_DataElement.id + ", valueType: " + valType + "]" );
-						var controlTag = me.setAndGetControlTag( tdTag, ".label" ).html( '<span style="color:Red;">Not supported valueType: ' + valType + '</span>' );
+						var controlTag = me.setAndGetControlTag( tdTag, ".labelMsg" ).html( '<span style="color:Red;">Not supported valueType: ' + valType + '</span>' );
 					}
 
 
@@ -1483,13 +1483,13 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 		{
 			controlTag = $( '<select class="dropdown"><option value="">' + l10n.get('selectValue') + '</option></select>' );
 		}
-		else if ( className == '.label' )
+		else if ( className == '.labelMsg' )
 		{
-			controlTag = $( '<span class="label"></span>' );
+			controlTag = $( '<span class="labelMsg"></span>' );
 		}
 		else
 		{
-			controlTag = $( '<span class="label"></span>' );
+			controlTag = $( '<span class="labelMsg"></span>' );
 		}
 
 		controlTag.attr( _view, _view_Yes );

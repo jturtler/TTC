@@ -26,6 +26,8 @@ function PersonDialogForm( TabularDEObj )
 	me.incidentDateLabelTag = $("#incidentDateLabel");
 	me.enrolmentDateTag = $("#enrolmentDate");
 	me.incidentDateTag = $("#incidentDate");
+	me.incidentDateRowTag = $( "#incidentDateRow" );
+
 
 	// -------------------------------------------
 	// Methods
@@ -76,6 +78,10 @@ function PersonDialogForm( TabularDEObj )
 			}, function(){
 				me.enrollmentTableTag.show();
 				Util.disableTag( me.enrolmentDateTag, false );	
+
+				// TODO: 2.30
+				// NEED TO CHECK
+				console.log( 'incidentDate showing' );
 				Util.disableTag( me.incidentDateTag, false );
 
 				me.initFormBeforeOpen( currentTr, formType, returnFunc );
@@ -87,6 +93,11 @@ function PersonDialogForm( TabularDEObj )
 		 }
 		 else
 		 {
+			 // TODO: 2.30
+			 // NEED TO CHECK
+			 console.log( 'new enrollment - incidentDate showing' );
+
+
 			 me.enrollmentTableTag.show();
 			 Util.disableTag( me.enrolmentDateTag, false );
 			 Util.disableTag( me.incidentDateTag, false );
@@ -101,7 +112,19 @@ function PersonDialogForm( TabularDEObj )
 	me.initFormBeforeOpen = function( currentTr, formType, returnFunc )
 	{
 		var selectedProgram = me.TabularDEObj.getSelectedProgram();
+
 		
+
+		// TODO: 2.30
+		// console.log( 'initFormBeforeOpen.selectedProgram:' );
+		// console.log( selectedProgram );
+		
+		// TODO: 2.30
+		// Display incidentDate only if 'displayIncidentDate is available and true on program.
+		( selectedProgram.displayIncidentDate ) ? me.incidentDateRowTag.show(): me.incidentDateRowTag.hide();
+
+
+
 		// Set date picker for Enrollment Date and Incident Date fields
 		Util.setDatePickerInRange( "incidentDate", "enrolmentDate", function(){
 			if( !eval( selectedProgram.selectIncidentDatesInFuture ) )
@@ -741,10 +764,10 @@ function PersonDialogForm( TabularDEObj )
 			{
 				PersonUtil.setTagTypeValidation( attributeControl, "LETTER" );
 			}
-			else if( valueType == "COORDINATE" )
-			{
-				PersonUtil.setTagTypeValidation( attributeControl, "COORDINATE" );
-			}
+			//else if( valueType == "COORDINATE" )
+			//{
+			//	PersonUtil.setTagTypeValidation( attributeControl, "COORDINATE" );
+			//}
 		}
 		else if( valueType == "INTEGER_NEGATIVE" )
 		{
@@ -782,11 +805,12 @@ function PersonDialogForm( TabularDEObj )
 			attributeControl = trCurrent.find( ".textbox" ).val( value ).attr( _view, _view_Yes ).attr('valType', valueType );
 			Util.setDateTimePicker( attributeControl );
 		}
+		/*
 		else if( valueType == "COORDINATE" )
 		{
 			attributeControl = trCurrent.find( ".textbox" ).val( value ).attr( _view, _view_Yes ).attr('valType', valueType );
 			PersonUtil.setTagTypeValidation( attributeControl, "COORDINATE" );
-		}
+		}*/
 		else if( valueType == "TRUE_ONLY" || valueType == "TRACKER_ASSOCIATE" )
 		{
 			attributeControl = trCurrent.find( ".checkbox" ).attr( _view, _view_Yes ).prop( 'checked', value );
@@ -802,7 +826,7 @@ function PersonDialogForm( TabularDEObj )
 		}
 		else
 		{
-			attributeControl = trCurrent.find( ".label" ).html( 'Currently Not Supported TEI Attribute valueType: ' + valueType ).attr( _view, _view_Yes );
+			attributeControl = trCurrent.find( ".labelMsg" ).html( 'Currently Not Supported TEI Attribute valueType: ' + valueType ).attr( _view, _view_Yes );
 		}
 
 		return attributeControl;
@@ -973,10 +997,10 @@ function PersonDialogForm( TabularDEObj )
 			{
 				dataValue = Util.formatDateTime( item.val() );
 			}
-			else if( item.attr("valType") === "COORDINATE" )
-			{
-				dataValue = FormUtil.formatCoordinatorsValue( item.val() );
-			}
+			//else if( item.attr("valType") === "COORDINATE" )
+			//{
+			//	dataValue = FormUtil.formatCoordinatorsValue( item.val() );
+			//}
 			else if( item.hasClass( "checkbox" ) )
 			{
 				dataValue = item.is( ":checked" ) ? "true" : "" ;

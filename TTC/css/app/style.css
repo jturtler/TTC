@@ -215,6 +215,12 @@ img
 
 /* ----------------------------------------- */
 
+.labelMsg {
+	font-size: 0.9em;
+    color: blue;
+    font-style: italic;
+}
+
 .pageTitle {
 	font-size: 18px;
 	color: #333333;
