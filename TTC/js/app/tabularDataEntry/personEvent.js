@@ -2093,13 +2093,12 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 	// -------------------------------------
 
 
-	me.retreivePersonListWithEvents = function( returnFunc )
+	me.retreivePersonListWithEvents = function( returnFunc, failedFunc, noLoadingMsg )
 	{
 		var personEventList = new Array();
 
 		//var requestUrl = me.getEventsDefaultPopulate_SearchUrl();
 		var requestUrl = me.getTEIFromEvents_SearchUrl();
-
 
 		// Get the search criteria Events
 		RESTUtil.getAsynchData( requestUrl, function( json_Events ) 
@@ -2118,11 +2117,14 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 		, function() 
 		{
 			console.log( 'Failed to query events' );
-			returnFunc( personEventList );
+			if ( failedFunc ) failedFunc( personEventList );
 		} 
-		, DialogLoading.open
-		, DialogLoading.close				
-		);
+		, function() {
+			if ( !noLoadingMsg ) DialogLoading.open();
+		}
+		, function() {
+			if ( !noLoadingMsg ) DialogLoading.close();
+		});
 
 	}
 

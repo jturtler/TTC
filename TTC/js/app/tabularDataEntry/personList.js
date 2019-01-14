@@ -662,7 +662,7 @@ function PersonList( TabularDEObj )
 		if( Util.checkDefined( item_Person ) )
 		{
 			var personId = item_Person.trackedEntityInstance;
-			var programId = me.TabularDEObj.getSelectedProgramId();
+			//var programId = me.TabularDEObj.getSelectedProgramId();
 
 			trCurrent.attr( 'uid', personId );
 			trCurrent.next().attr( 'uid', personId );
@@ -697,42 +697,11 @@ function PersonList( TabularDEObj )
 			var trDetailRow = trCurrent.next();
 		
 			
-			// Enable or Disable [Mark for followup]
-			var makeFollowupTag = trCurrent.find("[nameId='makeFollowup']");
-			var disableFollowupTag = trCurrent.find("[nameId='disableFollowup']");
-			if( item_Person.followup == undefined )
-			{
-				makeFollowupTag.hide();
-				disableFollowupTag.hide();
-			}
-			else
-			{
-				if( item_Person.followup )
-				{
-					makeFollowupTag.show();
-				}
-				else
-				{
-					disableFollowupTag.show();
-				}
-				
-				// Add click_events
-				makeFollowupTag.click(function(){
-					me.programEnroll( personId, item_Person.enrollment, programId, item_Person.orgUnit, item_Person.enrollmentDate, item_Person.incidentDate, false, "PUT", function(){
-						makeFollowupTag.hide();
-						disableFollowupTag.show();
-					});
-				});
-				
-				disableFollowupTag.click(function(){
-					me.programEnroll( personId, item_Person.enrollment, programId, item_Person.orgUnit, item_Person.enrollmentDate, item_Person.incidentDate, true, "PUT", function(){
-						makeFollowupTag.show();
-						disableFollowupTag.hide();
-					});
-				});
+			// ====================================
+			// TODO: 2.30 - FOLLOWUP LOADING ICON..
+			// ================ TRAN ==============
 
-			}
-			
+
 			// When toggling anchor, show/hide the event list
 			trCurrent.find( '.detailToggle' ).show().off( 'click' ).click( function() {
 				
@@ -950,7 +919,7 @@ function PersonList( TabularDEObj )
 		// Step 1. Clear the person/event data table
 		me.clearPersonTableRows( tableTag );
 
-			
+
 		// Step 2. Retrieve person and events.
 		me.TabularDEObj.retreivePersonListWithEvents( function( json_PersonEventsList )
 		{
@@ -972,37 +941,25 @@ function PersonList( TabularDEObj )
 				
 				PersonUtil.setPersonWithFirstAttributeData( json_PersonEventsList, firstAttribute.id );
 
-
 				var personEventObjList_Sorted = Util.sortByKey( json_PersonEventsList, PersonUtil.primaryAttributeVal, true );
-
+				
 				
 				// Step 4. With person and person events within it, popuplate/display person only.
 				$.each( personEventObjList_Sorted, function( i_person, item_person ) 
-				{
-					
-					// Get the followup infor of each TEI
-					me.TabularDEObj.checkProgramEnroll( item_person.trackedEntityInstance, programId, item_person.orgUnit, function( enrollmentData ) // has ACTIVE program
+				{	
+					try
 					{
-						var followup = ( enrollmentData.followup === undefined ) ? false : eval( enrollmentData.followup );
-						item_person.followup = followup;
-						item_person.enrollment = enrollmentData.enrollment;
-						item_person.enrollmentDate = enrollmentData.enrollmentDate;
-						item_person.incidentDate = enrollmentData.incidentDate;
-						
-			
 						var trPersonLast = me.addNewLastRow_Person( tableTag );
 						me.setPersonInfoRow( trPersonLast, item_person );
+
+						// TODO: 2.30 - MODIFIED 
+						me.checkAndPopulateFollowUp( trPersonLast, programId, item_person.trackedEntityInstance, item_person.orgUnit );
 					}
-					, function() { 
-			
-						var trPersonLast = me.addNewLastRow_Person( tableTag );
-						me.setPersonInfoRow( trPersonLast, item_person );
-					});// No ACTIVE program
-						
-					
-
+					catch( e )
+					{
+						console.log( 'ERROR on personEvent Row populate - tei and event populate' );
+					}					
 				});
-
 
 				// Last emtpy row add
 				me.addNewLastRow_Person( tableTag );
@@ -1010,12 +967,106 @@ function PersonList( TabularDEObj )
 				returnFunc( personEventObjList_Sorted.length );
 			}
 		}
-		, function( failed_Message )
+		, function()
 		{
 			returnFunc( 0 );
 
-			alert( $( 'span.msg_EventRetrievalFailed' ).text() + '\n\n Error: ' + JSON.stringify( failed_Message ) );
+			alert( $( 'span.msg_EventRetrievalFailed' ).text() + '\n\n Error: Failed to retrieve Tei and events' );
+
+			DialogLoading.close();
 		});
+	}
+
+	me.checkAndPopulateFollowUp = function( trCurrent, programId, trackedEntityInstance, orgUnit )
+	{
+		// Get the followup infor of each TEI
+		me.TabularDEObj.checkProgramEnroll( trackedEntityInstance, programId, orgUnit, 
+			function( enrollmentData ) // has ACTIVE program
+			{
+				var followup = ( enrollmentData.followup === undefined ) ? false : eval( enrollmentData.followup );
+				item_person.followup = followup;
+				item_person.enrollment = enrollmentData.enrollment;
+				item_person.enrollmentDate = enrollmentData.enrollmentDate;
+				item_person.incidentDate = enrollmentData.incidentDate;
+				
+				// Populate folllowup 
+				me.populateFollowup( trCurrent, programId, item_Person);
+			});
+	}
+
+	me.populateFollowup = function( trCurrent, programId, item_Person )
+	{
+		var personId = item_Person.trackedEntityInstance;
+
+		// Enable or Disable [Mark for followup]
+		var makeFollowupTag = trCurrent.find("[nameId='makeFollowup']");
+		var disableFollowupTag = trCurrent.find("[nameId='disableFollowup']");
+		if( item_Person.followup == undefined )
+		{
+			makeFollowupTag.hide();
+			disableFollowupTag.hide();
+		}
+		else
+		{
+			if( item_Person.followup )
+			{
+				makeFollowupTag.show();
+			}
+			else
+			{
+				disableFollowupTag.show();
+			}
+			
+			// Add click_events
+			makeFollowupTag.click(function(){
+				me.programEnroll( personId, item_Person.enrollment, programId, item_Person.orgUnit, item_Person.enrollmentDate, item_Person.incidentDate, false, "PUT", function(){
+					makeFollowupTag.hide();
+					disableFollowupTag.show();
+				});
+			});
+			
+			disableFollowupTag.click(function(){
+				me.programEnroll( personId, item_Person.enrollment, programId, item_Person.orgUnit, item_Person.enrollmentDate, item_Person.incidentDate, true, "PUT", function(){
+					makeFollowupTag.show();
+					disableFollowupTag.hide();
+				});
+			});
+		}	
+	}
+
+
+	me.populatePersonInfoRow = function() 
+	{
+		$.each( personEventObjList_Sorted, function( i_person, item_person ) 
+		{					
+			try
+			{
+			// Get the followup infor of each TEI
+			me.TabularDEObj.checkProgramEnroll( item_person.trackedEntityInstance, programId, item_person.orgUnit, function( enrollmentData ) // has ACTIVE program
+			{
+				var followup = ( enrollmentData.followup === undefined ) ? false : eval( enrollmentData.followup );
+				item_person.followup = followup;
+				item_person.enrollment = enrollmentData.enrollment;
+				item_person.enrollmentDate = enrollmentData.enrollmentDate;
+				item_person.incidentDate = enrollmentData.incidentDate;
+				
+	
+				var trPersonLast = me.addNewLastRow_Person( tableTag );
+				me.setPersonInfoRow( trPersonLast, item_person );
+			}
+			, function() { 
+	
+				var trPersonLast = me.addNewLastRow_Person( tableTag );
+				me.setPersonInfoRow( trPersonLast, item_person );
+			});// No ACTIVE program
+
+			}
+			catch( e )
+			{
+
+			}
+		});
+
 	}
 
 	/*

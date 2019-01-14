@@ -250,9 +250,9 @@ function TabularDataEntry( _orgUnitSelectionTreePopup )
 		return me.personList.getPerson_WithDoneStage( personId, execFunc );
 	}
 
-	me.retreivePersonListWithEvents = function( populateFunc )
+	me.retreivePersonListWithEvents = function( populateFunc, failedFunc, noLoadingMsg )
 	{
-		return me.personList.personEvent.retreivePersonListWithEvents( populateFunc );
+		return me.personList.personEvent.retreivePersonListWithEvents( populateFunc, failedFunc, noLoadingMsg );
 	}
 
 	me.setPersonInfoRow = function( trCurrent, item_person )
