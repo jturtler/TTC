@@ -18,6 +18,7 @@ EventStatus.SIGN_SEwR_EVENT_COMPLETED_CAN_REOPEN = "eventCompleted";
 EventStatus.SIGN_SEwR_EVENT_COMPLETED_EXPIRED = "completedLocked"
 EventStatus.SIGN_SEwR_EVENT_EXPIRED = "eventExpired";
 
+// For displaying status on form
 EventStatus.SEwoR_EVENT_STATUS = {
 	"open" : "Open"
 	,"reopen" : "Completed"
@@ -27,13 +28,13 @@ EventStatus.SEwoR_EVENT_STATUS = {
 };
 
 EventStatus.SEwR_EVENT_STATUS = {
-"open" : "Open"
-,"programCompleted" : "Program completed"
-,"programInactive" : "Program inactive"
-,"futureLocked" : "Locked"
-,"eventCompleted" : "Event Completed"
-,"eventExpired" : "Event Expired"
-,"completedLocked" : "Event Expired"
+	"open" : "Open"
+	,"programCompleted" : "Program completed"
+	,"programInactive" : "Program inactive"
+	,"futureLocked" : "Locked"
+	,"eventCompleted" : "Event Completed"
+	,"eventExpired" : "Event Expired"
+	,"completedLocked" : "Event Expired"
 };
 
 
