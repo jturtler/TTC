@@ -241,22 +241,14 @@ function ProgramManager( TabularDEObj, defaultProgramTag )
 								{
 									trackedEntityType = item_program.trackedEntityType.id;
 								}
-								
-								programList_Temp.push( { "id": item_program.id, "name":  item_program.displayName
-									, "programType": item_program.programType
-									, "expiryPeriodType" : item_program.expiryPeriodType 
-									, "expiryDays" : item_program.expiryDays
-									, "completeEventsExpiryDays" : item_program.completeEventsExpiryDays
-									, "selectEnrollmentDatesInFuture" : item_program.selectEnrollmentDatesInFuture
-									, "selectIncidentDatesInFuture" : item_program.selectIncidentDatesInFuture
-									, "enrollmentDateLabel" : item_program.enrollmentDateLabel
-									, "incidentDateLabel" : item_program.incidentDateLabel
-									, "displayIncidentDate" : item_program.displayIncidentDate									
-									, "programStages":  me.getProgramStageList_FromSource( item_program.id, json_programListWithStage_Full ) 
-									, "categoryComboId":  item_program.categoryCombo.id
-									, "categoryOptions" : item_program.categoryCombo.categories[0].categoryOptions
-									, "trackedEntityType": trackedEntityType
-								} );
+
+								programList_Temp.push( item_program );
+
+								item_program.name = item_program.displayName;
+								item_program.programStages = me.getProgramStageList_FromSource( item_program.id, json_programListWithStage_Full );
+								item_program.categoryComboId = item_program.categoryCombo.id;
+								item_program.categoryOptions = item_program.categoryCombo.categories[0].categoryOptions;
+								item_program.trackedEntityType = trackedEntityType;
 							}
 						});
 

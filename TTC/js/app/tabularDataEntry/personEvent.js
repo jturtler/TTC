@@ -1157,9 +1157,11 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 	// Move this to populate Layout method section
 	me.populateEventColumnsAndData = function( trHead, trCurrent, programStageUid, runAfterwards_Func, item_event )
 	{
-
 		me.TabularDEObj.dataInMemory.retrieveProgramStageData( programStageUid, function( json_ProgramStage )
 		{
+			// NOTE: 2.30 moved to top
+			var selectedProgram = me.TabularDEObj.getSelectedProgram();
+
 
 			trCurrent.find( "td.added" ).html( "" ).attr( "DEID", "" );
 
@@ -1183,7 +1185,8 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 
 			// TODO: place class='before' coordinate at here?
 			//		Add class
-			if ( Util.checkDefined( json_ProgramStage.captureCoordinates ) && json_ProgramStage.captureCoordinates )
+
+			if ( selectedProgram.captureCoordinates )
 			{
 				var coordinateControlTemplate = "<div id='eventCoordinateDiv'><table class='tbNone11'><tr><td><span style='font-size: 11px;'>Lat:</span></td><td><input type='text' class='eventCoorLat' size='7' " + _view + "='" + _view_Yes + "' + style='margin-bottom:1px;'/></td></tr><tr><td><span style='font-size: 11px;'>Long:</span></td><td><input type='text' class='eventCoorLng' size='7' " + _view + "='" + _view_Yes + "'/></td></tr></table></div>";
 
@@ -1229,7 +1232,7 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 
 
 			// -- PROGRAM RULE RELATED ------------
-			var selectedProgram = me.TabularDEObj.getSelectedProgram();
+			// var selectedProgram = me.TabularDEObj.getSelectedProgram();
 
 			var personId = trCurrent.closest( 'tr.trPersonDetail' ).attr( 'uid' );
 
