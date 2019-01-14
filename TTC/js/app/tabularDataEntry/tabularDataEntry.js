@@ -80,7 +80,12 @@ function TabularDataEntry( _orgUnitSelectionTreePopup )
 	{
 		return me.searchPanel.getOrgUnitId();
 	}
-	
+
+	me.getOrgUnitJson = function()
+	{
+		return me.searchPanel.getOrgUnit();
+	}
+
 	me.setOrgUnit = function( name, id )
 	{
 		me.orgUnitSelectedId = id;

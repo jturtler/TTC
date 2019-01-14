@@ -211,26 +211,28 @@ function ProgramManager( TabularDEObj, defaultProgramTag )
 	// -------------------------------------------
 	// -- Retrieve Methods -----------------
 
-	me.retrieveProgram_ProgramList = function( orgUnitId, populateFunc )
+	me.retrieveProgram_ProgramList = function( programsJson, populateFunc )
 	{
 		// TODO: 2.30
 		//var queryUrl = _queryURL_OrgUnit + "/" + orgUnitId + ".json?fields=id,programs[trackedEntityType[id],id,displayName,programType,expiryPeriodType,expiryDays,completeEventsExpiryDays,selectIncidentDatesInFuture,selectEnrollmentDatesInFuture,enrollmentDateLabel,incidentDateLabel,categoryCombo[id,categories[categoryOptions[id,displayName]]]]";
-		var queryUrl = _queryURL_OrgUnit + "/" + orgUnitId + ".json?fields=id,programs[*,trackedEntityType[id],categoryCombo[id,categories[categoryOptions[id,displayName]]]]";
+		//var queryUrl = _queryURL_OrgUnit + "/" + orgUnitId + ".json?"
+		//	+ "fields=id, " // other than, id, others are used for orgUnit INFO CACHING...
+		//	+ ",programs[*,trackedEntityType[id],categoryCombo[id,categories[categoryOptions[id,displayName]]]]";
 
-		RESTUtil.getAsynchData( queryUrl, function ( json_ProgramList )
-		{
-			QuickLoading.dialogShowAdd( 'programLoading' );
+		//RESTUtil.getAsynchData( queryUrl, function ( json_ProgramList )
+		//{
+		//	QuickLoading.dialogShowAdd( 'programLoading' );
 
 			var programList_Temp = [];
 
-			if ( Util.checkDataExists( json_ProgramList.programs )  )
+			if ( Util.checkDataExists( programsJson )  )
 			{							
 				me.TabularDEObj.dataInMemory.retrieveProgramListWithStage_Full( 
 					function( json_programListWithStage_Full ) 
 					{
 						//console.log( 'got Stage and sets' );
 
-						$.each( json_ProgramList.programs, function( i_program, item_program ) 
+						$.each( programsJson, function( i_program, item_program ) 
 						{
 							var foundProgram = Util.findItemFromList( _settingForm.userProgramList, "id", item_program.id );
 							
@@ -265,11 +267,11 @@ function ProgramManager( TabularDEObj, defaultProgramTag )
 
 				populateFunc( programList_Temp );
 			}
-		}
-		, function() {}
-		, function() { QuickLoading.dialogShowAdd( 'programLoading' ); }
-		, function() { QuickLoading.dialogShowRemove( 'programLoading' ); }	
-		);
+		//}
+		//, function() {}
+		//, function() { QuickLoading.dialogShowAdd( 'programLoading' ); }
+		//, function() { QuickLoading.dialogShowRemove( 'programLoading' ); }	
+		//);
 	}
 
 
@@ -277,14 +279,13 @@ function ProgramManager( TabularDEObj, defaultProgramTag )
 	// -------------------------------------------
 
 
-	me.loadProgramList = function( orgUnitId, exeFunc )
+	me.loadProgramList = function( programsJson, exeFunc )
 	{				
-
 		// Reset the programId
 		me.resetSelectedProgram();
 
 		// Retrieve the orgUnit filtered program list and programStage list
-		me.retrieveProgram_ProgramList( orgUnitId, function( returnData )
+		me.retrieveProgram_ProgramList( programsJson, function( returnData )
 		{
 			me.programList = returnData;
 				

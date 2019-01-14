@@ -327,12 +327,16 @@ function MatrixOrgunitPeriod( _orgUnitSelectionTreePopup, _TabularDEObj )
 				var ouName = cellTag.closest("tr").find("td:first").html();
 				var ouId = keys[0];
 				var periodCode = keys[1];
-				
-				
+								
 				var jsonOuData = {"name": ouName, "id": ouId};
-				me.searchPanel.setUp_OrgUnitMap( ouId );
-				me.searchPanel.setOrgUnitTags( jsonOuData, function(){
-					me.searchPanel.programManager.loadProgramList( ouId, function(){
+
+				me.searchPanel.setOrgUnitTags( jsonOuData, function( orgUnitJson ){
+
+					// TODO: 2.30 changed
+					me.searchPanel.setUp_OrgUnitMap( orgUnitJson.coordinates );
+
+					me.searchPanel.programManager.loadProgramList( orgUnitJson.programs, function(){
+
 						me.searchPanel.programManager.defaultProgramTag.val( me.programListTag.val() );
 						me.searchPanel.programTagOnChange( function(){
 							

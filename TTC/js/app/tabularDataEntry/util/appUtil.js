@@ -101,6 +101,20 @@ AppUtil.pageHScroll = function( option )
 	}
 }
 
+AppUtil.checkGeoLocation = function( returnFunc )
+{
+	console.log( navigator.geolocation );
+	
+	navigator.geolocation.getCurrentPosition(
+		function( position ) 
+		{
+			returnFunc( position );				
+		}
+		, function( msg ) 
+		{
+			returnFunc();
+		});
+};
 
 // --------------------------------------------------------------------------------
 // FormUtil

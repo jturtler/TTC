@@ -943,7 +943,7 @@ function PersonList( TabularDEObj )
 
 				var personEventObjList_Sorted = Util.sortByKey( json_PersonEventsList, PersonUtil.primaryAttributeVal, true );
 				
-				
+
 				// Step 4. With person and person events within it, popuplate/display person only.
 				$.each( personEventObjList_Sorted, function( i_person, item_person ) 
 				{	
@@ -953,7 +953,7 @@ function PersonList( TabularDEObj )
 						me.setPersonInfoRow( trPersonLast, item_person );
 
 						// TODO: 2.30 - MODIFIED 
-						me.checkAndPopulateFollowUp( trPersonLast, programId, item_person.trackedEntityInstance, item_person.orgUnit );
+						me.checkAndPopulateFollowUp( trPersonLast, programId, item_person, item_person.trackedEntityInstance, item_person.orgUnit );
 					}
 					catch( e )
 					{
@@ -977,7 +977,7 @@ function PersonList( TabularDEObj )
 		});
 	}
 
-	me.checkAndPopulateFollowUp = function( trCurrent, programId, trackedEntityInstance, orgUnit )
+	me.checkAndPopulateFollowUp = function( trCurrent, programId, item_person, trackedEntityInstance, orgUnit )
 	{
 		// Get the followup infor of each TEI
 		me.TabularDEObj.checkProgramEnroll( trackedEntityInstance, programId, orgUnit, 

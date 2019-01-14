@@ -300,6 +300,13 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 		{	
 			var programStageSelected = eventStage.val();
 
+
+			// TODO: 2.30
+			//	NEED TO CHECK THE OrgUnit start/end date
+
+
+
+
 			// Check eventDate and eventStage value
 			if ( Util.checkCalendarDateStrFormat( eventDate.val() ) && programStageSelected != ''  )
 			{
@@ -439,9 +446,41 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 
 		var personUid = trCurrent.closest( '.trPersonDetail' ).attr( 'uid' );
 		var orgUnitUid = me.TabularDEObj.getOrgUnitId();
+		var orgUnitJson = me.TabularDEObj.getOrgUnitJson();
 
 		var eventDateInFormat = Util.formatDate( eventDate.val() );
 
+		console.log( 'eventCreate' );
+		console.log( orgUnitJson );
+		console.log( eventDateInFormat );
+		var eventDateObj = new Date( eventDateInFormat );
+		console.log( eventDateObj );
+
+		if ( orgUnitJson.openingDate )
+		{
+			var ouOpenDate = new Date( Util.formatDate( orgUnitJson.openingDate ) );
+
+			if ( eventDateObj.getTime() < ouOpenDate.getTime() )
+			{
+				alert( 'event date is before OrgUnit Open date' );
+			}
+		}
+
+		if ( orgUnitJson.closedDate )
+		{
+			var ouClosedDate = new Date( Util.formatDate( orgUnitJson.closedDate ) );
+
+			if ( eventDateObj.getTime() > ouClosedDate.getTime() )
+			{
+				alert( 'event date is after OrgUnit Closed date' );
+			}
+		}
+
+		// TODO: 2.30 ALSO, ASK COORDINATES HERE?
+		AppUtil.checkGeoLocation( function( geoLoc )
+		{		
+			console.log( geoLoc );			
+		});
 
 		// Need to check if the program Stage has (programStages.captureCoordinates 
 

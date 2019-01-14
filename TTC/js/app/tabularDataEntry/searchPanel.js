@@ -92,7 +92,7 @@ function SearchPanel( TabularDEObj )
 		return me.countryOrgUnitId;
 	}
 				
-	me.setCountryId = function( orgUnitId, ouParents, returnFunc )
+	me.setCountryId = function( ouParents, orgUnitJson, returnFunc )
 	{
 		me.countryOrgUnitId = "";
 
@@ -117,11 +117,11 @@ function SearchPanel( TabularDEObj )
 			}
 			else
 			{
-				$.get( me.queryURL_OrgUnit + orgUnitId + '.json?fields=ancestors[id,name,level]', function( json_data )
+				if ( orgUnitJson )
 				{
-					if ( json_data.ancestors !== undefined )
+					if ( orgUnitJson.ancestors !== undefined )
 					{
-						$.each( json_data.ancestors, function( i, item )
+						$.each( orgUnitJson.ancestors, function( i, item )
 						{
 							if ( item.level == countryLevel )
 							{
@@ -133,8 +133,11 @@ function SearchPanel( TabularDEObj )
 					}
 					
 					if( returnFunc !== undefined ) returnFunc();
-								
-				});
+				}
+				else
+				{
+					alert( 'orgUnitJson is not available in searchPanel.setCountryId' );
+				}								
 			}
 		}
 		else if( returnFunc !== undefined ) {
@@ -143,45 +146,48 @@ function SearchPanel( TabularDEObj )
 								
 	}
 	
+
+	// Main method to call after selecting orgUnit in the begining step of the app
 	me.setOrgUnitTags = function( orgUnit, returnFunc ) 
 	{
-		me.retrieveOrgunitGroupList( orgUnit.id, function( json_ouGroupList ){
+		// TODO: 2.30
+		console.log( 'setOrgUnitTags orgUnit Info: ' );
+		console.log( orgUnit );
+
+		// Retrieve all the orgUnit info in here..
+		//me.retrieveOrgunitGroupList( orgUnit.id, function( json_ouGroupList )		
+		me.retrieveOrgUnitInfo( orgUnit.id, function( orgUnitJson )
+		{
+			me.orgUnitSelected = orgUnitJson; //orgUnit;
+
 			me.orgUnitNameTag.val( orgUnit.name );
 			me.orgUnitSelectedId = orgUnit.id;
-			me.orgUnitSelected = orgUnit;
-			me.orgUnitGroupIdList = json_ouGroupList;
+			me.orgUnitGroupIdList = orgUnitJson.organisationUnitGroups; //json_ouGroupList;			
 			
-			// if( returnFunc !== undefined ) returnFunc();
-			
-			var orgUnitId = orgUnit.id;
+			var orgUnitId = orgUnitJson.id;
 			me.setVisibility_Section( me.defaultProgramRowTag, true );
 		
 
 			// Re-retrieve the programManager based on the orgUnit
-			me.programManager.loadProgramList( orgUnitId, function(){
+			me.programManager.loadProgramList( orgUnitJson.programs, function()
+			{
 				// Set the country orgUnit <--- Send object...
-				me.setCountryId( orgUnitId, orgUnit.parents, function(){
-					
+				me.setCountryId( orgUnit.parents, orgUnitJson, function()
+				{					
 					// Notify person count in the org unit
 					me.displayOrgUnitPersonCount( orgUnitId );
-
-					
-					// Setup the orgUnit Map
-					me.setUp_OrgUnitMap( orgUnitId );
+		
+					// Setup the orgUnit Map <-- this info can be used by loadProgramList..
+					me.setUp_OrgUnitMap( orgUnitId.coordinates );
 
 					me.defaultProgramTag.focus();
 					
 					Util.paintClear( me.orgUnitNameTag );
-					
-					
-					if( returnFunc !== undefined ) returnFunc();
+										
+					if( returnFunc !== undefined ) returnFunc( orgUnitJson );
 				} );
-				
-
 			} );
-			
 		});
-		
 	}
 
 	me.getOrgUnitId = function()
@@ -383,6 +389,18 @@ function SearchPanel( TabularDEObj )
 		);
 	}
 	
+	me.retrieveOrgUnitInfo = function( selectedOrgUnitId, returnFunc )
+	{
+		var orgUnitFields = 'id,coordinates,ancestors[id,name,level],openingDate,closedDate';
+		var orgUnitGroupFields = 'organisationUnitGroups[id]';
+		var programFields = 'programs[*,trackedEntityType[id],categoryCombo[id,categories[categoryOptions[id,displayName]]]]';
+
+		var queryUrl = me.queryURL_OrgUnit + selectedOrgUnitId + '.json?fields='
+			+ orgUnitFields + ',' + orgUnitGroupFields + ',' + programFields;
+
+		RESTUtil.getAsynchData( queryUrl, returnFunc );
+	}
+
 	me.getEventQueryBaseUrl = function()
 	{
 		return _queryURL_EventQuery + '&programStatus=' + me.programStatusListTag.val();
@@ -576,42 +594,33 @@ function SearchPanel( TabularDEObj )
 
 	// On reset orgunit, we need to remove the map from image, etc..
 
-	me.setUp_OrgUnitMap = function( ouId )
+	me.setUp_OrgUnitMap = function( coordinates )
 	{
-		// Get orgunit coordinate first
-		RESTUtil.getAsynchData( me.queryURL_OrgUnit + ouId + '.json?fields=id,coordinates'
-		, function( json_orgUnit ) 
+		if ( coordinates !== undefined )
 		{
-			if ( json_orgUnit.coordinates !== undefined )
+			var coordinatesData = $.parseJSON( coordinates );
+			//[36.630948,-0.981278]
+
+			if ( coordinatesData.length == 2 )
 			{
-				var coordinatesData = $.parseJSON( json_orgUnit.coordinates );
-				//[36.630948,-0.981278]
+				var longitude = coordinatesData[0];
+				var latitude = coordinatesData[1];
 
-				if ( coordinatesData.length == 2 )
-				{
-					var longitude = coordinatesData[0];
-					var latitude = coordinatesData[1];
+				var mapUrl = 'https://maps.googleapis.com/maps/api/staticmap?';
 
-					var mapUrl = 'https://maps.googleapis.com/maps/api/staticmap?';
+				mapUrl += 'zoom=9&size=120x80';
 
-					mapUrl += 'zoom=9&size=120x80';
+				mapUrl += '&markers=size:tiny%7Ccolor:blue%7Clabel:S%7C' + latitude + ',' + longitude;
 
-					mapUrl += '&markers=size:tiny%7Ccolor:blue%7Clabel:S%7C' + latitude + ',' + longitude;
+				//key = AIzaSyA37AeZefV-Zp5G25rJZheXg-NNpnlrRwc
+				mapUrl += '&center=' + latitude + ',' + longitude;
 
-					//key = AIzaSyA37AeZefV-Zp5G25rJZheXg-NNpnlrRwc
-					mapUrl += '&center=' + latitude + ',' + longitude;
+				// Set the map info
+				$( '#orgUnitMapImage' ).attr( 'src', mapUrl ).attr( 'lat', latitude ).attr( 'lng', longitude );
 
-					// Set the map info
-					$( '#orgUnitMapImage' ).attr( 'src', mapUrl ).attr( 'lat', latitude ).attr( 'lng', longitude );
-
-					me.orgUnitMapSmall_DivTag.show( '600' );
-				}
+				me.orgUnitMapSmall_DivTag.show( '600' );
 			}
 		}
-		, function() 
-		{
-			console.log( 'Failed to retrieve the org unit - during org unit map setup' );
-		});
 	}
 
 	me.setUp_OrgUnitMapClick = function( )
