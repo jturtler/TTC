@@ -550,6 +550,7 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 		// Set Status
 		var statusMsg = ( me.TabularDEObj.isCase_MEwR() ) ? EventStatus.SEwR_EVENT_STATUS[status] : EventStatus.SEwoR_EVENT_STATUS[status];
 		eventStatus.html( statusMsg );
+		eventStatus.attr("status", event.status);
 
 		
 		// remove previous Delete click event
@@ -1609,7 +1610,7 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 
 		var eventDateInFormat = Util.formatDate( eventDate.val() );
 		
-		var status = eventStatus.text();
+		var status = eventStatus.attr("status");
 
 		if ( Util.checkValue( newStatus ) )
 		{
