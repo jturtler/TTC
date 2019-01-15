@@ -35,6 +35,7 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 	me.thTemplate_CompleteButton = "<th class='added' colcount='' type='completed_button'>&nbsp;</th>";
 	me.tdTemplate_CompleteButton = "<td class='added' type='completed_button' colcount=''>" + me.buttonTemplate_Complete + "</td>";
 
+	me.enableCoordinateCapture = true;
 
 	// ======================
 	// Methods
@@ -129,6 +130,7 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 		// Person Row Add
 		var trCurrent = me.addEventRow( newRowCount, tableCurrent );
 		var trHead = tableCurrent.find( "tr.trEventHead:first" );
+
 
 		// Populate Program and Stage
 		var eventDate = trCurrent.find( ".eventDate" );
@@ -298,17 +300,10 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 
 		eventCreateTag.click( function() 
 		{	
-			var programStageSelected = eventStage.val();
-
-
-			// TODO: 2.30
-			//	NEED TO CHECK THE OrgUnit start/end date
-
-
-
+			var programStageId = eventStage.val();
 
 			// Check eventDate and eventStage value
-			if ( Util.checkCalendarDateStrFormat( eventDate.val() ) && programStageSelected != ''  )
+			if ( Util.checkCalendarDateStrFormat( eventDate.val() ) && programStageId != ''  )
 			{
 				// 1. Generate the event and put the event id into the ..
 				me.eventCreate( trCurrent
@@ -316,21 +311,29 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 				{
 					// Check for program stage 'non-repeatableness'
 					// and add to 'DontStage' is applicable.
-					var programStageData_Selected = me.TabularDEObj.getProgramStageData_ById( programStageSelected );
+					var programStageJson = me.TabularDEObj.getProgramStageData_ById( programStageId );
 
-					if ( me.TabularDEObj.isCase_MEwR() && Util.checkDefined( programStageData_Selected ) && Util.checkDefined( programStageData_Selected.repeatable ) &&  !programStageData_Selected.repeatable )
+					if ( me.TabularDEObj.isCase_MEwR() && Util.checkDefined( programStageJson ) && Util.checkDefined( programStageJson.repeatable ) &&  !programStageJson.repeatable )
 					{
 						// Add this uid to the doneStage
-						me.TabularDEObj.addTo_DoneStage( trPerson, programStageSelected );
+						me.TabularDEObj.addTo_DoneStage( trPerson, programStageId );
 					}
 
 
-					eventStage.attr( "selectedProgramStage", programStageSelected ); 
+					eventStage.attr( "selectedProgramStage", programStageId ); 
 
 					// 2. Populate the data element columns
-					me.populateEventColumnsAndData( trHead, trCurrent, programStageSelected
+					me.populateEventColumnsAndData( trHead, trCurrent, programStageId
 					, function()
 					{	
+						// TODO: 2.30 - Coordinate captured populating on Event Row Add/Create
+						// Populate coordinate if data is available
+						if ( me.enableCoordinateCapture && json_Event.coordinate !== undefined )
+						{
+							// Put coordinate values to input tags
+							me.populateCoordinateTagData( json_Event.coordinate, trCurrent.find( "input.eventCoorLat" ), trCurrent.find( "input.eventCoorLng" ) );
+						}
+			
 						//var eventId = trCurrent.attr( "uid" );	
 						// Set this - for complete button show/hide & complete event handler set.
 						// var eventStatus = me.TabularDEObj.isCase_MEwR() ? EventStatus.SIGN_SEwR_EVENT_OPEN : EventStatus.SIGN_SEwoR_EVENT_OPEN;
@@ -355,6 +358,10 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 				eventDate.focus();
 			}
 		});
+
+
+		// TODO: 2.30, Set Div tag in each TD
+		trCurrent.find( 'td' ).wrapInner( "<div class='tdContentDiv'></div>" );
 
 		// Return the reference to the first control, so that it can be focused after the row generate.
 		return eventDate;
@@ -429,6 +436,9 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 
 	// =========================================================
 	// Event Create/Delete Related
+	
+	//json_Data.coordinate = { "latitude": geoLoc.coords.latitude, "longitude": geoLoc.coords.longitude };		
+	// populate with current one? <-- only on Add new!			
 
 
 	me.eventCreate = function( trCurrent, successFunc )
@@ -450,88 +460,107 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 
 		var eventDateInFormat = Util.formatDate( eventDate.val() );
 
-		console.log( 'eventCreate' );
-		console.log( orgUnitJson );
-		console.log( eventDateInFormat );
-		var eventDateObj = new Date( eventDateInFormat );
-		console.log( eventDateObj );
-
-		if ( orgUnitJson.openingDate )
+		if ( me.checkOrgUnitOpenCloseDate( orgUnitJson, eventDateInFormat, true ) )
 		{
-			var ouOpenDate = new Date( Util.formatDate( orgUnitJson.openingDate ) );
+			//var json_Data = {"program": eventProgram.val(), "programStage": eventStage.val(),"orgUnit": orgUnitUid, "eventDate": eventDateInFormat, "coordinate": {}, "status": _status_ACTIVE, "attributeCategoryOptions" : catOption.val() };
+			var json_Data = {"program": eventProgram.val(), "programStage": eventStage.val(),"orgUnit": orgUnitUid, "eventDate": eventDateInFormat, "status": _status_ACTIVE, "attributeCategoryOptions" : catOption.val() };
 
-			if ( eventDateObj.getTime() < ouOpenDate.getTime() )
-			{
-				alert( 'event date is before OrgUnit Open date' );
-			}
-		}
+			// TODO: 2.30 ALSO, ASK COORDINATES HERE?
+			AppUtil.checkGeoLocation( me.enableCoordinateCapture, function( geoLoc )
+			{						
+				// if ( geoLoc ) me.setGeometryJson( json_Data, geoLoc.coords );
+				if ( geoLoc ) me.getCoordinateJson( json_Data, geoLoc.coords );
 
-		if ( orgUnitJson.closedDate )
-		{
-			var ouClosedDate = new Date( Util.formatDate( orgUnitJson.closedDate ) );
+				// Disable catOption selector
+				var catOption = trCurrent.find( ".catOption" );
+				Util.disableTag( catOption, true );
 
-			if ( eventDateObj.getTime() > ouClosedDate.getTime() )
-			{
-				alert( 'event date is after OrgUnit Closed date' );
-			}
-		}
-
-		// TODO: 2.30 ALSO, ASK COORDINATES HERE?
-		AppUtil.checkGeoLocation( function( geoLoc )
-		{		
-			console.log( geoLoc );			
-		});
-
-		// Need to check if the program Stage has (programStages.captureCoordinates 
-
-		var json_Data = {"program": eventProgram.val(), "programStage": eventStage.val(),"orgUnit": orgUnitUid, "eventDate": eventDateInFormat, "coordinate": {}, "status": _status_ACTIVE, "attributeCategoryOptions" : catOption.val() };
-
-		// Disable catOption selector
-		var catOption = trCurrent.find( ".catOption" );
-		Util.disableTag( catOption, true );
-
-		if ( me.TabularDEObj.isCase_SEwoR() )
-		{
-			me.eventCreate_SubmitData( json_Data, trCurrent, function( eventId, status )
-			{
-				json_Data.event = eventId;
-				successFunc( json_Data, status );
-			});
-		}
-		else
-		{
-			json_Data.trackedEntityInstance = personUid;
-
-	
-			// Check for Enrollment.  If enrolled already, create event.  If not, open PersonInfo Popup.
-			me.TabularDEObj.checkProgramEnroll( personUid, eventProgram.val(), orgUnitUid
-			, function()
-			{
-				me.eventCreate_SubmitData( json_Data, trCurrent, function( eventId, status )
+				if ( me.TabularDEObj.isCase_SEwoR() )
 				{
-					json_Data.event = eventId;
-					successFunc( json_Data, status );
-				});								
-			}
-			, function()
-			{
-				// Alert proper message here.
-				alert( $( 'span.msg_NotEnrolled' ).text() );
-
-				var personInfoTag = trCurrent.closest( '.trPersonDetail' ).prev().find( '.personInfo:visible' );
-
-				me.TabularDEObj.personInfoPopup( personInfoTag, function()
-				{
-					// Doesn't work well.  - due to timing..
 					me.eventCreate_SubmitData( json_Data, trCurrent, function( eventId, status )
 					{
+						json_Data.event = eventId;
 						successFunc( json_Data, status );
-					});							
-				});
-			});
+					});
+				}
+				else
+				{
+					json_Data.trackedEntityInstance = personUid;
 
+					// Check for Enrollment.  If enrolled already, create event.  If not, open PersonInfo Popup.
+					me.TabularDEObj.checkProgramEnroll( personUid, eventProgram.val(), orgUnitUid
+					, function()
+					{
+						me.eventCreate_SubmitData( json_Data, trCurrent, function( eventId, status )
+						{
+							json_Data.event = eventId;
+							successFunc( json_Data, status );
+						});								
+					}
+					, function()
+					{
+						// Alert proper message here.
+						alert( $( 'span.msg_NotEnrolled' ).text() );
+
+						var personInfoTag = trCurrent.closest( '.trPersonDetail' ).prev().find( '.personInfo:visible' );
+
+						me.TabularDEObj.personInfoPopup( personInfoTag, function()
+						{
+							// Doesn't work well.  - due to timing..
+							me.eventCreate_SubmitData( json_Data, trCurrent, function( eventId, status )
+							{
+								successFunc( json_Data, status );
+							});							
+						});
+					});
+				}
+			});
 		}
 	}
+
+
+	me.checkOrgUnitOpenCloseDate = function( orgUnitJson, eventDateInFormat, alert )
+	{	
+		var passed = true;
+
+		try
+		{
+			var eventDateObj = new Date( eventDateInFormat );
+	
+			if ( orgUnitJson.openingDate )
+			{
+				var ouOpenDateStr = Util.formatDate( orgUnitJson.openingDate );
+				var ouOpenDate = new Date( ouOpenDateStr );
+	
+				if ( eventDateObj.getTime() < ouOpenDate.getTime() )
+				{
+					if ( alert ) alert( 'event date is before OrgUnit Open date, ' + ouOpenDateStr );
+					passed = false;
+				}
+			}
+	
+			if ( orgUnitJson.closedDate )
+			{				
+				var closedDateStr = Util.formatDate( orgUnitJson.closedDate );
+				var ouClosedDate = new Date( closedDateStr );
+	
+				if ( eventDateObj.getTime() > ouClosedDate.getTime() )
+				{
+					if ( alert ) alert( 'event date is after OrgUnit Closed date, ' + closedDateStr );
+					passed = false;
+				}
+			}
+		}
+		catch ( e )
+		{
+			if ( alert ) alert( 'FAILED during OrgUnit Open/Close Date with event date.' );
+			passed = false;
+		}
+
+
+		return passed;
+	}
+
 
 
 	me.eventCreate_SubmitData = function( json_Data, trCurrent, successFunc )
@@ -643,9 +672,9 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 				me.incompleteEvent( trCurrent, json_Event, programStageId );
 			});
 			
-			me.TabularDEObj.dataInMemory.retrieveProgramStageData( programStageId, function( json_ProgramStage )
+			me.TabularDEObj.dataInMemory.retrieveProgramStageData( programStageId, function( programStageJson )
 			{
-				if ( json_ProgramStage.blockEntryForm )
+				if ( programStageJson.blockEntryForm )
 				{
 					// Disable all the DataElements controls - move the control rendering area..
 					me.setEventDEControlDisable( trCurrent );
@@ -725,7 +754,8 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 
 	me.setEventFixedColumn_ForExisting = function( trCurrent, json_Event )
 	{
-		var eventDate = trCurrent.find( "input.eventDate" );
+		// Event date might have not been populated on loading events at this point
+		//var eventDate = trCurrent.find( "input.eventDate" );
 		var eventProgram = trCurrent.find( "select.eventProgram" );
 		var eventStage = trCurrent.find( "select.eventStage" );
 		var eventProgramDiv = trCurrent.find( "div.eventProgramDiv" );
@@ -751,10 +781,10 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 		if ( selectedStageId != "" )
 		{
 			// Simply used to get programStage name.  <-- should do a more efficient way for this..
-			me.TabularDEObj.dataInMemory.retrieveProgramStageData( selectedStageId, function( json_ProgramStage )
+			me.TabularDEObj.dataInMemory.retrieveProgramStageData( selectedStageId, function( programStageJson )
 			{
-				eventStageDiv.text( json_ProgramStage.displayName );
-				eventStageDiv.attr( 'uid', json_ProgramStage.id );
+				eventStageDiv.text( programStageJson.displayName );
+				eventStageDiv.attr( 'uid', programStageJson.id );
 			});
 		}
 
@@ -923,9 +953,21 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 		}
 	}
 
+	//me.disableEventRow = function( trCurrent)
+	// COMBINATION OF me.setEventDEControlDisable && me.setEventFixedColumnDisable
+
 
 	me.addEventRow = function( newRowCount, tableCurrent )
 	{
+
+		var lastRow = $( '<tr class="trEventData" uid=""></tr>' );
+		var rowDivTag = $( '<div class="rowDiv"></div>')
+		lastRow.append( rowDivTag );
+		
+		rowDivTag.append( me.trTemplate_EventRow );
+
+
+
 		tableCurrent.append( $( document.createElement( "tr" ) ).attr( 'class', 'trEventData' ).attr( 'uid', '' ).append( me.trTemplate_EventRow ) );
 
 		var lastRow = tableCurrent.find( "tr.trEventData:last" );
@@ -1195,9 +1237,9 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 	// Populate Event Column Related
 
 	// Move this to populate Layout method section
-	me.populateEventColumnsAndData = function( trHead, trCurrent, programStageUid, runAfterwards_Func, item_event )
+	me.populateEventColumnsAndData = function( trHead, trCurrent, programStageId, runAfterwards_Func, item_event )
 	{
-		me.TabularDEObj.dataInMemory.retrieveProgramStageData( programStageUid, function( json_ProgramStage )
+		me.TabularDEObj.dataInMemory.retrieveProgramStageData( programStageId, function( programStageJson )
 		{
 			// NOTE: 2.30 moved to top
 			var selectedProgram = me.TabularDEObj.getSelectedProgram();
@@ -1206,7 +1248,7 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 			trCurrent.find( "td.added" ).html( "" ).attr( "DEID", "" );
 
 			var count_columnExisting = trHead.find( ".added" ).length;
-			//var count_dataElements = json_ProgramStage.programStageDataElements.length;
+			//var count_dataElements = programStageJson.programStageDataElements.length;
 			var count_current = 0;
 
 
@@ -1223,19 +1265,26 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 			}
 
 
-			// TODO: place class='before' coordinate at here?
-			//		Add class
-
-			if ( selectedProgram.captureCoordinates )
+			// TODO: 2.30 - COORDINATE INPUT DISPLAY
+			if ( me.enableCoordinateCapture && selectedProgram.captureCoordinates )
 			{
-				var coordinateControlTemplate = "<div id='eventCoordinateDiv'><table class='tbNone11'><tr><td><span style='font-size: 11px;'>Lat:</span></td><td><input type='text' class='eventCoorLat' size='7' " + _view + "='" + _view_Yes + "' + style='margin-bottom:1px;'/></td></tr><tr><td><span style='font-size: 11px;'>Long:</span></td><td><input type='text' class='eventCoorLng' size='7' " + _view + "='" + _view_Yes + "'/></td></tr></table></div>";
+				// CHECK THE ProgramStage Feature Type ---> if 'captureCoordinates', need to be 'POINT'
+				if ( programStageJson.featureType === 'POINT' )
+				{
+					var coordinateControlTemplate = "<div id='eventCoordinateDiv'><table class='tbNone11'><tr><td><span style='font-size: 11px;'>Lat:</span></td><td><input type='text' class='eventCoorLat' size='7' " + _view + "='" + _view_Yes + "' + style='margin-bottom:1px;'/></td></tr><tr><td><span style='font-size: 11px;'>Long:</span></td><td><input type='text' class='eventCoorLng' size='7' " + _view + "='" + _view_Yes + "'/></td></tr></table></div>";
+				}
+				else
+				{
+					var coordinateControlTemplate = "<div id='eventCoordinateDiv'><span style='font-weight: bold; color: Red;' title='The programStage featureType needs to be POINT.'>*</span></div>"
+				}
 
-				me.setColumns_AddedPart( count_current++, count_columnExisting, trCurrent, trHead, undefined, "Coordinates", cssTH_DENameDisplay, cssTD_DENameDisplay, coordinateControlTemplate );
+				me.setColumns_AddedPart( count_current++, count_columnExisting, trCurrent, trHead, undefined, "Coordinates", cssTH_DENameDisplay, cssTD_DENameDisplay, coordinateControlTemplate );	
 			}
 			
+
 			// For each data elements, add column.
 			me.getHiddenDataElementsInSettings( function(hiddenDEList){
-				$.each( json_ProgramStage.programStageDataElements, function( i, item ) {
+				$.each( programStageJson.programStageDataElements, function( i, item ) {
 					var deId = item.dataElement.id;
 					
 						if( hiddenDEList.indexOf( deId ) < 0 )
@@ -1571,18 +1620,21 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 
 	me.setEventDataSave = function( trCurrent )
 	{
-
-		/* trCurrent.find( "input.eventDate" ).datepicker( "option", "onSelect", function() 
+		// TODO: 2.30 Only on matrix version, this was commented out.  Don't know why.
+		// Maybe we should only edit the date of active date?
+		trCurrent.find( "input.eventDate" ).datepicker( "option", "onSelect", function() 
 		{
 			me.setStatusChecking( $( this ), true );
 
 			me.eventUpdate( trCurrent );
-		}); */
+		});
+
 
 		trCurrent.find( "input.eventCoorLat, input.eventCoorLng" ).change( function () 
 		{
 			me.eventUpdate( trCurrent );
 		});
+
 
 		trCurrent.find( "td.added input.datepicker" ).focusout( function () 
 		{
@@ -1593,6 +1645,7 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 				me.eventUpdatePartial( cntrl, trCurrent.attr( 'uid' ) );
 			}, 200 );
 		});
+
 
 		trCurrent.find( "td.added input.textbox, td.added select, td.added textarea, td.added input.checkbox" ).change( function () 
 		{
@@ -1655,18 +1708,31 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 		{
 			status = newStatus;
 		}
-					
-		var json_Data = {"program": eventProgram.val(), "programStage": eventStage.attr( 'selectedprogramstage' ),"orgUnit": me.TabularDEObj.getOrgUnitId(), "eventDate": eventDateInFormat,  "coordinate": {}, "status": status, "dataValues": me.generateJSON_AllDataColumns( trCurrent ) };
+		
+
+		// TODO: 2.30 - WARNING..
+		//	THIS SHOULD BE BASED ON LOADING EVENT JSON IN MEMORY!!!!!??
+		var json_Data = {"program": eventProgram.val(), "programStage": eventStage.attr( 'selectedprogramstage' ),"orgUnit": me.TabularDEObj.getOrgUnitId(), "eventDate": eventDateInFormat, "status": status, "dataValues": me.generateJSON_AllDataColumns( trCurrent ) };
 
 
+		// TODO: 2.30
 		// if coordinates exists, add them.
-		me.setCoordinateData( json_Data.coordinate, eventCoorLat, eventCoorLng );
+		//me.setCoordinateData( json_Data.coordinate, eventCoorLat, eventCoorLng );
+		me.setGeometryData( json_Data, eventCoorLat, eventCoorLng );
 
 
 		if ( !me.TabularDEObj.isCase_SEwoR() )
 		{
 			json_Data.trackedEntityInstance = personUid;
 		}
+
+
+		// TODO: 2.30 NEW
+		var tdContentDivTags = trCurrent.find( 'div.tdContentDiv' );
+
+		DivBlock.block( tdContentDivTags, "Updating.." );
+		trCurrent.addClass( 'rowInProcess' );
+
 
 		RESTUtil.submitData( json_Data, _queryURL_EventSubmit + '/' + eventUid, "PUT"
 			, function()
@@ -1690,12 +1756,17 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 							}
 						);
 						
+						
+						DivBlock.unblock( tdContentDivTags );
+						trCurrent.removeClass( 'rowInProcess' );
+
 						if ( successAction !== undefined ) successAction( json_Event );
 					});
 			}
 			, function()
 			{
 				alert( $( 'span.msg_EventUpdateFailed' ).text() );
+				DivBlock.unblock( trCurrent );
 			}
 		);
 		
@@ -1877,6 +1948,48 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 		tag.attr( "status", checkingStr );
 	}
 
+	me.setGeometryData = function( json_Data, eventCoorLatTag, eventCoorLngTag )
+	{
+		me.setStatusChecking( eventCoorLatTag, false );
+		me.setStatusChecking( eventCoorLngTag, false );
+
+		var coordinate = {};
+
+		if ( Util.checkValue( eventCoorLatTag.val() ) ) 
+		{
+			coordinate.latitude = Number( eventCoorLatTag.val() );
+			me.setStatusChecking( eventCoorLatTag, true );
+		}
+
+		if ( Util.checkValue( eventCoorLngTag.val() ) ) 
+		{
+			coordinate.longitude = Number( eventCoorLngTag.val() );
+			me.setStatusChecking( eventCoorLngTag, true );
+		}
+
+		if ( coordinate.latitude && coordinate.longitude )
+		{
+			me.setGeometryJson( json_Data, coordinate );
+		}
+	}
+
+
+	me.setGeometryJson = function( jsonData, coords )
+	{
+		if ( coords )
+		{
+			jsonData.geometry = {};
+			jsonData.geometry.type = "Point";
+			jsonData.geometry.coordinates = [ coords.longitude, coords.latitude ];
+		}
+	}
+
+	// NOTE: Somehow, on create, we need to pass coordinate info rather than geometry info...  Maybe both?
+	me.getCoordinateJson = function( jsonData, coords )
+	{
+		if ( coords ) jsonData.coordinate = { "latitude": coords.latitude, "longitude": coords.longitude };
+	}
+	
 
 	me.setCoordinateData = function( coordinate, eventCoorLatTag, eventCoorLngTag )
 	{
@@ -2029,7 +2142,6 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 		var trHead = tableCurrent.find( "tr.trEventHead:first" );
 		var trCurrent = tableCurrent.find( "tr.trEventData:last" );
 
-
 		// -----------------------------------------------
 		// --- STEP 1. Populate first 3 row - Event date, program, stage
 		
@@ -2043,9 +2155,8 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 
 		if ( item_event.eventDate !== undefined )
 		{
-			eventDate.val( Util.formatDateBack( item_event.eventDate ) );
-			
 			// Check if the selected event date is in the range			
+			eventDate.val( Util.formatDateBack( item_event.eventDate ) );			
 			me.checkDateEventOutOfDateRange( eventDate );
 		}
 		
@@ -2095,6 +2206,31 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 			me.setEventFixedColumn_ForExisting( trCurrent, item_event );
 		}
 		, item_event );
+
+
+		// -----------------------------------------------
+		// --- STEP 3. CHECK EVENT DATE AND Check Against orgUnit open/close date.
+		// 		If event date is out of orgUnit date range, disable editing
+		if ( item_event.eventDate !== undefined )
+		{
+			// TODO: 2.30 - eventDate check against orgUnit
+			// Disable editing if eventDate is outOfRange of orgUnit
+			var orgUnitJson = me.TabularDEObj.getOrgUnitJson();
+			var eventDateInFormat = Util.formatDate( item_event.eventDate );
+	
+			if ( !me.checkOrgUnitOpenCloseDate( orgUnitJson, eventDateInFormat, false ) )
+			{
+				me.setEventDEControlDisable( trCurrent );
+				//me.setEventFixedColumnDisable = function( trCurrent )
+
+				var eventDateColTag = eventDate.closest("td");
+				//eventDateColTag.find("div.warning");
+
+				//var warningMsg = l10n.get( 'eventDataOutOfRange' );
+				var warningMsg = "Out of OrgUnit Open/Close Date Range";
+				eventDateColTag.append("<div class='warning' style='color:red;font-size: 8px;font-style: italic;line-height: 12px;'>*** " + warningMsg + "</div>");								
+			}
+		}
 
 	}
 

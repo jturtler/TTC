@@ -101,19 +101,25 @@ AppUtil.pageHScroll = function( option )
 	}
 }
 
-AppUtil.checkGeoLocation = function( returnFunc )
+AppUtil.checkGeoLocation = function( checkLocation, returnFunc )
 {
-	console.log( navigator.geolocation );
-	
-	navigator.geolocation.getCurrentPosition(
-		function( position ) 
-		{
-			returnFunc( position );				
-		}
-		, function( msg ) 
-		{
-			returnFunc();
-		});
+	if ( checkLocation )
+	{
+		//console.log( navigator.geolocation );	
+		navigator.geolocation.getCurrentPosition(
+			function( position ) 
+			{
+				returnFunc( position );				
+			}
+			, function( msg ) 
+			{
+				returnFunc();
+			});	
+	}
+	else
+	{
+		returnFunc();
+	}
 };
 
 // --------------------------------------------------------------------------------
@@ -162,14 +168,13 @@ FormUtil.setTabBackgroundColor_Switch = function( ctrlTags )
 {
 	ctrlTags.focus( function()
 	{
-		$( this ).closest( 'td' ).css('background-color', '#F7F7F7');
+		$( this ).closest( 'td' ).addClass( 'tdInFocus' ); 
 	});
 
 	ctrlTags.focusout( function()
 	{
-		$( this ).closest( 'td' ).css('background-color', 'white');
+		$( this ).closest( 'td' ).removeClass( 'tdInFocus' ); 
 	});
-
 }
 
 FormUtil.getFormattedAttributeValue = function( attrType, attrValue )

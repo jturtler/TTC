@@ -42,7 +42,11 @@ function DataInMemory()
 
 	me.retrieveProgramStageData = function( programStageId, runFunc )
 	{
-		me.retrieveFromMemory( me.programStageDataElements, 'id', programStageId, _queryURL_ProgramStages + '/' + programStageId + '.json?fields=id,displayName,description,repeatable,captureCoordinates,executionDateLabel,program[id,displayName],programStageDataElements[compulsory,sortOrder,allowFutureDate,dataElement[id,displayName,displayFormName]]', function( dataObj )
+		var fields = '*,program[id,displayName]'
+			+ ',programStageDataElements[compulsory,sortOrder,allowFutureDate,dataElement[id,displayName,displayFormName]]';
+
+		me.retrieveFromMemory( me.programStageDataElements, 'id', programStageId, _queryURL_ProgramStages + '/' + programStageId + '.json?fields=' + fields
+		, function( dataObj )
 		{
 			if ( runFunc !== undefined )
 			{
@@ -54,7 +58,12 @@ function DataInMemory()
 
 	me.retrieveProgramStageData_WithDataElementsAndOptionSets = function( programStageId, runFunc )
 	{
-		me.retrieveFromMemory( me.programStageDataElements, 'id', programStageId, _queryURL_ProgramStages + '/' + programStageId + '.json?fields=id,displayName,description,repeatable,captureCoordinates,executionDateLabel,program[id,displayName],programStageDataElements[compulsory,sortOrder,allowFutureDate,dataElement[id,displayName,formName,valueType,optionSetValue,optionSet[id,displayName,options[id,displayName,code]]]]', function( dataObj )
+
+		var fields = '*,program[id,displayName]'
+			+ ',programStageDataElements[compulsory,sortOrder,allowFutureDate,dataElement[id,displayName,formName,valueType,optionSetValue,optionSet[id,displayName,options[id,displayName,code]]]]';
+
+		me.retrieveFromMemory( me.programStageDataElements, 'id', programStageId, _queryURL_ProgramStages + '/' + programStageId + '.json?fields=' + fields
+		, function( dataObj )
 			//dataElement[id,name,formName,type,textType
 		{
 			// Get dataElements and optionSets data and put into memory.
@@ -101,7 +110,12 @@ function DataInMemory()
 
 	me.retrieveProgramStageList = function( runFunc )
 	{
-		me.retrieveFromMemory( me.programStageList_Full, 'id', 'programStageFull', _queryURL_ProgramStages + '.json?paging=false&fields=id,displayName,description,repeatable,captureCoordinates,executionDateLabel,program[id,displayName],programStageDataElements[compulsory,sortOrder,allowFutureDate,dataElement[id,displayName,formName]],attributeValues[attribute[id],value]'
+		//var programStageFields = 'id,displayName,description,repeatable,captureCoordinates,executionDateLabel,program[id,displayName]'
+		var programStageFields = '*,program[id,displayName]'
+			+ ',programStageDataElements[compulsory,sortOrder,allowFutureDate,dataElement[id,displayName,formName]]'
+			+ ',attributeValues[attribute[id],value]';
+
+		me.retrieveFromMemory( me.programStageList_Full, 'id', 'programStageFull', _queryURL_ProgramStages + '.json?paging=false&fields=' + programStageFields
 			, function( json_programStageList )
 			{
 				if ( runFunc !== undefined )

@@ -431,15 +431,15 @@ function PersonList( TabularDEObj )
 									{
 										if( json_Persons.trackedEntityInstances !== undefined )
 										{
-											$.each( json_Persons.trackedEntityInstances, function( i, item_Person ) 
+											$.each( json_Persons.trackedEntityInstances, function( i, item_person ) 
 											{
-												var attribute_first = Util.getFromList( item_Person.attributes, attribute0_id, "attribute" );
+												var attribute_first = Util.getFromList( item_person.attributes, attribute0_id, "attribute" );
 
 												var attributesLongDesc = attribute_first.value; 
 
 												if ( Util.checkValue( attribute1_id ) ) 
 												{
-													var attribute_second = Util.getFromList( item_Person.attributes, attribute1_id, "attribute" );
+													var attribute_second = Util.getFromList( item_person.attributes, attribute1_id, "attribute" );
 
 													if ( attribute_second !== undefined )
 													{
@@ -447,7 +447,7 @@ function PersonList( TabularDEObj )
 													}
 												}
 
-												json_persons_new.push( { "id": item_Person.trackedEntityInstance, "label": attributesLongDesc, "value": attribute_first.value } );
+												json_persons_new.push( { "id": item_person.trackedEntityInstance, "label": attributesLongDesc, "value": attribute_first.value } );
 
 											});
 										}
@@ -489,28 +489,28 @@ function PersonList( TabularDEObj )
 						DialogLoading.openWithCallback( 
 							function()
 							{ 
-								me.getPersonById( ui.item.id, function( item_Person )
+								me.getPersonById( ui.item.id, function( item_person )
 								{
 									// Get the followup infor of each TEI
 									me.TabularDEObj.checkProgramEnroll( ui.item.id, me.TabularDEObj.getSelectedProgramId(), me.TabularDEObj.getOrgUnitId(), function( enrollmentData ) // has ACTIVE program
 									{
 										var followup = ( enrollmentData.followup === undefined ) ? false : eval( enrollmentData.followup );
-										item_Person.followup = followup;
-										item_Person.enrollment = enrollmentData.enrollment;
-										item_Person.enrollmentDate = enrollmentData.enrollmentDate;
-										item_Person.incidentDate = enrollmentData.incidentDate;
+										item_person.followup = followup;
+										item_person.enrollment = enrollmentData.enrollment;
+										item_person.enrollmentDate = enrollmentData.enrollmentDate;
+										item_person.incidentDate = enrollmentData.incidentDate;
 										
 							
-										me.setPersonInfoRow( trCurrent, item_Person );
-										me.populateAndSet_PersonDetailSection( trCurrent, trCurrent.next(), item_Person );
+										me.setPersonInfoRow( trCurrent, item_person );
+										me.populateAndSet_PersonDetailSection( trCurrent, trCurrent.next(), item_person );
 										DialogLoading.close();
 										// Open up the Detail Part
 										Util.toggleTarget( trCurrent.find( '.detailToggle' ), trCurrent.next() );
 									}
 									, function() { 
 							
-										me.setPersonInfoRow( trCurrent, item_Person );
-										me.populateAndSet_PersonDetailSection( trCurrent, trCurrent.next(), item_Person );
+										me.setPersonInfoRow( trCurrent, item_person );
+										me.populateAndSet_PersonDetailSection( trCurrent, trCurrent.next(), item_person );
 										DialogLoading.close();
 										// Open up the Detail Part
 										Util.toggleTarget( trCurrent.find( '.detailToggle' ), trCurrent.next() );
@@ -650,7 +650,7 @@ function PersonList( TabularDEObj )
 
 
 
-	me.setPersonInfoRow = function( trCurrent, item_Person )
+	me.setPersonInfoRow = function( trCurrent, item_person )
 	{
 		// Initialize person event count
 		me.setPersonEventCount( trCurrent );
@@ -659,18 +659,18 @@ function PersonList( TabularDEObj )
 		trCurrent.find( ".personInfo" ).hide();
 
 
-		if( Util.checkDefined( item_Person ) )
+		if( Util.checkDefined( item_person ) )
 		{
-			var personId = item_Person.trackedEntityInstance;
+			var personId = item_person.trackedEntityInstance;
 			//var programId = me.TabularDEObj.getSelectedProgramId();
 
 			trCurrent.attr( 'uid', personId );
 			trCurrent.next().attr( 'uid', personId );
 
 			// set 'doneStage' attribute data
-			if ( item_Person.doneStages !== undefined )
+			if ( item_person.doneStages !== undefined )
 			{
-				trCurrent.attr( me.attr_doneStages, item_Person.doneStages );
+				trCurrent.attr( me.attr_doneStages, item_person.doneStages );
 			}
 
 
@@ -678,13 +678,13 @@ function PersonList( TabularDEObj )
 			trCurrent.find( ".personInfo[infoType='" + me.personDialogForm.type_Exist + "']" ).show();
 
 			// Populate the person Attribute info.
-			me.populatePersonAttirbutesToRow( trCurrent, item_Person.attributes );
+			me.populatePersonAttirbutesToRow( trCurrent, item_person.attributes );
 
 
 			// Set person Home Unit - org Unit
-			if ( Util.checkDefined( item_Person.orgUnit ) )
+			if ( Util.checkDefined( item_person.orgUnit ) )
 			{
-				me.TabularDEObj.dataInMemory.retrieveOrgUnitName( item_Person.orgUnit, function( json_OrgUnit )
+				me.TabularDEObj.dataInMemory.retrieveOrgUnitName( item_person.orgUnit, function( json_OrgUnit )
 				{
 					trCurrent.find( "td[type='homeUnit']" ).text( json_OrgUnit.name );
 				});
@@ -715,7 +715,7 @@ function PersonList( TabularDEObj )
 				if ( !( Util.checkValue( populateStatus ) && populateStatus == 'Y' ) )
 				{	
 					// Populate table.
-					me.populateAndSet_PersonDetailSection( trCurrent, trDetailRow, item_Person );
+					me.populateAndSet_PersonDetailSection( trCurrent, trDetailRow, item_person );
 				}
 				
 				return false;
@@ -723,9 +723,9 @@ function PersonList( TabularDEObj )
 
 
 			// Set up the event count on the row
-			if ( Util.checkDefined( item_Person.eventRows ) )
+			if ( Util.checkDefined( item_person.eventRows ) )
 			{
-				me.setPersonEventCount( trCurrent, item_Person.eventRows.length );
+				me.setPersonEventCount( trCurrent, item_person.eventRows.length );
 			}
 
 			/*
@@ -797,10 +797,10 @@ function PersonList( TabularDEObj )
 	}
 
 
-	me.populateAndSet_PersonDetailSection = function( trPersonRow, trDetailRow, item_Person )
+	me.populateAndSet_PersonDetailSection = function( trPersonRow, trDetailRow, item_person )
 	{
 		var tdDetailSection = trDetailRow.find( 'td.blank' );
-		var personId = item_Person.trackedEntityInstance;
+		var personId = item_person.trackedEntityInstance;
 
 
 		tdDetailSection.html( '' ).append( "<div class='divPersonDetail'><table class='tbStyle_PersonDetail'>"
@@ -830,7 +830,7 @@ function PersonList( TabularDEObj )
 		{
 			
 			// * After populating event data, Set 'DoneStage'
-			me.setDoneStageRelated( item_Person, trPersonRow, function( doneStages )
+			me.setDoneStageRelated( item_person, trPersonRow, function( doneStages )
 			{
 				// For already populated events case, if there is 'add new'
 				// row added, remove the stage.
@@ -854,7 +854,7 @@ function PersonList( TabularDEObj )
 
 	// ------ Done Stages Related - BEGIN ------
 
-	me.setDoneStageRelated = function( item_Person, trPersonRow, execFunc )
+	me.setDoneStageRelated = function( item_person, trPersonRow, execFunc )
 	{
 		var divAddEvent = trPersonRow.next().find( ".divAddEvent" );
 
@@ -862,11 +862,11 @@ function PersonList( TabularDEObj )
 		FormUtil.setTagAsWait( divAddEvent );
 
 		// For Person, do event search for 'done' program stage (for non-repeatable)
-		me.retrieveAndSetDoneProgramStages( item_Person, function()
+		me.retrieveAndSetDoneProgramStages( item_person, function()
 		{
-			if ( item_Person.doneStages !== undefined )
+			if ( item_person.doneStages !== undefined )
 			{
-				trPersonRow.attr( me.attr_doneStages, item_Person.doneStages );
+				trPersonRow.attr( me.attr_doneStages, item_person.doneStages );
 			
 				execFunc( trPersonRow.attr( me.attr_doneStages ) );
 			}
@@ -990,25 +990,25 @@ function PersonList( TabularDEObj )
 				item_person.incidentDate = enrollmentData.incidentDate;
 				
 				// Populate folllowup 
-				me.populateFollowup( trCurrent, programId, item_Person);
+				me.populateFollowup( trCurrent, programId, item_person );
 			});
 	}
 
-	me.populateFollowup = function( trCurrent, programId, item_Person )
+	me.populateFollowup = function( trCurrent, programId, item_person )
 	{
-		var personId = item_Person.trackedEntityInstance;
+		var personId = item_person.trackedEntityInstance;
 
 		// Enable or Disable [Mark for followup]
 		var makeFollowupTag = trCurrent.find("[nameId='makeFollowup']");
 		var disableFollowupTag = trCurrent.find("[nameId='disableFollowup']");
-		if( item_Person.followup == undefined )
+		if( item_person.followup == undefined )
 		{
 			makeFollowupTag.hide();
 			disableFollowupTag.hide();
 		}
 		else
 		{
-			if( item_Person.followup )
+			if( item_person.followup )
 			{
 				makeFollowupTag.show();
 			}
@@ -1019,14 +1019,14 @@ function PersonList( TabularDEObj )
 			
 			// Add click_events
 			makeFollowupTag.click(function(){
-				me.programEnroll( personId, item_Person.enrollment, programId, item_Person.orgUnit, item_Person.enrollmentDate, item_Person.incidentDate, false, "PUT", function(){
+				me.programEnroll( personId, item_person.enrollment, programId, item_person.orgUnit, item_person.enrollmentDate, item_person.incidentDate, false, "PUT", function(){
 					makeFollowupTag.hide();
 					disableFollowupTag.show();
 				});
 			});
 			
 			disableFollowupTag.click(function(){
-				me.programEnroll( personId, item_Person.enrollment, programId, item_Person.orgUnit, item_Person.enrollmentDate, item_Person.incidentDate, true, "PUT", function(){
+				me.programEnroll( personId, item_person.enrollment, programId, item_person.orgUnit, item_person.enrollmentDate, item_person.incidentDate, true, "PUT", function(){
 					makeFollowupTag.show();
 					disableFollowupTag.hide();
 				});

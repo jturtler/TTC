@@ -517,7 +517,7 @@ Util.formatDate = function( strDate )
 {
 	var returnVal = "";
 
-	if( strDate.length == 10 )
+	if( strDate.length >= 10 )
 	{
 		var year = strDate.substring(0, 4);
 		var month = strDate.substring(5, 7);
@@ -893,7 +893,7 @@ $.fn.outerHTML = function(){
     })(this[0]));
 }
 
-
+/*
 // -- Quick Loading Message Util Class/Methods
 // -------------------------------------------
 
@@ -977,3 +977,4 @@ MsgManager.msgAreaShow = function( msg )
 	console.log( ' -- Msg: ' + msg );
 }
 
+*/

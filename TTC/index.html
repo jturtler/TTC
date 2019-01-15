@@ -5,6 +5,7 @@
 <meta charset="UTF-8">
 
 <script> var _jsIncludeDate = Date.now(); </script>
+<script> var _appVersion = '1.66.6s'; </script>
 
 	<!-- Credit: 
 		'webL10n' - implemented by Victor Garcia, vgarciabnz@gmail.com
@@ -26,9 +27,9 @@
 	<script src="js/gmap3/gmap3.min.js"></script> 
 	<script src="js/gmap3/gmap3-menu.js"></script>
 
-	<script src="js/app/dialogLoading.js"></script>
-	<script> document.write("<script src='js/app/util.js?v=" + _jsIncludeDate + "'><\/script>"); </script>
-	<script src="js/app/RESTUtil.js"></script>
+	<script> document.write("<script src='js/app/util.js?v=" + _appVersion + "'><\/script>"); </script>
+	<script> document.write("<script src='js/app/dialogLoading.js?v=" + _appVersion + "'><\/script>"); </script>
+	<script> document.write("<script src='js/app/RESTUtil.js?v=" + _appVersion + "'><\/script>"); </script>
 	
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap-theme.min.css">
@@ -42,7 +43,8 @@
 	<link rel="stylesheet" href="css/jQuery/jquery-ui.css" />
 	<link rel="stylesheet" href="css/jQuery/jquery.ui.timepicker.css">
 	<link rel="stylesheet" href="css/gmap3/gmap3-menu.css" />
-	<link rel="stylesheet" href="css/app/style.css">
+
+	<script> document.write("<link rel='stylesheet' href='css/app/style.css?v=" + _appVersion + "' \/>"); </script>
 	
 	<link rel="resource" type="application/l10n" href="locales/locales.ini" />
 	<script src="js/l10n.js"></script>
@@ -64,7 +66,7 @@
 		//var _dhisSiteURL = "../../";
 		// -------------------
 
-		var _dhisHomeURL = _dhisSiteURL + 'dhis-web-dashboard-integration/index.action';
+		var _dhisHomeURL = _dhisSiteURL + 'dhis-web-dashboard/#/';
 
 		var _queryURL_api = _dhisSiteURL + 'api/';
 
@@ -119,34 +121,34 @@
 
 	<script src="js/app/settings/dbSetting.js"></script>
 	
-	<script> document.write("<script src='js/app/tabularDataEntry/tabularDataEntry.js?v=" + _jsIncludeDate + "'><\/script>"); </script>	
-	<script> document.write("<script src='js/app/tabularDataEntry/searchPanel.js?v=" + _jsIncludeDate + "'><\/script>"); </script>	
-	<script> document.write("<script src='js/app/tabularDataEntry/defaultProgramTEAManager.js?v=" + _jsIncludeDate + "'><\/script>"); </script>
-	<script> document.write("<script src='js/app/tabularDataEntry/programManager.js?v=" + _jsIncludeDate + "'><\/script>"); </script>
-	<script> document.write("<script src='js/app/tabularDataEntry/catOptionComboManager.js?v=" + _jsIncludeDate + "'><\/script>"); </script>
-	<script> document.write("<script src='js/app/tabularDataEntry/personList.js?v=" + _jsIncludeDate + "'><\/script>"); </script>
-	<script> document.write("<script src='js/app/tabularDataEntry/personEvent.js?v=" + _jsIncludeDate + "'><\/script>"); </script>
-	<script> document.write("<script src='js/app/tabularDataEntry/dataInMemory.js?v=" + _jsIncludeDate + "'><\/script>"); </script>
-	<script> document.write("<script src='js/app/tabularDataEntry/programRule.js?v=" + _jsIncludeDate + "'><\/script>"); </script>
-	<script> document.write("<script src='js/app/tabularDataEntry/personDialogForm.js?v=" + _jsIncludeDate + "'><\/script>"); </script>
+	<script> document.write("<script src='js/app/tabularDataEntry/tabularDataEntry.js?v=" + _appVersion + "'><\/script>"); </script>	
+	<script> document.write("<script src='js/app/tabularDataEntry/searchPanel.js?v=" + _appVersion + "'><\/script>"); </script>	
+	<script> document.write("<script src='js/app/tabularDataEntry/defaultProgramTEAManager.js?v=" + _appVersion + "'><\/script>"); </script>
+	<script> document.write("<script src='js/app/tabularDataEntry/programManager.js?v=" + _appVersion + "'><\/script>"); </script>
+	<script> document.write("<script src='js/app/tabularDataEntry/catOptionComboManager.js?v=" + _appVersion + "'><\/script>"); </script>
+	<script> document.write("<script src='js/app/tabularDataEntry/personList.js?v=" + _appVersion + "'><\/script>"); </script>
+	<script> document.write("<script src='js/app/tabularDataEntry/personEvent.js?v=" + _appVersion + "'><\/script>"); </script>
+	<script> document.write("<script src='js/app/tabularDataEntry/dataInMemory.js?v=" + _appVersion + "'><\/script>"); </script>
+	<script> document.write("<script src='js/app/tabularDataEntry/programRule.js?v=" + _appVersion + "'><\/script>"); </script>
+	<script> document.write("<script src='js/app/tabularDataEntry/personDialogForm.js?v=" + _appVersion + "'><\/script>"); </script>
 
-	<script> document.write("<script src='js/app/settings/userSecurityManager.js?v=" + _jsIncludeDate + "'><\/script>"); </script>
+	<script> document.write("<script src='js/app/settings/userSecurityManager.js?v=" + _appVersion + "'><\/script>"); </script>
 
-	<script> document.write("<script src='js/app/tabularDataEntry/settingForm.js?v=" + _jsIncludeDate + "'><\/script>"); </script>
-	<script> document.write("<script src='js/app/tabularDataEntry/orgUnitSelectionTreePopup.js?v=" + _jsIncludeDate + "'><\/script>"); </script>
-	<script> document.write("<script src='js/app/tabularDataEntry/orgUnitMapPopup.js?v=" + _jsIncludeDate + "'><\/script>"); </script>
-	<script> document.write("<script src='js/app/tabularDataEntry/dataElementOrguUnitPopup.js?v=" + _jsIncludeDate + "'><\/script>"); </script>
-	<script> document.write("<script src='js/app/tabularDataEntry/dataSetValues.js?v=" + _jsIncludeDate + "'><\/script>"); </script>
+	<script> document.write("<script src='js/app/tabularDataEntry/settingForm.js?v=" + _appVersion + "'><\/script>"); </script>
+	<script> document.write("<script src='js/app/tabularDataEntry/orgUnitSelectionTreePopup.js?v=" + _appVersion + "'><\/script>"); </script>
+	<script> document.write("<script src='js/app/tabularDataEntry/orgUnitMapPopup.js?v=" + _appVersion + "'><\/script>"); </script>
+	<script> document.write("<script src='js/app/tabularDataEntry/dataElementOrguUnitPopup.js?v=" + _appVersion + "'><\/script>"); </script>
+	<script> document.write("<script src='js/app/tabularDataEntry/dataSetValues.js?v=" + _appVersion + "'><\/script>"); </script>
 
-	<script> document.write("<script src='js/app/orgunit/orgUnitHierarchy.js?v=" + _jsIncludeDate + "'><\/script>"); </script>
+	<script> document.write("<script src='js/app/orgunit/orgUnitHierarchy.js?v=" + _appVersion + "'><\/script>"); </script>
 
-	<script> document.write("<script src='js/app/tabularDataEntry/period/weekly.js?v=" + _jsIncludeDate + "'><\/script>"); </script>
-	<script> document.write("<script src='js/app/tabularDataEntry/period/monthly.js?v=" + _jsIncludeDate + "'><\/script>"); </script>
-	<script> document.write("<script src='js/app/tabularDataEntry/util/appUtil.js?v=" + _jsIncludeDate + "'><\/script>"); </script>
+	<script> document.write("<script src='js/app/tabularDataEntry/period/weekly.js?v=" + _appVersion + "'><\/script>"); </script>
+	<script> document.write("<script src='js/app/tabularDataEntry/period/monthly.js?v=" + _appVersion + "'><\/script>"); </script>
+	<script> document.write("<script src='js/app/tabularDataEntry/util/appUtil.js?v=" + _appVersion + "'><\/script>"); </script>
 
-	<script> document.write("<script src='js/app/matrixOrgUnit/relativePeriod.js?v=" + _jsIncludeDate + "'><\/script>"); </script>
-	<script> document.write("<script src='js/app/matrixOrgUnit/searchMatrixOrgUnit.js?v=" + _jsIncludeDate + "'><\/script>"); </script>
-	<script> document.write("<script src='js/app/matrixOrgUnit/matrixOrgunitPeriod.js?v=" + _jsIncludeDate + "'><\/script>"); </script>	
+	<script> document.write("<script src='js/app/matrixOrgUnit/relativePeriod.js?v=" + _appVersion + "'><\/script>"); </script>
+	<script> document.write("<script src='js/app/matrixOrgUnit/searchMatrixOrgUnit.js?v=" + _appVersion + "'><\/script>"); </script>
+	<script> document.write("<script src='js/app/matrixOrgUnit/matrixOrgunitPeriod.js?v=" + _appVersion + "'><\/script>"); </script>	
 	
 	<!-- Main App Coding -->
 	<script>
@@ -197,6 +199,8 @@
 		// This method is called when localization and page are loaded
 		document.webL10n.ready( function() 
 		{
+			$( '#currentVersion' ).text( _appVersion );
+
 			l10n = document.webL10n;
 
 			if( _userLanguage == null ) {
@@ -465,7 +469,7 @@
 						<span id="settingLink" style="display:none;">
 							| <a href="" id="settingFormOpen" style="color: White;" data-l10n-id="setting">Setting</a> 
 						</span>
-						| <a href="https://docs.google.com/document/d/1S6WD_oYdewVWFvsDnr1CL8yM2easN5mDc7j8QWI09Sw" target="_blank" style="color: White;">v <span id="currentVersion">1.66.6j</span></a>
+						| <a href="https://docs.google.com/document/d/1S6WD_oYdewVWFvsDnr1CL8yM2easN5mDc7j8QWI09Sw" target="_blank" style="color: White;">v <span id="currentVersion"></span></a>
 						| <button type="button" id="closeButton" class="button" style="font-size: 11px;"><span data-l10n-id="close" nameid="closeButton">Close</span></button>
 					</td>
 				</tr>

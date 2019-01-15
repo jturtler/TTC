@@ -151,9 +151,10 @@ function SearchPanel( TabularDEObj )
 	me.setOrgUnitTags = function( orgUnit, returnFunc ) 
 	{
 		// TODO: 2.30
-		console.log( 'setOrgUnitTags orgUnit Info: ' );
-		console.log( orgUnit );
-
+		//console.log( 'setOrgUnitTags orgUnit Info: ' );
+		//console.log( orgUnit );
+		DialogLoading.open();
+		
 		// Retrieve all the orgUnit info in here..
 		//me.retrieveOrgunitGroupList( orgUnit.id, function( json_ouGroupList )		
 		me.retrieveOrgUnitInfo( orgUnit.id, function( orgUnitJson )
@@ -184,6 +185,8 @@ function SearchPanel( TabularDEObj )
 					
 					Util.paintClear( me.orgUnitNameTag );
 										
+					DialogLoading.close();
+
 					if( returnFunc !== undefined ) returnFunc( orgUnitJson );
 				} );
 			} );

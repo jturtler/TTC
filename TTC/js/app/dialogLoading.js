@@ -133,3 +133,119 @@ QuickLoading.dialogShowRemove = function( loadingTagName )
 
 // -- Quick Loading Message Util Class/Methods
 // -------------------------------------------
+
+
+
+// -- Quick Loading Message Util Class/Methods
+// -------------------------------------------
+
+function FormBlock() {}
+
+FormBlock.block = function( block, msg, cssSetting, tag )
+{
+	var msgAndStyle = { message: msg, css: cssSetting };
+
+	if ( tag === undefined )
+	{
+		if ( block ) $.blockUI( msgAndStyle );
+		else $.unblockUI();
+	}
+	else
+	{
+		if ( block ) tag.block( msgAndStyle );
+		else tag.unblock();
+	}
+}
+
+
+
+// ---------------------------------------
+// --- App block/unblock ---
+
+function MsgManager() {}
+		
+MsgManager.cssBlock_Body = { 
+	border: 'none'
+	,padding: '15px'
+	,backgroundColor: '#000'
+	,'-webkit-border-radius': '10px'
+	,'-moz-border-radius': '10px'
+	,opacity: .5
+	,color: '#fff'
+	,width: '200px'
+};
+
+MsgManager.appBlock = function( msg )
+{
+	if ( !Util.checkValue( msg ) ) msg = "Processing..";
+
+	FormBlock.block( true, msg, MsgManager.cssBlock_Body );
+}
+
+MsgManager.appUnblock = function()
+{
+	FormBlock.block( false );
+}
+
+
+// --- Messaging ---
+MsgManager.divMsgAreaTag;
+MsgManager.spanMsgAreaCloseTag;
+MsgManager.btnMsgAreaCloseTag;
+MsgManager.spanMsgAreaTextTag;
+
+MsgManager.initialSetup = function()
+{
+	MsgManager.divMsgAreaTag = $( '#divMsgArea' );
+	MsgManager.spanMsgAreaCloseTag = $( '#spanMsgAreaClose' );
+	MsgManager.btnMsgAreaCloseTag = $( '#btnMsgAreaClose' );
+	MsgManager.spanMsgAreaTextTag = $( '#spanMsgAreaText' );
+		
+
+	MsgManager.btnMsgAreaCloseTag.click( function()
+	{
+		MsgManager.divMsgAreaTag.hide( 'fast' );
+	});
+}
+
+MsgManager.msgAreaShow = function( msg )
+{
+	MsgManager.divMsgAreaTag.hide( 'fast' );
+	MsgManager.spanMsgAreaTextTag.text( '' );
+
+	MsgManager.spanMsgAreaTextTag.text( msg );
+	MsgManager.divMsgAreaTag.show( 'medium' );
+
+	console.log( ' -- Msg: ' + msg );
+}
+
+
+
+// ---------------------------------------
+// --- Div Block/unblock ---
+
+function DivBlock() {}
+
+DivBlock.cssBlock_Body = { 
+	border: 'none'
+	,padding: '15px'
+	,backgroundColor: 'darkgray'
+	,'-webkit-border-radius': '10px'
+	,'-moz-border-radius': '10px'
+	,opacity: .5
+	,color: '#fff'
+	,width: '200px'
+};
+
+
+DivBlock.block = function( divTag, msg )
+{
+	if ( !Util.checkValue( msg ) ) msg = "Processing..";
+
+	FormBlock.block( true, msg, DivBlock.cssBlock_Body, divTag );
+}
+
+DivBlock.unblock = function( divTag )
+{
+	FormBlock.block( false, undefined, undefined, divTag );
+}

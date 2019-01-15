@@ -235,6 +235,16 @@ img
 	vertical-align: top;
 }
 
+.rowInProcess {
+	background-color: darkgray !IMPORTANT;
+    opacity: 0.6;
+	cursor: wait;	
+}
+
+.tdInFocus {
+	background-color: #F7F7F7;
+}
+
 .input_button {
 	color: #333333;
 	padding:2px 4px; 
