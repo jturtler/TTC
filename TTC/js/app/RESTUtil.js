@@ -241,19 +241,19 @@ function RetrieveManager()
 		}
 	}
 
-
-	// Not Used for now.
-	me.insertDirectToMemory = function( dataList, idName, idValue, data )
-	{
-		var dataNew = {};
-		
-		dataNew[ idName ] = idValue;
-		dataNew.data = data;
-		dataNew.requestQueue = new Array();
-
-		dataMemoryList.push( dataNew );
-	}
 	
+	me.insertDirectToMemory = function( json_Data, requestQuery )
+	{
+		var dataMemoryNew = {};		
+	
+		dataMemoryNew[ me._queryIdStr ] = requestQuery;
+		dataMemoryNew.data = json_Data;
+		dataMemoryNew.requestQueue = new Array();
+
+		me.dataMemoryList.push( dataMemoryNew );
+	}
+
+
 	me.clearMemory = function()
 	{
 		me.dataMemoryList = [];

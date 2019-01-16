@@ -245,6 +245,10 @@ img
 	background-color: #F7F7F7;
 }
 
+.searchPanelTd {
+	padding-right: 5px;
+}
+
 .input_button {
 	color: #333333;
 	padding:2px 4px; 

@@ -12,9 +12,7 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 	me.dataSetDivTag =  $( '#dataSetDiv' );
 	me.mainSection_PersonTag = $("#mainSection_Person");
 
-
 	me.attr_EventRowNo = "eventrowno";
-
 
 	me.buttonTemplate_Complete = "<button type='button' class='button eventComplete' style='display:none;'><span nameId='CompleteEvent'>" + l10n.get('complete') + "</span></button><button type='button' class='button eventIncomplete' style='display:none;'><span nameId='IncompleteEvent'>" + l10n.get('incomplete') + "</span></button>";
 	
@@ -37,6 +35,8 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 
 	me.enableCoordinateCapture = true;
 
+	me.eventsLoadedJson = {};	// saved/loaded events data (from retrieval), to be used on update
+
 	// ======================
 	// Methods
 
@@ -47,7 +47,6 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 	{
 		return me.AttributeControlsTemplate;
 	}
-
 
 	// Public Getters
 	// ----------------------
@@ -1470,7 +1469,10 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 							});
 						}
 					}
-					else if( valType == "TEXT" || valType == "USERNAME" || valType == "LETTER" || valType == "PHONE_NUMBER" || valType == "EMAIL" || valType == "FILE_RESOURCE" || valType == "COORDINATE" )
+					else if( valType == "TEXT" || valType == "LETTER" || valType == "PHONE_NUMBER" 
+						|| valType == "EMAIL" || valType == "COORDINATE" || valType == "URL" )
+
+						// || valType == "FILE_RESOURCE" // valType == "USERNAME" ||
 					{
 						var controlTag = me.setAndGetControlTag( tdTag, ".textbox" );
 					}
@@ -1486,7 +1488,7 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 					{
 						var controlTag = me.setAndGetControlTag( tdTag, ".textbox" );
 					}
-					else if ( valType == "NUMBER" || valType == "PERCENTAGE" )
+					else if ( valType == "NUMBER" || valType == "PERCENTAGE" || valType == "AGE" )
 					{
 						var controlTag = me.setAndGetControlTag( tdTag, ".textbox" ).attr( "size", "8" );
 					}
@@ -1505,14 +1507,16 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 						var controlTag = me.setAndGetControlTag( tdTag, ".datepicker" );
 						Util.setDateTimePicker( controlTag );
 					}
-					else if( valType == "TRUE_ONLY" || valType == "TRACKER_ASSOCIATE" )
+					else if( valType == "TRUE_ONLY" ) //|| valType == "TRACKER_ASSOCIATE" )
 					{
 						var controlTag = me.setAndGetControlTag( tdTag, ".checkbox" );
 					}
 					else
 					{
+						var textStr = "'" + valType + "' data type not supported";
+
 						//alert( "Unknown Column(DataElement) Type Found.  [Name: " + json_DataElement.displayName + ", ID: " + json_DataElement.id + ", valueType: " + valType + "]" );
-						var controlTag = me.setAndGetControlTag( tdTag, ".labelMsg" ).html( '<span style="color:Red;">Not supported valueType: ' + valType + '</span>' );
+						var controlTag = me.setAndGetControlTag( tdTag, ".labelMsg" ).html( '<span style="color:Red;">' + textStr + '</span>' );
 					}
 
 
@@ -1711,65 +1715,74 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 		
 
 		// TODO: 2.30 - WARNING..
-		//	THIS SHOULD BE BASED ON LOADING EVENT JSON IN MEMORY!!!!!??
-		var json_Data = {"program": eventProgram.val(), "programStage": eventStage.attr( 'selectedprogramstage' ),"orgUnit": me.TabularDEObj.getOrgUnitId(), "eventDate": eventDateInFormat, "status": status, "dataValues": me.generateJSON_AllDataColumns( trCurrent ) };
+		//	THIS SHOULD BE BASED ON LOADING EVENT JSON IN MEMORY!!!!!??		
+		var eventJson = me.eventsLoadedJson[ eventUid ];
 
-
-		// TODO: 2.30
-		// if coordinates exists, add them.
-		//me.setCoordinateData( json_Data.coordinate, eventCoorLat, eventCoorLng );
-		me.setGeometryData( json_Data, eventCoorLat, eventCoorLng );
-
-
-		if ( !me.TabularDEObj.isCase_SEwoR() )
+		if ( !eventJson ) alert( 'ERROR - On Update, loaded Event data does not exist!' );
+		else
 		{
-			json_Data.trackedEntityInstance = personUid;
-		}
-
-
-		// TODO: 2.30 NEW
-		var tdContentDivTags = trCurrent.find( 'div.tdContentDiv' );
-
-		DivBlock.block( tdContentDivTags, "Updating.." );
-		trCurrent.addClass( 'rowInProcess' );
-
-
-		RESTUtil.submitData( json_Data, _queryURL_EventSubmit + '/' + eventUid, "PUT"
-			, function()
-			{	
-				RESTUtil.getAsynchData( me.getEventDataUrl( eventUid )
-					, function( json_Event )
-					{				
-						// Clear all coloring
-						trCurrent.find( "td.added" ).find( "input,select" ).each( 
-							function () 
-							{
-								Util.paintResult( $(this), false );
-							}
-						);
-
-						trCurrent.find( "[status='checking']" ).each( 
-							function () 
-							{
-								$(this).attr( "status", "updated" );				 
-								Util.paintResult( $(this), true );
-							}
-						);
-						
-						
-						DivBlock.unblock( tdContentDivTags );
-						trCurrent.removeClass( 'rowInProcess' );
-
-						if ( successAction !== undefined ) successAction( json_Event );
-					});
-			}
-			, function()
-			{
-				alert( $( 'span.msg_EventUpdateFailed' ).text() );
-				DivBlock.unblock( trCurrent );
-			}
-		);
+			//var json_Data = eventJson;		
+			eventJson.program = eventProgram.val();
+			eventJsonprogramStage = eventStage.attr( 'selectedprogramstage' );
+			eventJson.orgUnit = me.TabularDEObj.getOrgUnitId();
+			eventJson.eventDate = eventDateInFormat;
+			eventJson.status = status;
+			
+			me.generateJSON_AllDataColumns( trCurrent );
 		
+
+			// TODO: 2.30
+			// if coordinates exists, add them.
+			//me.setCoordinateData( json_Data.coordinate, eventCoorLat, eventCoorLng );
+			me.setGeometryData( eventJson, eventCoorLat, eventCoorLng );
+
+			// TODO: 2.30 - NOT NEEDED ANYMORE..
+			// if ( !me.TabularDEObj.isCase_SEwoR() ) eventJson.trackedEntityInstance = personUid;  // <-- Do not need to 
+	
+	
+			// TODO: 2.30 NEW
+			var tdContentDivTags = trCurrent.find( 'div.tdContentDiv' );
+	
+			DivBlock.block( tdContentDivTags, "Updating.." );
+			trCurrent.addClass( 'rowInProcess' );
+	
+	
+			RESTUtil.submitData( eventJson, _queryURL_EventSubmit + '/' + eventUid, "PUT"
+				, function()
+				{	
+					RESTUtil.getAsynchData( me.getEventDataUrl( eventUid )
+						, function( json_Event )
+						{				
+							// Clear all coloring
+							trCurrent.find( "td.added" ).find( "input,select" ).each( 
+								function () 
+								{
+									Util.paintResult( $(this), false );
+								}
+							);
+	
+							trCurrent.find( "[status='checking']" ).each( 
+								function () 
+								{
+									$(this).attr( "status", "updated" );				 
+									Util.paintResult( $(this), true );
+								}
+							);
+							
+							
+							DivBlock.unblock( tdContentDivTags );
+							trCurrent.removeClass( 'rowInProcess' );
+	
+							if ( successAction !== undefined ) successAction( json_Event );
+						});
+				}
+				, function()
+				{
+					alert( $( 'span.msg_EventUpdateFailed' ).text() );
+					DivBlock.unblock( trCurrent );
+				}
+			);
+		}		
 	}
 
 
@@ -1879,30 +1892,32 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 	}
 
 
-	me.generateJSON_AllDataColumns = function( trCurrent )
+	me.generateJSON_AllDataColumns = function( trCurrent, dataValues )
 	{
-		var dataValues = new Array();
+		var updateCase = false;
+
+		if ( dataValues ) updateCase = true;
+		else dataValues = new Array();
 
 		trCurrent.find( "td.added" ).find( FormUtil.getStr_Views() ).each( function ( i ) 
 		{
-			var item = $(this);
+			var itemTag = $(this);
 
-			var dataElementUID = item.closest( "td" ).attr( "DEID" );
+			var dataElementUID = itemTag.closest( "td" ).attr( "DEID" );
 
 			if ( Util.checkValue( dataElementUID ) )
 			{
-				var dataValue = me.getDataValue_FromTag( item );
+				var dataValue = me.getDataValue_FromTag( itemTag );
 
-				if( Util.checkValue( dataValue ) )
-				{						
-					dataValues.push( { "dataElement": dataElementUID, "value": dataValue } );
-
-					me.setStatusChecking( item, true );
-				}
-				else
+				FormUtil.addItemJson( dataValues, dataElementUID, "dataElement", dataValue, updateCase
+				, function() 
 				{
-					me.setStatusChecking( item, false );
+					me.setStatusChecking( itemTag, true );
 				}
+				, function()
+				{
+					me.setStatusChecking( itemTag, false );
+				});
 			}
 
 		});
@@ -2099,6 +2114,9 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 		{
 			$.each( json_Events, function( i_event, item_event ) 
 			{
+				// Save to memory for using it on 'Update' process.
+				me.eventsLoadedJson[ item_event.event ] = item_event;
+
 				// Create the new event row - simply get basic info
 				me.addNewLastRow_Event( trPerson, item_EventTable, item_event.program );
 

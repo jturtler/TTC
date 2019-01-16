@@ -28,6 +28,7 @@ function PersonDialogForm( TabularDEObj )
 	me.incidentDateTag = $("#incidentDate");
 	me.incidentDateRowTag = $( "#incidentDateRow" );
 
+	me.personLoadedJson = undefined;
 
 	// -------------------------------------------
 	// Methods
@@ -206,6 +207,8 @@ function PersonDialogForm( TabularDEObj )
 		var orgUnitId = me.TabularDEObj.getOrgUnitId();
 		var defaultProgramId = me.TabularDEObj.getSelectedProgramId();
 
+		me.personLoadedJson = undefined;
+
 
 		if ( !Util.checkValue( defaultProgramId ) )
 		{
@@ -259,13 +262,17 @@ function PersonDialogForm( TabularDEObj )
 				me.personDialogFormTag.find( "#person_id" ).val( personId );
 
 
+				// TODO: 2.30 - 
 
 				// Clear the memory data - so that new data gets
 				PersonUtil.clearPersonByID_Reuse( personId, programId );
 
+
+
+
 				// ?? TODO: Question: Why is this done by Synch??
 				var item_Person = PersonUtil.getPersonByID( personId, programId );
-
+				me.personLoadedJson = item_Person;
 
 
 				// For person attributes, add value, and if not in program, hide them.
@@ -337,7 +344,7 @@ function PersonDialogForm( TabularDEObj )
 					me.checkDuplicateData( orgUnitId, defaultProgramId, undefined, function()
 					{
 						// Create json object for Tracked Entity Instance
-						var personData  = me.setupPersonData( orgUnitId );
+						var personData  = me.setupPersonDataNew( orgUnitId );
 						
 						// Add Enrollment information
 						personData.enrollments = [];
@@ -433,10 +440,9 @@ function PersonDialogForm( TabularDEObj )
 
 					me.checkDuplicateData( orgUnitId, defaultProgramId, personId, function()
 					{
+						me.setupPersonDataUpdate( me.personLoadedJson );
 
-						var personData  = me.setupPersonData( orgUnitId );
-
-						RESTUtil.submitData( personData, _queryURL_PersonSubmit + '/' + personId, "PUT"
+						RESTUtil.submitData( me.personLoadedJson, _queryURL_PersonSubmit + '/' + personId, "PUT"
 							, function( returnData )
 							{
 
@@ -487,23 +493,18 @@ function PersonDialogForm( TabularDEObj )
 									});
 
 
-									// Clear the memory data
-									PersonUtil.clearPersonByID_Reuse( personId, defaultProgramId );
+									// Save the item_Person data into memory - for reuse (by queryStr id)
+									PersonUtil.getPersonByID_Reuse_ManualInsert( personId, defaultProgramId, me.personLoadedJson );
 
-									PersonUtil.getPersonByID_Reuse( personId, defaultProgramId, function( item_Person )
-									{
-										me.TabularDEObj.populatePersonAttirbutesToRow( me.currentPersonTr, item_Person.attributes );
+									// Re-Populate Data to the form <-- Do we need it?
+									me.TabularDEObj.populatePersonAttirbutesToRow( me.currentPersonTr, me.personLoadedJson.attributes );
 
+									// Re-Run the ProgramRules on Event Rows
+									me.reRun_EventRowProgramRules( me.currentPersonTr, personId );
 
-										// Re-Run the ProgramRules on Event Rows
-										me.reRun_EventRowProgramRules( me.currentPersonTr, personId );
-
-
-										// Auto Close after Update
-										dialogForm.dialog( "close" );
-										me.currentPersonTr.find( '.personInfo' ).focus();
-
-									});
+									// Auto Close after Update
+									dialogForm.dialog( "close" );
+									me.currentPersonTr.find( '.personInfo' ).focus();
 								}
 
 							}
@@ -750,7 +751,7 @@ function PersonDialogForm( TabularDEObj )
 		else if( valueType == "TEXT" || valueType == "LONG_TEXT" 
 			|| valueType == "NUMBER" || valueType == "INTEGER_ZERO_OR_POSITIVE" 
 			|| valueType == "INTEGER_POSITIVE" || valueType == "INTEGER" || valueType == "PERCENTAGE"
-			|| valueType == "LETTER" || valueType == "PHONE_NUMBER" || valueType == "EMAIL"  || valueType == "USERNAME" )
+			|| valueType == "LETTER" || valueType == "PHONE_NUMBER" || valueType == "EMAIL"  ) //|| valueType == "USERNAME" )
 		{
 			// TODO: For now, have 'username' display as textbox <-- should be user listing
 			attributeControl = trCurrent.find( ".textbox" ).val( value ).attr( _view, _view_Yes );
@@ -805,13 +806,13 @@ function PersonDialogForm( TabularDEObj )
 			attributeControl = trCurrent.find( ".textbox" ).val( value ).attr( _view, _view_Yes ).attr('valType', valueType );
 			Util.setDateTimePicker( attributeControl );
 		}
-		/*
+		// 'COORDINATE' is hard to update in Tei since 'feature' type need to be 'POINT' and we need to change to geometry type json..
 		else if( valueType == "COORDINATE" )
 		{
 			attributeControl = trCurrent.find( ".textbox" ).val( value ).attr( _view, _view_Yes ).attr('valType', valueType );
 			PersonUtil.setTagTypeValidation( attributeControl, "COORDINATE" );
-		}*/
-		else if( valueType == "TRUE_ONLY" || valueType == "TRACKER_ASSOCIATE" )
+		}
+		else if( valueType == "TRUE_ONLY" ) //|| valueType == "TRACKER_ASSOCIATE" )
 		{
 			attributeControl = trCurrent.find( ".checkbox" ).attr( _view, _view_Yes ).prop( 'checked', value );
 		}
@@ -826,7 +827,7 @@ function PersonDialogForm( TabularDEObj )
 		}
 		else
 		{
-			attributeControl = trCurrent.find( ".labelMsg" ).html( 'Currently Not Supported TEI Attribute valueType: ' + valueType ).attr( _view, _view_Yes );
+			attributeControl = trCurrent.find( ".labelMsg" ).html( "'" + valueType + "' data type not supported" ).attr( _view, _view_Yes );
 		}
 
 		return attributeControl;
@@ -855,20 +856,36 @@ function PersonDialogForm( TabularDEObj )
 	}
 
 
-	me.setupPersonData = function( orgUnitId )
+
+	me.setupPersonDataNew = function( orgUnitId )
 	{
 		var newPersonObj = {};
 
-		newPersonObj[ "orgUnit" ] = orgUnitId;
-
-		// Lover DHIS 2.30
+		newPersonObj.orgUnit = orgUnitId;
+		// TODO: 2.30
 		// newPersonObj[ "trackedEntity" ] = me.getTrackedEntityId_Person();
-		// DHIS 2.30
-		newPersonObj[ "trackedEntityType" ] = me.getTrackedEntityId_Person();
-
-		newPersonObj[ "attributes" ] = me.constructAttributes();
+		newPersonObj.trackedEntityType = me.getTrackedEntityId_Person();
+		newPersonObj.attributes = me.constructAttributes();
 
 		return newPersonObj;
+	}
+
+
+	me.setupPersonDataUpdate = function( teiJson )
+	{
+		if ( !teiJson ) alert( 'ERROR - On Update, loaded Tei does not exist!' );
+		else me.constructAttributes( teiJson.attributes );
+
+		// TODO: 2.30 - On Tei update, we need to remove 'events' to pass the geometry json validation..
+		if ( teiJson.enrollments )
+		{
+			for ( i = 0; i < teiJson.enrollments.length; i++ )
+			{
+				var enrollmentJson = teiJson.enrollments[i];
+
+				if ( enrollmentJson.events ) delete enrollmentJson.events;
+			}	
+		}			
 	}
 
 
@@ -970,13 +987,20 @@ function PersonDialogForm( TabularDEObj )
 	}
 
 
-	me.constructAttributes = function()
+	me.constructAttributes = function( attributes )
 	{
-		var attributes = new Array();
+		var updateCase = false;
 
-		me.personDialogTableTag.find( "td[type='attribute']" ).find( FormUtil.getStr_Views() ).each( function( index ) 
+		if ( attributes ) updateCase = true;
+		else attributes = new Array();
+
+
+		me.personDialogTableTag.find( "td[type='attribute']" )
+			.find( FormUtil.getStr_Views() ).each( function( index ) 
 		{
-			//Util.write( "In each list.. " );
+			// Go through only 'input,select,textbox' with view="y"
+			// NOTE: If form entry were not filled in (empty case), it will not be part
+			//		of sending json.  Unless existing json had some value and emptied out case.
 
 			var item = $( this );
 			
@@ -997,10 +1021,6 @@ function PersonDialogForm( TabularDEObj )
 			{
 				dataValue = Util.formatDateTime( item.val() );
 			}
-			//else if( item.attr("valType") === "COORDINATE" )
-			//{
-			//	dataValue = FormUtil.formatCoordinatorsValue( item.val() );
-			//}
 			else if( item.hasClass( "checkbox" ) )
 			{
 				dataValue = item.is( ":checked" ) ? "true" : "" ;
@@ -1010,10 +1030,37 @@ function PersonDialogForm( TabularDEObj )
 				dataValue = item.val();
 			}
 
-			if( Util.checkValue( dataValue ) )
-			{					
-				attributes.push( { "attribute": attributeId, "value": dataValue } );
+
+			FormUtil.addItemJson( attributes, attributeId, "attribute", dataValue, updateCase );
+
+
+			/*
+			if ( updateCase )
+			{
+				var attrJson = Util.getFromList( attributes, attributeId, "attribute" );
+
+				if ( dataValue )
+				{
+					// If form entry value exists, set it to attribute saving.
+					if ( attrJson ) attrJson.value = dataValue;
+					else attributes.push( { "attribute": attributeId, "value": dataValue } );
+				}
+				else
+				{
+					// If form entry value is emtpy, but there were existing value, we should update it to empty case..
+					if ( attrJson && attrJson.value )
+					{
+						attrJson.value = '';
+					}
+				}
 			}
+			else
+			{
+				// For new case, simply add to the attributes list
+				if ( dataValue ) attributes.push( { "attribute": attributeId, "value": dataValue } );
+			}
+			*/
+
 		});
 
 		return attributes;

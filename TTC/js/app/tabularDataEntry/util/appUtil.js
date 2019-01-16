@@ -218,11 +218,15 @@ FormUtil.validateValueType = function( tag, inputType )
 	tag.attr( 'title', '' );
 	tag.attr( 'notvalid', '' );
 
+	var emptyValCase = ( tag.val() === '' );
+
 	if ( inputType == "NUMBER" )
 	{
-		var reg = new RegExp( '^[0-9]*$' );
+		//console.log( 'Number Validation, val: ' + tag.val() );
+		
+		var reg = /\d+(\.\d+)?/i; // new RegExp( '^\d+[\.\d+]*$' );	// '^\d+[\.\d+]*$'	// ^[-+]?\d+(\.\d+)?$
 
-		if ( !reg.test( tag.val() ) )
+		if ( !emptyValCase && !reg.test( tag.val() ) )
 		{
 			Util.paintWarning( tag );
 			tag.attr( 'title', 'This field is Number Only field.' );
@@ -234,7 +238,7 @@ FormUtil.validateValueType = function( tag, inputType )
 	{
 		var reg = new RegExp( '^(-)[0-9]*$' );
 
-		if ( !reg.test( tag.val() ) )
+		if ( !emptyValCase && !reg.test( tag.val() ) )
 		{
 			Util.paintWarning( tag );
 			tag.attr( 'title', 'This field is Negative Integer Only field.' );
@@ -246,7 +250,7 @@ FormUtil.validateValueType = function( tag, inputType )
 	{
 		var reg = new RegExp( '^(0\\.)[0-9]*$' );
 
-		if ( !reg.test( tag.val() ) )
+		if ( !emptyValCase && !reg.test( tag.val() ) )
 		{
 			Util.paintWarning( tag );
 			tag.attr( 'title', 'This field only accepts a decimal value between 0 and 1.' );
@@ -256,11 +260,7 @@ FormUtil.validateValueType = function( tag, inputType )
 	}
 	else if ( inputType == "COORDINATE" )
 	{
-		if( tag.val() == "" )
-		{
-			pass = true;
-		}
-		else
+		if ( !emptyValCase )
 		{
 			var coordinators = tag.val().replace("[", "" ).replace("]", "" );
 		
@@ -291,7 +291,7 @@ FormUtil.validateValueType = function( tag, inputType )
 		if( !pass )
 		{
 			Util.paintWarning( tag );
-			tag.attr( 'title', 'This field in valid coordinators.' );
+			tag.attr( 'title', 'This field in valid coordinators format, [xx,xx]' );
 			tag.attr( 'notvalid', 'Y' );
 		}
 	}
@@ -299,7 +299,7 @@ FormUtil.validateValueType = function( tag, inputType )
 	{
 		var reg = new RegExp( '^[a-zA-Z]*$' );
 
-		if ( !reg.test( tag.val() ) )
+		if ( !emptyValCase && !reg.test( tag.val() ) )
 		{
 			Util.paintWarning( tag );
 			tag.attr( 'title', 'This field is Letter Only field.' );
@@ -312,7 +312,7 @@ FormUtil.validateValueType = function( tag, inputType )
 		// Due to '/' not doing date check properly, change to '-'
 		var dateStr = tag.val().replace( /\//ig, '-' );
 
-		if ( !moment( dateStr ).isValid() )
+		if ( !emptyValCase && !moment( dateStr ).isValid() )
 		{
 			Util.paintWarning( tag );
 			tag.attr( 'title', 'The date is not valid date.' );
@@ -338,6 +338,62 @@ FormUtil.formatCoordinatorsValue = function( coordinates )
 	return coordinates;
 };
 
+
+FormUtil.addItemJson = function( list, idStr, idTypeName, dataValue, updateCase, savedFunc, skippedFunc )
+{
+	var saved = false;
+
+	if ( updateCase )
+	{
+		var itemJson = Util.getFromList( list, idStr, idTypeName );
+
+		if ( dataValue )
+		{
+			// If form entry value exists, set it to attribute saving.
+			if ( itemJson ) itemJson.value = dataValue;
+			else 
+			{
+				itemJson = {};
+				itemJson[ idTypeName ] = idStr;
+				itemJson.value = dataValue;
+				list.push( itemJson );
+			}
+
+			saved = true;
+		}
+		else
+		{
+			// If form entry value is emtpy, but there were existing value, we should update it to empty case..
+			if ( itemJson && itemJson.value )
+			{
+				itemJson.value = '';
+				saved = true;
+			}
+		}
+	}
+	else
+	{
+		// For new case, simply add to the attributes list
+		if ( dataValue ) 
+		{
+			var itemJson = {};
+			itemJson[ idTypeName ] = idStr;
+			itemJson.value = dataValue;
+
+			list.push( itemJson );
+			saved = true;
+		}
+	}
+
+	if ( saved )
+	{
+		if ( savedFunc ) savedFunc(); 
+	}
+	else
+	{
+		if ( skippedFunc ) skippedFunc(); 
+	}
+};
 
 // --------------------------------------------------------------------------------
 // PersonUtil
@@ -374,6 +430,14 @@ PersonUtil.getPersonByID_Reuse = function( personId, programId, successFunc, fin
 	, function() { if ( finalFunc !== undefined ) finalFunc(); } 
 	);	
 }
+
+PersonUtil.getPersonByID_Reuse_ManualInsert = function( personId, programId, json_Data )
+{
+	var queryUrl = _queryURL_PersonQuery + "/" + personId + ".json?fields=*&program=" + programId;
+
+	RESTUtil.retrieveManager.insertDirectToMemory( json_Data, queryUrl );	
+}
+
 //RESTUtil.getAsynchData( _queryURL_PersonQuery + "/" + personId + ".json"
 //PersonUtil.getPersonByID_Reuse = function( personId, actionSuccess, actionError, loadingStart, loadingEnd )
 
