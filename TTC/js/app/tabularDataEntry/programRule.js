@@ -463,7 +463,7 @@ function ProgramRule( TabularDEObj )
 						}
 						else if( action.programRuleActionType == 'ERRORONCOMPLETE' )
 						{
-							targetTag.after( '<img class="action_Msg_' + action.id + ' ruleStatus ruleWarning errorOnComplete" alt="Rule Status" title="' + action.content + '" src="img/status_yellow.png">' );
+							targetTag.after( '<img class="action_Msg_' + action.id + ' ruleStatus ruleWarning errorOnComplete" alt="Rule Status" title="' + action.content + '" src="img/status_red.png">' );
 						}
 					}
 				}

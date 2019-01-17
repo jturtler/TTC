@@ -868,21 +868,34 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 		if ( me.checkCompulsoryData( trCurrent ) && ProgramRuleUtil.checkProgramRuleData( trCurrent ) )
 		{
 			var canCompleted = true;
-			if( trCurrent.find('img.errorOnComplete').length > 0 )
+			var errorOnCompleteTags = trCurrent.find('img.errorOnComplete');
+			if( errorOnCompleteTags.length > 0 )
 			{
 				message = $( 'span.Msg_ConfirmEventErrorOnComplete' ).text();
+				for( var i=0; i<errorOnCompleteTags.length; i++ )
+				{
+					message += "\n - " + $(errorOnCompleteTags[i]).attr("title");
+				}
 				alert( message );
 				canCompleted = false;
 			}
 			else
 			{
 				var messageTag = $( 'span.msg_ConfirmEventComplete' );
-				if( trCurrent.find('img.warmingOnComplete').length > 0 )
+				var message = messageTag.text();
+
+				var warmingOnCompleteTags = trCurrent.find('img.warmingOnComplete');
+				if( warmingOnCompleteTags.length > 0 )
 				{
 					messageTag = $( 'span.Msg_ConfirmEventWarmingOnComplete' );
+					message = messageTag.text();
+					for( var i=0; i<warmingOnCompleteTags.length; i++ )
+					{
+						message += "\n - " + $(warmingOnCompleteTags[i]).attr("title");
+					}
 				}
 				
-				if( confirm( messageTag.text() ) )
+				if( confirm( message ) )
 				{
 					me.eventUpdate( trCurrent, _status_COMPLETED
 						, function( json_Event )
