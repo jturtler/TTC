@@ -101,27 +101,6 @@ AppUtil.pageHScroll = function( option )
 	}
 }
 
-AppUtil.checkGeoLocation = function( checkLocation, returnFunc )
-{
-	if ( checkLocation )
-	{
-		//console.log( navigator.geolocation );	
-		navigator.geolocation.getCurrentPosition(
-			function( position ) 
-			{
-				returnFunc( position );				
-			}
-			, function( msg ) 
-			{
-				returnFunc();
-			});	
-	}
-	else
-	{
-		returnFunc();
-	}
-};
-
 // --------------------------------------------------------------------------------
 // FormUtil
 // --------------------------------------------------------------------------------
@@ -337,6 +316,27 @@ FormUtil.validateValueType = function( tag, inputType )
 };
 
 
+FormUtil.checkGeoLocation = function( checkLocation, returnFunc )
+{
+	if ( checkLocation )
+	{
+		//console.log( navigator.geolocation );	
+		navigator.geolocation.getCurrentPosition(
+			function( position ) 
+			{
+				returnFunc( position );				
+			}
+			, function( msg ) 
+			{
+				returnFunc();
+			});	
+	}
+	else
+	{
+		returnFunc();
+	}
+};
+
 FormUtil.formatCoordinatorsValue = function( coordinates )
 {
 	coordinates = coordinates.replace("[", "").replace("]", "");
@@ -348,6 +348,22 @@ FormUtil.formatCoordinatorsValue = function( coordinates )
 	}
 	
 	return coordinates;
+};
+
+FormUtil.setGeometryJson = function( jsonData, coords )
+{
+	if ( coords )
+	{
+		jsonData.geometry = {};
+		jsonData.geometry.type = "Point";
+		jsonData.geometry.coordinates = [ coords.longitude, coords.latitude ];
+	}
+};
+
+// NOTE: Somehow, on create, we need to pass coordinate info rather than geometry info...  Maybe both?
+FormUtil.getCoordinateJson = function( jsonData, coords )
+{
+	if ( coords ) jsonData.coordinate = { "latitude": coords.latitude, "longitude": coords.longitude };
 };
 
 

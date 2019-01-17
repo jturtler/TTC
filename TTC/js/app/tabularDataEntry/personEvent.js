@@ -33,8 +33,6 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 	me.thTemplate_CompleteButton = "<th class='added' colcount='' type='completed_button'>&nbsp;</th>";
 	me.tdTemplate_CompleteButton = "<td class='added' type='completed_button' colcount=''>" + me.buttonTemplate_Complete + "</td>";
 
-	me.enableCoordinateCapture = true;
-
 	me.eventsLoadedJson = {};	// saved/loaded events data (from retrieval), to be used on update
 
 	// ======================
@@ -327,7 +325,7 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 					{	
 						// TODO: 2.30 - Coordinate captured populating on Event Row Add/Create
 						// Populate coordinate if data is available
-						if ( me.enableCoordinateCapture && json_Event.coordinate !== undefined )
+						if ( _enableCoordinateCapture && json_Event.coordinate !== undefined )
 						{
 							// Put coordinate values to input tags
 							me.populateCoordinateTagData( json_Event.coordinate, trCurrent.find( "input.eventCoorLat" ), trCurrent.find( "input.eventCoorLng" ) );
@@ -465,10 +463,10 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 			var json_Data = {"program": eventProgram.val(), "programStage": eventStage.val(),"orgUnit": orgUnitUid, "eventDate": eventDateInFormat, "status": _status_ACTIVE, "attributeCategoryOptions" : catOption.val() };
 
 			// TODO: 2.30 ALSO, ASK COORDINATES HERE?
-			AppUtil.checkGeoLocation( me.enableCoordinateCapture, function( geoLoc )
+			FormUtil.checkGeoLocation( _enableCoordinateCapture, function( geoLoc )
 			{						
-				// if ( geoLoc ) me.setGeometryJson( json_Data, geoLoc.coords );
-				if ( geoLoc ) me.getCoordinateJson( json_Data, geoLoc.coords );
+				// if ( geoLoc ) FormUtil.setGeometryJson( json_Data, geoLoc.coords );
+				if ( geoLoc ) FormUtil.getCoordinateJson( json_Data, geoLoc.coords );
 
 				// Disable catOption selector
 				var catOption = trCurrent.find( ".catOption" );
@@ -1265,7 +1263,7 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 
 
 			// TODO: 2.30 - COORDINATE INPUT DISPLAY
-			if ( me.enableCoordinateCapture && selectedProgram.captureCoordinates )
+			if ( _enableCoordinateCapture && selectedProgram.captureCoordinates )
 			{
 				// CHECK THE ProgramStage Feature Type ---> if 'captureCoordinates', need to be 'POINT'
 				if ( programStageJson.featureType === 'POINT' )
@@ -2014,27 +2012,10 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 
 		if ( coordinate.latitude && coordinate.longitude )
 		{
-			me.setGeometryJson( json_Data, coordinate );
+			FormUtil.setGeometryJson( json_Data, coordinate );
 		}
 	}
 
-
-	me.setGeometryJson = function( jsonData, coords )
-	{
-		if ( coords )
-		{
-			jsonData.geometry = {};
-			jsonData.geometry.type = "Point";
-			jsonData.geometry.coordinates = [ coords.longitude, coords.latitude ];
-		}
-	}
-
-	// NOTE: Somehow, on create, we need to pass coordinate info rather than geometry info...  Maybe both?
-	me.getCoordinateJson = function( jsonData, coords )
-	{
-		if ( coords ) jsonData.coordinate = { "latitude": coords.latitude, "longitude": coords.longitude };
-	}
-	
 
 	me.setCoordinateData = function( coordinate, eventCoorLatTag, eventCoorLngTag )
 	{

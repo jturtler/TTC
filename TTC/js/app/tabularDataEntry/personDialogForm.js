@@ -341,25 +341,31 @@ function PersonDialogForm( TabularDEObj )
 					var enrollementDateInFormat = $.format.date( Util.getDate_FromYYYYMMDD( me.enrolmentDateTag.val() ), _dateFormat_YYYYMMDD_Dash );
 					var incidentDateInFormat = $.format.date( Util.getDate_FromYYYYMMDD( me.incidentDateTag.val() ), _dateFormat_YYYYMMDD_Dash );
 
+					// duplicate check not working anymore..
 					me.checkDuplicateData( orgUnitId, defaultProgramId, undefined, function()
 					{
 						// Create json object for Tracked Entity Instance
-						var personData  = me.setupPersonDataNew( orgUnitId );
+						var personData = me.setupPersonDataNew( orgUnitId );
 						
-						// Add Enrollment information
-						personData.enrollments = [];
-						var enrollment = {
-							"orgUnit": orgUnitId,
-							"program": defaultProgramId,
-							"enrollmentDate": enrollementDateInFormat,
-							"incidentDate": incidentDateInFormat
-						};
-						personData.enrollments.push( enrollment );
+						FormUtil.checkGeoLocation( _enableCoordinateCapture, function( geoLoc )
+						{						
+							// if ( geoLoc ) me.setGeometryJson( json_Data, geoLoc.coords );
+							if ( geoLoc ) FormUtil.setGeometryJson( personData, geoLoc.coords );
+			
 
-						
-						
-						RESTUtil.submitData( personData, _queryURL_PersonSubmit, "POST"
-							, function( returnData )
+							// Add Enrollment information
+							personData.enrollments = [];
+							var enrollment = {
+								"orgUnit": orgUnitId,
+								"program": defaultProgramId,
+								"enrollmentDate": enrollementDateInFormat,
+								"incidentDate": incidentDateInFormat
+							};
+							personData.enrollments.push( enrollment );
+
+							
+							
+							RESTUtil.submitData( personData, _queryURL_PersonSubmit, "POST", function( returnData )
 							{
 								if ( returnData.response === undefined || returnData.response.status != 'SUCCESS' )
 								{
@@ -380,7 +386,7 @@ function PersonDialogForm( TabularDEObj )
 									if ( Util.checkDefined( personId ) )
 									{
 										MsgManager.msgAreaShow( $( 'span.msg_PersonCreated' ).text() );
-										 
+										
 
 										/* // Enroll
 										me.TabularDEObj.checkProgramEnroll( personId, defaultProgramId, orgUnitId
@@ -417,8 +423,8 @@ function PersonDialogForm( TabularDEObj )
 									}
 								}
 							}
-							, me.personCreateUpdate_Fail_Handle
-						);
+							, me.personCreateUpdate_Fail_Handle );
+						});
 					});
 				}
 
