@@ -835,9 +835,6 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 				{							
 					var auditMsg = "";
 
-					//console.log( 'errorMsg: ' + errorMsg + ', obj: ' + JSON.stringify( errorMsg ) );
-
-
 					if ( errorMsg !== undefined && errorMsg.responseJSON !== undefined )
 					{
 						var devMsg = errorMsg.responseJSON.devMessage;
@@ -1643,7 +1640,6 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 			var cntrl = $( this );
 			setTimeout( function() 
 			{ 
-				//console.log( 'focus out val: ' + cntrl.val() );
 				me.eventUpdatePartial( cntrl, trCurrent.attr( 'uid' ) );
 			}, 200 );
 		});

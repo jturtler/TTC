@@ -261,6 +261,16 @@ Util.RemoveFromArray = function( list, propertyName, value )
 	return index;
 }
 
+Util.RemoveAllFromArray = function( list, propertyName, value )
+{
+	var removedIndex;
+
+	do {
+		removedIndex = Util.RemoveFromArray( list, propertyName, value );
+	}
+	while ( removedIndex );
+}
+
 Util.getObjPropertyCount = function( list )
 {
 	var count = 0;
@@ -271,6 +281,29 @@ Util.getObjPropertyCount = function( list )
 	}
 
 	return count;
+}
+
+Util.removeDuplicateItems = function( list, idProp )
+{
+	var idHold = {};
+
+	for( i = 0; i < list.length; i++ )
+	{
+		var listItem = list[i];
+		var idStr = listItem[ idProp ];
+
+		if ( idHold[ idStr ] )
+		{
+			// if already existing id found, mark it to be removed.
+			listItem.remove = "Y";
+		}
+		else
+		{
+			idHold[ idStr ] = "Y";
+		}
+	}
+
+	Util.RemoveAllFromArray( list, "remove", "Y" );
 }
 
 // Check Variable or List Related

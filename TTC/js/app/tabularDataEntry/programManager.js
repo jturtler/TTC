@@ -134,7 +134,12 @@ function ProgramManager( TabularDEObj, defaultProgramTag )
 
 	me.populateProgramStages = function( selectTag, programId )
 	{
-		Util.populateSelect( selectTag, "ProgramStage", me.getProgramStageList( programId ), "displayName" );
+		var stageList = me.getProgramStageList( programId );
+
+		// TODO: 2.30 
+		Util.removeDuplicateItems( stageList, "id" );
+
+		Util.populateSelect( selectTag, "ProgramStage", stageList, "displayName" );
 		//selectTag.val( me.defaultProgramId );
 	}
 	
