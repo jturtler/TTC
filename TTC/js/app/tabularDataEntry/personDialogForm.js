@@ -824,6 +824,7 @@ function PersonDialogForm( TabularDEObj )
 		else if( valueType == "URL" )
 		{
 			attributeControl = trCurrent.find( ".textbox" ).val( value ).attr( _view, _view_Yes );
+			PersonUtil.setTagTypeValidation( attributeControl, "URL" );
 		}
 		else
 		{

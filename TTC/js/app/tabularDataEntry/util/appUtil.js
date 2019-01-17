@@ -291,7 +291,7 @@ FormUtil.validateValueType = function( tag, inputType )
 		if( !pass )
 		{
 			Util.paintWarning( tag );
-			tag.attr( 'title', 'This field in valid coordinators format, [xx,xx]' );
+			tag.attr( 'title', 'This field is not in valid coordinators format, [xx,xx]' );
 			tag.attr( 'notvalid', 'Y' );
 		}
 	}
@@ -316,6 +316,18 @@ FormUtil.validateValueType = function( tag, inputType )
 		{
 			Util.paintWarning( tag );
 			tag.attr( 'title', 'The date is not valid date.' );
+			tag.attr( 'notvalid', 'Y' );
+			pass = false;
+		}
+	}
+	else if ( inputType == "URL" )
+	{		
+		var reg = /(http(s)?:\/\/)(\w)+.(\w)+.(\w)+(\/)?/; // = /https?:\/\//i; // new RegExp( '^\d+[\.\d+]*$' );	// '^\d+[\.\d+]*$'	// ^[-+]?\d+(\.\d+)?$
+
+		if ( !emptyValCase && !reg.test( tag.val() ) )
+		{
+			Util.paintWarning( tag );
+			tag.attr( 'title', 'This field is URL type, format starts with "http(s)://-.-.-(/)"' );
 			tag.attr( 'notvalid', 'Y' );
 			pass = false;
 		}

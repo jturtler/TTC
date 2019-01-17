@@ -1716,14 +1716,12 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 
 		// TODO: 2.30 - WARNING..
 		//	THIS SHOULD BE BASED ON LOADING EVENT JSON IN MEMORY!!!!!??		
-		var eventJson = me.eventsLoadedJson[ eventUid ];
-
-		if ( !eventJson ) alert( 'ERROR - On Update, loaded Event data does not exist!' );
-		else
+		me.getEventFromMemeory( eventUid, me.eventsLoadedJson
+		, function( eventJson ) 
 		{
 			//var json_Data = eventJson;		
 			eventJson.program = eventProgram.val();
-			eventJsonprogramStage = eventStage.attr( 'selectedprogramstage' );
+			eventJson.programStage = eventStage.attr( 'selectedprogramstage' );
 			eventJson.orgUnit = me.TabularDEObj.getOrgUnitId();
 			eventJson.eventDate = eventDateInFormat;
 			eventJson.status = status;
@@ -1750,41 +1748,73 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 			RESTUtil.submitData( eventJson, _queryURL_EventSubmit + '/' + eventUid, "PUT"
 				, function()
 				{	
-					RESTUtil.getAsynchData( me.getEventDataUrl( eventUid )
-						, function( json_Event )
-						{				
-							// Clear all coloring
-							trCurrent.find( "td.added" ).find( "input,select" ).each( 
-								function () 
-								{
-									Util.paintResult( $(this), false );
-								}
-							);
-	
-							trCurrent.find( "[status='checking']" ).each( 
-								function () 
-								{
-									$(this).attr( "status", "updated" );				 
-									Util.paintResult( $(this), true );
-								}
-							);
-							
-							
-							DivBlock.unblock( tdContentDivTags );
-							trCurrent.removeClass( 'rowInProcess' );
-	
-							if ( successAction !== undefined ) successAction( json_Event );
-						});
+					me.getEventById_WithSave( eventUid, me.eventsLoadedJson, function( json_Event )
+					{
+						// Clear all coloring
+						trCurrent.find( "td.added" ).find( "input,select" ).each( 
+							function () 
+							{
+								Util.paintResult( $(this), false );
+							}
+						);
+
+						trCurrent.find( "[status='checking']" ).each( 
+							function () 
+							{
+								$(this).attr( "status", "updated" );				 
+								Util.paintResult( $(this), true );
+							}
+						);
+
+
+						DivBlock.unblock( tdContentDivTags );
+						trCurrent.removeClass( 'rowInProcess' );
+
+						if ( successAction !== undefined && json_Event ) successAction( json_Event );
+					});
+
 				}
 				, function()
 				{
 					alert( $( 'span.msg_EventUpdateFailed' ).text() );
-					DivBlock.unblock( trCurrent );
+					DivBlock.unblock( tdContentDivTags );
+					trCurrent.removeClass( 'rowInProcess' );
 				}
 			);
-		}		
+		});
 	}
 
+	me.getEventFromMemeory = function( itemId, memoryObj, returnFunc )
+	{
+		//	THIS SHOULD BE BASED ON LOADING EVENT JSON IN MEMORY!!!!!??		
+		var itemJson = memoryObj[ itemId ];
+
+		if ( !itemJson ) 
+		{
+			console.log( 'WARNING ON getFromMemeory - On Update, Event data not found from memory, thus retrieving manually!' );
+
+			me.getEventById_WithSave( itemId, memoryObj, returnFunc );
+		}
+		else
+		{
+			returnFunc( itemJson );
+		}
+	}
+
+	me.getEventById_WithSave = function( eventId, memoryObj, returnFunc )
+	{
+		RESTUtil.getAsynchData( me.getEventDataUrl( eventId )
+		, function( eventJson )
+		{	
+			memoryObj[ eventJson.event ] = eventJson;	
+			returnFunc( eventJson );		
+		}
+		, function()
+		{
+			alert( 'FAILED to retireve event ' + eventId );
+			returnFunc();
+		});
+	}
 
 	me.eventUpdatePartial = function( tag, eventId, successAction )
 	{
@@ -2094,7 +2124,7 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 
 	me.getEventDataUrl = function( eventId )
 	{
-		return _queryURL_ProgramStageInstance + '/' + eventId + ".json";	
+		return _queryURL_Events + '/' + eventId + ".json";	
 	}
 	
 	
