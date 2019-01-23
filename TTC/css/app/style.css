@@ -221,6 +221,13 @@ img
     font-style: italic;
 }
 
+.warningMsg {
+	color:red;
+	font-size: 9px;
+	font-style: italic;
+	line-height: 12px;
+}	
+
 .pageTitle {
 	font-size: 18px;
 	color: #333333;

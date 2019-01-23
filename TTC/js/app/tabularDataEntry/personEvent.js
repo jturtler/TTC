@@ -375,12 +375,12 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 		var eventDateStr = eventDate.split("/").join("");
 		
 		var eventDateColTag = eventDateTag.closest("td");
-		eventDateColTag.find("div.warning").remove();
+		eventDateColTag.find( "div.warningMsg[type='eventDateRange']" ).remove();
 			
 		if( eventDateStr < startDateStr || eventDateStr > endDateStr )
 		{
 			var warningMsg = l10n.get( 'eventDataOutOfRange' );
-			eventDateColTag.append("<div class='warning' style='color:red;font-size: 8px;font-style: italic;line-height: 12px;'>*** " + warningMsg + "</div>");
+			me.appendWarningMsg( eventDateColTag, warningMsg, 'eventDateRange' );
 		}
 	};
 	
@@ -612,10 +612,14 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 		
 		
 		var status = me.getEventStatus( json_Event );
-		// Set Status
+		if ( !status ) status = "";
+
+		// Set Status Display		// TODO: 2.30 - IF STATUS MSG IS EMTPY, ADD OVERRIDING TEXT
 		var statusMsg = ( me.TabularDEObj.isCase_MEwR() ) ? EventStatus.SEwR_EVENT_STATUS[status] : EventStatus.SEwoR_EVENT_STATUS[status];
+		if ( !statusMsg ) statusMsg = '<span style="font-style: italic; font-color: #555;">' + status + '</span>'; 
+
 		eventStatus.html( statusMsg );
-		eventStatus.attr("status", event.status);
+		eventStatus.attr( "status", event.status );
 
 		
 		// remove previous Delete click event
@@ -627,11 +631,7 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 		if( status == EventStatus.SIGN_SEwR_PROGRAM_INACTIVE
 			|| status == EventStatus.SIGN_SEwR_PROGRAM_COMPLETED )
 		{
-			trCurrent.closest("div.divPersonDetail").find("button").hide();
-			trCurrent.closest("div.divPersonDetail").find("span.eventStatus").html( statusMsg );
-			trCurrent.closest("div.divPersonDetail").find("input,select").each( function(){
-				Util.disableTag( $(this), true );
-			});
+			me.disableAllEventsRow_inTei( trCurrent.closest( "div.divPersonDetail" ), "Events Disabled: Program inactive/completed", "programNA" );
 		}
 		else if( status == EventStatus.SIGN_SEwR_EVENT_OPEN
 			|| status == EventStatus.SIGN_SEwoR_EVENT_OPEN )
@@ -657,7 +657,7 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 			|| status == EventStatus.SIGN_SEwoR_EVENT_COMPLETED_CAN_REOPEN )
 		{
 			eventDel.show();
-			
+		
 			// In-Complete related
 			me.TabularDEObj.checkIncompleteAction_UserRole( function() 
 			{
@@ -675,6 +675,8 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 				{
 					// Disable all the DataElements controls - move the control rendering area..
 					me.setEventDEControlDisable( trCurrent );
+
+					me.appendWarningMsg_Tr( trCurrent, "EventEntry Blocked: Event completed with block entry", "completed" );
 				}
 			});
 			
@@ -704,6 +706,7 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 		me.showSEwoRCreateNewEventBtn( me.TabularDEObj.searchPanel.defaultProgramTag, trPerson, addNewEventRowButton );
 	};
 	
+
 	me.showSEwoRCreateNewEventBtn = function( eventProgram, trPerson, addNewEventRowButton )
 	{
 		addNewEventRowButton.hide();
@@ -1607,19 +1610,13 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 	me.setEventFixedColumnDisable = function( trCurrent )
 	{
 		// .find( FormUtil.getStr_Views() )
-		trCurrent.find( "td.orig" ).find( "input,select" ).each( function( index ) {
-
-			Util.disableTag( $( this ), true );
-		});
+		me.disableRowInputs( trCurrent.find( "td.orig" ) );
 	}
 
 	me.setEventDEControlDisable = function( trCurrent )
 	{
 		// .find( FormUtil.getStr_Views() )
-		trCurrent.find( "td.added" ).find( "input,select,textarea" ).each( function( index ) {
-
-			Util.disableTag( $( this ), true );
-		});
+		me.disableRowInputs( trCurrent.find( "td.added" ) );
 	}
 
 	// Set Event DataElement Controls
@@ -2146,10 +2143,18 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 			});
 		}
 		
-		
-		// Check if this event should be disabled ( belongs to the settings )
-		for( var i in json_Events ){
+
+		// TODO: 2.30 - BELOW DISABLES EVENT ROWS		
+		// Check if this event should be disabled by expire date - in program/event/relativePeriod ( belongs to the settings )
+		me.checkExpiredStatus_Disable( json_Events, item_EventTable );		
+	}
+
+	me.checkExpiredStatus_Disable = function( json_Events, item_EventTable )
+	{
+		for ( var i in json_Events )
+		{
 			var event = json_Events[i];
+
 			if ( event.eventDate !== undefined )
 			{
 				var relativePeriod = new RelativePeriod();
@@ -2165,14 +2170,13 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 				// Display [Delete] button for open event
 				if( lockFormSign != EventStatus.SIGN_SEwR_EVENT_OPEN
 					&& lockFormSign != EventStatus.SIGN_SEwoR_EVENT_OPEN  )
-				{
-					item_EventTable.find("tr[uid='" + event.event + "']").find("input,select").each( function(){
-						Util.disableTag( $(this), true );
-					});
+				{							
+					var trTag = item_EventTable.find( "tr[uid='" + event.event + "']" );
+
+					me.disableRowInputs( trTag, trTag, "EventRow Disabled: Event expired", "expired" );
 				}
 			}
 		}
-		
 	}
 
 	me.populateEventData = function( tableCurrent, item_event )
@@ -2261,16 +2265,11 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 				me.setEventDEControlDisable( trCurrent );
 				//me.setEventFixedColumnDisable = function( trCurrent )
 
-				var eventDateColTag = eventDate.closest("td");
-				//eventDateColTag.find("div.warning");
-
-				//var warningMsg = l10n.get( 'eventDataOutOfRange' );
-				var warningMsg = "Out of OrgUnit Open/Close Date Range";
-				eventDateColTag.append("<div class='warning' style='color:red;font-size: 8px;font-style: italic;line-height: 12px;'>*** " + warningMsg + "</div>");								
+				me.appendWarningMsg( eventDate.closest("td"), "EventEntry Blocked: Out of orgUnit open/close date range", "ouDateRange" );
 			}
 		}
-
 	}
+
 
 	me.getHiddenDataElementsInSettings = function( returnFunc )
 	{
@@ -2305,6 +2304,38 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 
 	// -- Populate Events Related ----------
 	// -------------------------------------
+
+
+	// -------------------------------------
+	// ----- WarningMsg Show & Disable Row/Data Entry/Partial Disable ----------
+	me.appendWarningMsg_Tr = function( trTag, msgStr, type )
+	{
+		var eventDateTdTag = trTag.find( 'input.eventDate' ).closest( 'td' );
+
+		me.appendWarningMsg( eventDateTdTag, msgStr, type );
+	}
+
+	//eventDateColTag.find( "div.warningMsg[type='eventDateRange']" ).remove();
+	me.appendWarningMsg = function( tdTag, msgStr, type )
+	{
+		tdTag.append( '<div class="warningMsg" type="' + type + '" title="' + msgStr + '">**' + msgStr + '</div>' );
+	}
+
+	me.disableAllEventsRow_inTei = function( divPersonDetailTag, msg, type )
+	{
+		divPersonDetailTag.find("button").hide();
+		divPersonDetailTag.find("span.eventStatus").html( statusMsg );		
+		me.disableRowInputs( divPersonDetailTag, divPersonDetailTag.find( "tr.trEventData" ), msg, type );		
+	};
+
+	me.disableRowInputs = function( disableTags, trTag, warningMsg, type )
+	{
+		if ( trTag && warningMsg ) me.appendWarningMsg_Tr( trTag, warningMsg, type );
+
+		Util.disableTag( disableTags.find( "input,select,textarea" ), true );
+	}
+
+	// ------------------------------------------
 
 
 	me.retreivePersonListWithEvents = function( returnFunc, failedFunc, noLoadingMsg )

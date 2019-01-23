@@ -8,7 +8,6 @@ EventStatus.SIGN_SEwoR_EVENT_FUTURE_LOCKED = "futureLocked";
 EventStatus.SIGN_SEwoR_EVENT_COMPLETED_EXPIRED = "expired";
 EventStatus.SIGN_SEwoR_EVENT_COMPLETED_LOCKED = "completedLocked";
 
-
 // For "Single Event WITH registration" program
 EventStatus.SIGN_SEwR_EVENT_OPEN = "open";
 EventStatus.SIGN_SEwR_PROGRAM_COMPLETED = "programCompleted";
@@ -17,11 +16,13 @@ EventStatus.SIGN_SEwR_EVENT_FUTURE_LOCKED = "futureLocked";
 EventStatus.SIGN_SEwR_EVENT_COMPLETED_CAN_REOPEN = "eventCompleted";
 EventStatus.SIGN_SEwR_EVENT_COMPLETED_EXPIRED = "completedLocked"
 EventStatus.SIGN_SEwR_EVENT_EXPIRED = "eventExpired";
+EventStatus.SIGN_SEwR_EVENT_COMPLETED_LOCKED = "completedLocked";
 
 // For displaying status on form
 EventStatus.SEwoR_EVENT_STATUS = {
 	"open" : "Open"
 	,"reopen" : "Completed"
+	,"futureLocked" : "Locked"
 	,"locked" : "Locked"
 	,"expired" : "Completed"
 	,"completedLocked" : "Expired"

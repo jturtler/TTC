@@ -5,34 +5,38 @@
 function Util() {}
 
 
-Util.disableTag = function( tag, isDisable )
+Util.disableTag = function( tags, isDisable )
 {
-	tag.prop('disabled', isDisable);
-	
-	for( var i=0; i<tag.length; i++ )
+	tags.prop( 'disabled', isDisable );
+
+	tags.each( function() 
 	{
-		var element = $(tag[i]);
+		var tag = $( this );
+		
 		if( isDisable )
 		{
-			element.css( 'background-color', '#FAFAFA' ).css( 'cursor', 'auto' );
-			if( element.prop( "tagName" ) == 'BUTTON' && element.find("span").length > 0  )
+			// TODO: Better to have class added and removed.
+			tag.css( 'background-color', '#FAFAFA' ).css( 'cursor', 'auto' );
+
+			if( tag.prop( "tagName" ) == 'BUTTON' && tag.find("span").length > 0  )
 			{
-				element.find("span").css( 'color', 'gray' );
+				tag.find("span").css( 'color', 'gray' );
 			}
 			else
 			{
-				element.css( 'color', 'gray' );
+				tag.css( 'color', 'gray' );
 			}
 		}
 		else
 		{
-			element.css( 'background-color', 'white' ).css( 'cursor', '' ).css( 'color', '' );
-			if( element.prop( "tagName" ) == 'BUTTON' && element.find("span").length > 0  )
+			tag.css( 'background-color', 'white' ).css( 'cursor', '' ).css( 'color', '' );
+
+			if( tag.prop( "tagName" ) == 'BUTTON' && tag.find("span").length > 0  )
 			{
-				element.find("span").css( 'color', '' );
+				tag.find("span").css( 'color', '' );
 			}
 		}
-	}
+	});
 }
 
 Util.sortByKey = function( array, key, noCase, emptyStringLast ) {
