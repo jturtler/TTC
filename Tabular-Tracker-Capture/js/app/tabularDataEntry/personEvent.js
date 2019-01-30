@@ -748,7 +748,11 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 		var expiryDays = programSelected.attr("expiryDays");
 		var completeEventsExpiryDays = programSelected.attr("completeEventsExpiryDays");
 		var eventStatus = event.status;
-		
+
+		// if this 'completeEventsExpiryDays'/'expiryDays' set to "0", this should be considered unset.
+		if ( completeEventsExpiryDays === "0" ) completeEventsExpiryDays = "";
+		if ( expiryDays === "0" ) expiryDays = "";
+
 		return relativePeriod.lockDataFormByEventDate( !me.TabularDEObj.isCase_MEwR(), event, expiredPeriodType, expiryDays, completeEventsExpiryDays );
 	};
 
@@ -2158,25 +2162,58 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 			if ( event.eventDate !== undefined )
 			{
 				var relativePeriod = new RelativePeriod();
-				var eventDate = event.eventDate;
+				//var eventDate = event.eventDate;
 				
 				var programSelected = me.TabularDEObj.searchPanel.defaultProgramTag.find("option:selected");
 				var expiredPeriodType = programSelected.attr("peType");
 				var expiryDays = programSelected.attr("expiryDays");
 				var completeEventsExpiryDays = programSelected.attr("completeEventsExpiryDays");
 				
+				if ( expiryDays === "0" ) expiryDays = "";
+				if ( completeEventsExpiryDays === "0" ) completeEventsExpiryDays = "";
+
 				var lockFormSign = relativePeriod.lockDataFormByEventDate( !me.TabularDEObj.isCase_MEwR(), event, expiredPeriodType, expiryDays, completeEventsExpiryDays );
 				
-				// Display [Delete] button for open event
-				if( lockFormSign != EventStatus.SIGN_SEwR_EVENT_OPEN
-					&& lockFormSign != EventStatus.SIGN_SEwoR_EVENT_OPEN  )
+				var lockedJson = me.checkEventRowLockCase( lockFormSign );
+
+				if( lockedJson.locked )
 				{							
 					var trTag = item_EventTable.find( "tr[uid='" + event.event + "']" );
 
-					me.disableRowInputs( trTag, trTag, "EventRow Disabled: Event expired", "expired" );
+					me.disableRowInputs( trTag, trTag, "EventRow Disabled: " + lockedJson.lockedMsg, "expired" );
 				}
 			}
 		}
+	}
+
+	me.checkEventRowLockCase = function( lockFormSign )
+	{
+		var lockedJson = {};
+		lockedJson.locked = false;
+		lockedJson.lockedMsg = "";
+
+		console.log( ' ==> checkExpiredStatus_Disable, lockFormSign: ' + lockFormSign );
+
+		switch ( lockFormSign ) {
+			case EventStatus.SIGN_SEwoR_EVENT_FUTURE_LOCKED:
+			case EventStatus.SIGN_SEwoR_EVENT_COMPLETED_EXPIRED:
+			case EventStatus.SIGN_SEwoR_EVENT_COMPLETED_LOCKED:
+				lockedJson.locked = true;
+				lockedJson.lockedMsg = EventStatus.SEwoR_EVENT_STATUS[lockFormSign];
+				break;
+
+			case EventStatus.SIGN_SEwR_PROGRAM_COMPLETED:
+			case EventStatus.SIGN_SEwR_PROGRAM_INACTIVE:
+			case EventStatus.SIGN_SEwR_EVENT_FUTURE_LOCKED:
+			case EventStatus.SIGN_SEwR_EVENT_COMPLETED_EXPIRED:
+			case EventStatus.SIGN_SEwR_EVENT_EXPIRED:
+			case EventStatus.SIGN_SEwR_EVENT_COMPLETED_LOCKED:
+				lockedJson.locked = true;
+				lockedJson.lockedMsg = EventStatus.SEwR_EVENT_STATUS[lockFormSign];
+				break;
+		}
+
+		return lockedJson;
 	}
 
 	me.populateEventData = function( tableCurrent, item_event )

@@ -365,6 +365,7 @@ function RelativePeriod()
 		else if( expiredPeriodType !== "undefined" && expiredPeriodType !== "" )
 		{
 			var expiredDateRange = me.calExpiredDateRange( new Date(), expiredPeriodType, eval( expiredDays ) );
+
 			var validMinDateStr = me.formatDateObj_YYYYMMDD( expiredDateRange.validMinDate );
 			var expiredDateStr = me.formatDateObj_YYYYMMDD( expiredDateRange.expiredDate );
 			
@@ -405,7 +406,7 @@ function RelativePeriod()
 			{
 				return EventStatus.SIGN_SEwR_EVENT_FUTURE_LOCKED;
 			}
-			else if( expiredPeriodType !== "undefined" && expiredPeriodType !== "" )
+			else if( expiredDays && expiredPeriodType !== "undefined" && expiredPeriodType !== "" )
 			{
 				var expiredDateRange = me.calExpiredDateRange( new Date(), expiredPeriodType, eval( expiredDays ) );
 				var validMinDateStr = me.formatDateObj_YYYYMMDD( expiredDateRange.validMinDate );
@@ -433,9 +434,10 @@ function RelativePeriod()
 	{
 		if( event.status == "COMPLETED" )
 		{		
-			if( completeEventsExpiryDays !== "undefined" )
+			// if undefined or '0', it is considered unset, yet.
+			if( completeEventsExpiryDays )
 			{
-				completeEventsExpiryDays = eval( completeEventsExpiryDays );
+				completeEventsExpiryDays = Number( completeEventsExpiryDays );
 				var todayStr = me.formatDateObj_YYYYMMDD( new Date() );
 				
 				var checkedCompletedEventDate = Util.getDate_FromYYYYMMDD( event.completedDate );

@@ -179,7 +179,8 @@ function PersonDialogForm( TabularDEObj )
 		me.enrolmentDateLabelTag.html( selectedProgram.enrollmentDateLabel );
 		me.incidentDateLabelTag.html( selectedProgram.incidentDateLabel );
 		
-		
+
+		// TODO: THIS MIGHT BE TOO EXPENSIVE....
 		// Make sure the attribute list is loaded first.
 		me.checkAndLoadPersonAttributeData( function()
 		{
@@ -692,9 +693,13 @@ function PersonDialogForm( TabularDEObj )
 					mandatoryAttribute = "mandatory='true'";
 				}
 
+				var displayNameSpanTagStr = "<span class='attrname' attributeId='" + attributeId + "'>" + personAttribute.displayName + "</span>";
+				var hiddenNameSpanTagStr = "<span class='hiddenName' style='display:none;'>" + personAttribute.name + "</span>";
 
 				// Step 2. Add template row to the table <-- via append
-				me.personDialogTableTag.append("<tr " + visibleInfo + "><td><span class='attrname' attributeId='" + attributeId + "'>" + personAttribute.displayName + "</span>" + mandatorySpan + "</td><td type='attribute' " + mandatoryAttribute + " attributeId='" + attributeId + "'>" + me.TabularDEObj.getAttrControlsTemplate() + "</td></tr>");
+				me.personDialogTableTag.append("<tr " + visibleInfo + "><td>" + displayNameSpanTagStr + mandatorySpan + hiddenNameSpanTagStr + "</td>"
+					+ "<td type='attribute' " + mandatoryAttribute + " attributeId='" + attributeId + "'>" + me.TabularDEObj.getAttrControlsTemplate() + "</td>"
+					+ "</tr>");
 
 				// Step 3. Show the proper control for the data type + value.
 				var trCurrent = me.personDialogTableTag.find( "tr:last" );
@@ -792,8 +797,11 @@ function PersonDialogForm( TabularDEObj )
 		{
 			attributeControl = trCurrent.find( ".datepicker" ).val( value ).attr( _view, _view_Yes ).attr('valType', valueType );
 
+			var nameStr = trCurrent.find( 'span.hiddenName' ).text();
+
 			// If it is birth date, set attribute for that, so that start/end year can be set appropriately.
-			if ( Util.stringSearch( trCurrent.find( 'span.attrname' ).text(), "birth" ) )
+			if ( Util.stringSearch( nameStr, "birth" )
+				|| Util.stringSearch( nameStr, "age" ) )
 			{
 				attributeControl.attr( 'caltype', 'birth' );
 			}

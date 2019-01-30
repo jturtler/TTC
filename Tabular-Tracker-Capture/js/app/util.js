@@ -739,22 +739,24 @@ Util.setupDatePicker = function( ctrl, onSelectFunc, dateFormat, type )
 	var yearRangeStr = "";
 	var yearRangeStr = "";
 	var currentYear = (new Date()).getFullYear();
+	var defaultStartYear = '1900';
 
-	if ( type !== undefined && type == "birthdate" )
+
+	if ( type === "birthdate" )
 	{
-		yearRangeStr = '1930:' + currentYear;
+		yearRangeStr = defaultStartYear + ':' + currentYear;
 		maxDate = 0;
 	}
-	else if ( type !== undefined && type == "upToToday" )
+	else if ( type === "upToToday" )
 	{
 		yearRangeStr = '' + (currentYear - 15) + ':' + currentYear;
 		maxDate = 0;
 	}
-	else if ( type !== undefined && type == "futureOnly" )
+	else if ( type === "futureOnly" )
 	{
 		minDate = 0;
 	}
-	else if ( type !== undefined && type == "todayOnly" )
+	else if ( type === "todayOnly" )
 	{
 		minDate = 0;
 		maxDate = 0;

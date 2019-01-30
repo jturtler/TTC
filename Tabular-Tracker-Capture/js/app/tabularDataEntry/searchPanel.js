@@ -10,7 +10,8 @@ function SearchPanel( TabularDEObj )
 
 	me.queryURL_OrgUnit = _queryURL_api + 'organisationUnits/'; //EmUlPkdz1t8.json?viewClass=basic
 	me.queryURL_OrgUnitNameQuery = _queryURL_api + 'organisationUnits.json?paging=false&fields=name,id,level,parents[id,name,level],ancestors[id,name,level]&filter=name:ilike:';
-	
+	me.queryTEAFields = "id,programTrackedEntityAttributes[displayInList,allowFutureDate,mandatory,trackedEntityAttribute[id,name,displayName]]";
+
 	// Tages..
 	me.specialPeriodFooterTag = $( '#specialPeriodFooter' );
 	me.orgUnitMapSmall_DivTag = $( '#orgUnitMapSmall' );
@@ -360,7 +361,7 @@ function SearchPanel( TabularDEObj )
 
 		if ( programId != '' )
 		{
-			RESTUtil.getAsynchData( _queryURL_Program + programId + '.json?fields=id,programTrackedEntityAttributes[displayInList,allowFutureDate,mandatory,trackedEntityAttribute[id,displayName]]'
+			RESTUtil.getAsynchData( _queryURL_Program + programId + '.json?fields=' + me.queryTEAFields			
 				, function( json_Program )
 				{
 					if ( json_Program.programTrackedEntityAttributes !== undefined )
