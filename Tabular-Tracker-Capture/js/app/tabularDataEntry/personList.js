@@ -37,8 +37,8 @@ function PersonList( TabularDEObj )
 	me.itemTemplate_PersonInputAndInfo = "<input type='text' class='personSelect jq_watermark' placeholder='" + l10n.get('searchOrAddPerson') + "' size='25' />"
 							+ "<button type='button' class='personInfo button smallRoundButton' infoType='" + me.personDialogForm.type_New + "' style='display:none; margin:2px 4px 2px 3px; font-size: 11px;' ><span nameId='AddPerson'>" + l10n.get('addPerson') + "</span></button>"
 							+ "<button type='button' class='personInfo button smallRoundButton' infoType='" + me.personDialogForm.type_Exist + "' style='display:none; margin:2px 4px 2px 3px; font-size: 11px;' ><span nameId='UpdatePerson'>" + l10n.get('updatePerson') + "</span></button>"
-							+ "<img nameId='makeFollowup' src='img/warning_small.png' style='display:none;cursor:pointer;' width='20' >"
-							+ "<img nameId='disableFollowup' src='img/warning_small_disable.png' style='display:none;cursor:pointer;' width='20' >"
+							+ "<img nameId='removeFromFollowUp' src='img/warning_small_remove2.png' title='Remove from follow-up' style='display:none;cursor:pointer;' width='15'>"
+							+ "<img nameId='markForFollowUp' src='img/warning_small_disable3.png' title='Mark for follow-up' style='display:none;cursor:pointer;' width='17'>"
 							+ "<span class='personEventCountSec' style='display:none;color:#CCCCCC;font-size:9px;'>&nbsp;<span class='personEventCount'></span></span>";
 
 	me.trTemplate_PersonDetail = "<td class='blank' colspan='0'></td>";
@@ -492,7 +492,7 @@ function PersonList( TabularDEObj )
 								me.getPersonById( ui.item.id, function( item_person )
 								{
 									// Get the followup infor of each TEI
-									me.TabularDEObj.checkProgramEnroll( ui.item.id, me.TabularDEObj.getSelectedProgramId(), me.TabularDEObj.getOrgUnitId(), function( enrollmentData ) // has ACTIVE program
+									me.checkProgramEnroll( ui.item.id, me.TabularDEObj.getSelectedProgramId(), me.TabularDEObj.getOrgUnitId(), function( enrollmentData ) // has ACTIVE program
 									{
 										var followup = ( enrollmentData.followup === undefined ) ? false : eval( enrollmentData.followup );
 										item_person.followup = followup;
@@ -980,7 +980,7 @@ function PersonList( TabularDEObj )
 	me.checkAndPopulateFollowUp = function( trCurrent, programId, item_person, trackedEntityInstance, orgUnit )
 	{
 		// Get the followup infor of each TEI
-		me.TabularDEObj.checkProgramEnroll( trackedEntityInstance, programId, orgUnit, 
+		me.checkProgramEnroll( trackedEntityInstance, programId, orgUnit, 
 			function( enrollmentData ) // has ACTIVE program
 			{
 				var followup = ( enrollmentData.followup === undefined ) ? false : eval( enrollmentData.followup );
@@ -999,36 +999,37 @@ function PersonList( TabularDEObj )
 		var personId = item_person.trackedEntityInstance;
 
 		// Enable or Disable [Mark for followup]
-		var makeFollowupTag = trCurrent.find("[nameId='makeFollowup']");
-		var disableFollowupTag = trCurrent.find("[nameId='disableFollowup']");
-		if( item_person.followup == undefined )
+		var removeFromFollowUpTag = trCurrent.find("[nameId='removeFromFollowUp']");
+		var markForFollowUpTag = trCurrent.find("[nameId='markForFollowUp']");
+
+		if( item_person.followup === undefined )
 		{
-			makeFollowupTag.hide();
-			disableFollowupTag.hide();
+			removeFromFollowUpTag.hide();
+			markForFollowUpTag.hide();
 		}
 		else
 		{
 			if( item_person.followup )
 			{
-				makeFollowupTag.show();
+				removeFromFollowUpTag.show();
 			}
 			else
 			{
-				disableFollowupTag.show();
+				markForFollowUpTag.show();
 			}
 			
 			// Add click_events
-			makeFollowupTag.click(function(){
+			removeFromFollowUpTag.click(function(){
 				me.programEnroll( personId, item_person.enrollment, programId, item_person.orgUnit, item_person.enrollmentDate, item_person.incidentDate, false, "PUT", function(){
-					makeFollowupTag.hide();
-					disableFollowupTag.show();
+					removeFromFollowUpTag.hide();
+					markForFollowUpTag.show();
 				});
 			});
 			
-			disableFollowupTag.click(function(){
+			markForFollowUpTag.click(function(){
 				me.programEnroll( personId, item_person.enrollment, programId, item_person.orgUnit, item_person.enrollmentDate, item_person.incidentDate, true, "PUT", function(){
-					makeFollowupTag.show();
-					disableFollowupTag.hide();
+					removeFromFollowUpTag.show();
+					markForFollowUpTag.hide();
 				});
 			});
 		}	
@@ -1042,7 +1043,7 @@ function PersonList( TabularDEObj )
 			try
 			{
 			// Get the followup infor of each TEI
-			me.TabularDEObj.checkProgramEnroll( item_person.trackedEntityInstance, programId, item_person.orgUnit, function( enrollmentData ) // has ACTIVE program
+			me.checkProgramEnroll( item_person.trackedEntityInstance, programId, item_person.orgUnit, function( enrollmentData ) // has ACTIVE program
 			{
 				var followup = ( enrollmentData.followup === undefined ) ? false : eval( enrollmentData.followup );
 				item_person.followup = followup;
@@ -1068,69 +1069,6 @@ function PersonList( TabularDEObj )
 		});
 
 	}
-
-	/*
-	me.updatePersonWithDetails = function( json_PersonEventsList, execFunc )
-	{
-		var personTotal = json_PersonEventsList.length;
-		var count = 0;
-
-		$.each( json_PersonEventsList, function( i_person, item_person ) 
-		{
-			PersonUtil.getPersonByID_ReuseReload( item_person.trackedEntityInstance
-			, function( json_Person )
-			{
-				Util.copyProperties( json_Person, item_person );
-			}
-			, function() {}
-			, DialogLoading.open
-			, function() 
-			{
-				DialogLoading.close();
-
-				count++;
-
-				if ( count == personTotal )
-				{
-					execFunc( json_PersonEventsList );
-				}						
-			}
-			);
-		});
-	}*/
-
-	/*
-	me.retrievePersonAndPopulateInfo = function( personRowsTag, personCount )
-	{
-		personRowsTag.each( function( i )
-		{
-			var trPersonTag = $( this );
-			var personUid = trPersonTag.attr( 'uid' );
-
-			if ( Util.checkValue( personUid ) )
-			{
-				PersonUtil.getPersonByID_ReuseReload( personUid
-				, function( json_Person )
-				{
-					if ( Util.checkDefined( json_Person ) ) 
-					{
-						// Populate the row with person obj.
-						me.setPersonInfoRow( trPersonTag, json_Person );
-
-						FormUtil.setTagAsWait_Clear( trPersonTag );
-					}
-				}
-				, function() 
-				{
-					console.log( 'Failed to retrieve person data: ' + personUid );
-				}
-				);
-			}
-
-		});
-	}
-	*/
-
 
 	// -- Person Auto Selected Related -------------------
 	// ---------------------------------------------------

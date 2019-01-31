@@ -82,7 +82,7 @@ function PersonDialogForm( TabularDEObj )
 
 				// TODO: 2.30
 				// NEED TO CHECK
-				console.log( 'incidentDate showing' );
+				//console.log( 'incidentDate showing' );
 				Util.disableTag( me.incidentDateTag, false );
 
 				me.initFormBeforeOpen( currentTr, formType, returnFunc );
@@ -96,7 +96,7 @@ function PersonDialogForm( TabularDEObj )
 		 {
 			 // TODO: 2.30
 			 // NEED TO CHECK
-			 console.log( 'new enrollment - incidentDate showing' );
+			 //console.log( 'new enrollment - incidentDate showing' );
 
 
 			 me.enrollmentTableTag.show();

@@ -2192,7 +2192,7 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 		lockedJson.locked = false;
 		lockedJson.lockedMsg = "";
 
-		console.log( ' ==> checkExpiredStatus_Disable, lockFormSign: ' + lockFormSign );
+		//console.log( ' ==> checkExpiredStatus_Disable, lockFormSign: ' + lockFormSign );
 
 		switch ( lockFormSign ) {
 			case EventStatus.SIGN_SEwoR_EVENT_FUTURE_LOCKED:
