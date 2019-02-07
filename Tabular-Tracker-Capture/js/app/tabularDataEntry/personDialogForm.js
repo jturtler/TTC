@@ -38,34 +38,6 @@ function PersonDialogForm( TabularDEObj )
 		me.currentPersonTr = currentTr;
 
 		me.afterSaveAction = afterSaveAction;
-		
-		// Get selected program configuration
-		/* var selectedProgram = me.TabularDEObj.getSelectedProgram();
-		if( _settingForm.DHISVersion == "2.25" || _settingForm.DHISVersion == "2.26" )
-		{
-			me.enrollmentTableTag.hide();
-			if( formType == "New" )	
-			{
-				me.enrolmentDateTag.val( Util.getCurrentDate() );
-				me.incidentDateTag.val( Util.getCurrentDate() );
-			}
-
-		}
-		else
-		{
-			me.enrollmentTableTag.show();
-			if( formType == "Exist" )
-			{
-				Util.disableTag( me.enrolmentDateTag, true );
-				Util.disableTag( me.incidentDateTag, true );
-			}
-			else
-			{
-				Util.disableTag( me.enrolmentDateTag, false );
-				Util.disableTag( me.incidentDateTag, false );
-			}
-		} */
-
 	
 		if( formType == "Exist" )
  		{	
@@ -76,7 +48,10 @@ function PersonDialogForm( TabularDEObj )
 				me.enrollmentTableTag.hide();
 				Util.disableTag( me.enrolmentDateTag, true );
 				Util.disableTag( me.incidentDateTag, true );
-			}, function(){
+
+			}, function()
+			{
+				
 				me.enrollmentTableTag.show();
 				Util.disableTag( me.enrolmentDateTag, false );	
 
@@ -98,7 +73,6 @@ function PersonDialogForm( TabularDEObj )
 			 // NEED TO CHECK
 			 //console.log( 'new enrollment - incidentDate showing' );
 
-
 			 me.enrollmentTableTag.show();
 			 Util.disableTag( me.enrolmentDateTag, false );
 			 Util.disableTag( me.incidentDateTag, false );
@@ -113,17 +87,10 @@ function PersonDialogForm( TabularDEObj )
 	me.initFormBeforeOpen = function( currentTr, formType, returnFunc )
 	{
 		var selectedProgram = me.TabularDEObj.getSelectedProgram();
-
-		
-
-		// TODO: 2.30
-		// console.log( 'initFormBeforeOpen.selectedProgram:' );
-		// console.log( selectedProgram );
 		
 		// TODO: 2.30
 		// Display incidentDate only if 'displayIncidentDate is available and true on program.
 		( selectedProgram.displayIncidentDate ) ? me.incidentDateRowTag.show(): me.incidentDateRowTag.hide();
-
 
 
 		// Set date picker for Enrollment Date and Incident Date fields
@@ -149,32 +116,12 @@ function PersonDialogForm( TabularDEObj )
 
 		if( formType == "New" )	
 		{
+			// TODO: IF OPENING FOR NEW ENROLLMENT, THIS SHOULD ALSO BE TOUCHED?
 			me.enrolmentDateTag.val( Util.getCurrentDate() );
 			me.incidentDateTag.val( Util.getCurrentDate() );
-
-			// // Set date picker for Enrollment Date and Incident Date fields
-			// Util.setDatePickerInRange( "incidentDate", "enrolmentDate", function(){
-			// 	if( !eval( selectedProgram.selectIncidentDatesInFuture ) )
-			// 	{
-			// 		Util.datePicker_SetMaxDate( me.incidentDateTag, new Date() );
-			// 	}
-				
-			// }, true );
-			
-			// // Set Current date for [Enrollment Date] field and [Incident Date] field
-			// me.enrolmentDateTag.val( Util.getCurrentDate() );
-			// me.incidentDateTag.val("");
-			
-			// // Set the Enrollment date in future if any
-			// if( eval( selectedProgram.selectEnrollmentDatesInFuture ) )
-			// {
-			// 	var futureDate = new Date();
-			// 	futureDate.setFullYear( futureDate.getFullYear() + 100 );
-			// 	Util.datePicker_SetMaxDate( me.enrolmentDateTag, futureDate );
-			// }
-
 		}
 		
+
 		// Set lable for [Enrollment Date and IncidentDate]
 		me.enrolmentDateLabelTag.html( selectedProgram.enrollmentDateLabel );
 		me.incidentDateLabelTag.html( selectedProgram.incidentDateLabel );
@@ -279,14 +226,20 @@ function PersonDialogForm( TabularDEObj )
 				// For person attributes, add value, and if not in program, hide them.
 				PersonUtil.addIDtypeToID( item_Person );
 				
+
+
+				// TODO: For new Enrollment, this should not do!!!!!
+				// We should only populate the right enrollment for the tei...
+				// DO WE EVER NEED TO UPDATE THE ENROLLMENT DATE?  ON TEI UPDATE?
 				// Populate [Enrollment date] and [Incident Date]
 				var enrollments = item_Person.enrollments;
 				for( var i in enrollments )
  				{
-					if( enrollments[i].status == _status_ACTIVE )
+					var enrollmentJson = enrollments[i];
+					if( enrollmentJson.program == programId && enrollmentJson.status == _status_ACTIVE )
 					{
-						me.enrolmentDateTag.val( Util.formatDateBack( enrollments[i].enrollmentDate ) );
-						me.incidentDateTag.val( Util.formatDateBack( enrollments[i].incidentDate ) );
+						me.enrolmentDateTag.val( Util.formatDateBack( enrollmentJson.enrollmentDate ) );
+						me.incidentDateTag.val( Util.formatDateBack( enrollmentJson.incidentDate ) );
 					}
 				}
 				
@@ -891,7 +844,7 @@ function PersonDialogForm( TabularDEObj )
 		if ( !teiJson ) alert( 'ERROR - On Update, loaded Tei does not exist!' );
 		else me.constructAttributes( teiJson.attributes );
 
-		// TODO: 2.30 - On Tei update, we need to remove 'events' to pass the geometry json validation..
+		// 2.30 - On Tei update, we need to remove 'events' to pass the geometry json validation..
 		if ( teiJson.enrollments )
 		{
 			for ( i = 0; i < teiJson.enrollments.length; i++ )
@@ -1047,35 +1000,6 @@ function PersonDialogForm( TabularDEObj )
 
 
 			FormUtil.addItemJson( attributes, attributeId, "attribute", dataValue, updateCase );
-
-
-			/*
-			if ( updateCase )
-			{
-				var attrJson = Util.getFromList( attributes, attributeId, "attribute" );
-
-				if ( dataValue )
-				{
-					// If form entry value exists, set it to attribute saving.
-					if ( attrJson ) attrJson.value = dataValue;
-					else attributes.push( { "attribute": attributeId, "value": dataValue } );
-				}
-				else
-				{
-					// If form entry value is emtpy, but there were existing value, we should update it to empty case..
-					if ( attrJson && attrJson.value )
-					{
-						attrJson.value = '';
-					}
-				}
-			}
-			else
-			{
-				// For new case, simply add to the attributes list
-				if ( dataValue ) attributes.push( { "attribute": attributeId, "value": dataValue } );
-			}
-			*/
-
 		});
 
 		return attributes;

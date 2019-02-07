@@ -410,7 +410,8 @@ function PersonList( TabularDEObj )
 							// ou Added for the limited feature..
 							// var requestUrl = _queryURL_PersonQuery + ".json?filter=" + attribute0_id + ":LIKE:" + request.term + "&ouMode=DESCENDANTS&ou=" + me.TabularDEObj.searchPanel.getCountryId() + "&trackedEntityType=" + me.TabularDEObj.getSelectedProgram().trackedEntityType + "&program=" + programId;
 							
-							var requestUrl = _queryURL_PersonQuery + ".json?filter=" + attribute0_id + ":LIKE:" + request.term + "&ouMode=DESCENDANTS&ou=" + me.TabularDEObj.searchPanel.getCountryId() + "&program=" + programId;
+							var requestUrl = _queryURL_PersonQuery + ".json?filter=" + attribute0_id + ":LIKE:" + request.term + "&ouMode=DESCENDANTS&ou=" + me.TabularDEObj.searchPanel.getCountryId(); 
+							// + "&program=" + programId;
 
 							// Step 0. Check the search count first!!
 							me.checkSearchMaxLimit( requestUrl, function( pass ) {
@@ -429,19 +430,27 @@ function PersonList( TabularDEObj )
 									var xhr_personSearch = RESTUtil.getAsynchData( requestUrl
 									, function( json_Persons )
 									{
-										if( json_Persons.trackedEntityInstances !== undefined )
+										if( json_Persons.trackedEntityInstances )
 										{
+											var hasAnySearchKeyAttrVal = false;
+
 											$.each( json_Persons.trackedEntityInstances, function( i, item_person ) 
 											{
 												var attribute_first = Util.getFromList( item_person.attributes, attribute0_id, "attribute" );
 
-												var attributesLongDesc = attribute_first.value; 
+												var attributesLongDesc = '';
+
+												if ( attribute_first )
+												{
+													hasAnySearchKeyAttrVal = true;
+													attributesLongDesc = attribute_first.value; 													
+												}
 
 												if ( Util.checkValue( attribute1_id ) ) 
 												{
 													var attribute_second = Util.getFromList( item_person.attributes, attribute1_id, "attribute" );
 
-													if ( attribute_second !== undefined )
+													if ( attribute_second )
 													{
 														attributesLongDesc += ', ' + attribute_second.value;
 													}
@@ -450,6 +459,8 @@ function PersonList( TabularDEObj )
 												json_persons_new.push( { "id": item_person.trackedEntityInstance, "label": attributesLongDesc, "value": attribute_first.value } );
 
 											});
+
+											if ( !hasAnySearchKeyAttrVal ) alert( 'Search Key Value emtpy - PLEASE CHECK IF THE SEARCH KEY ATTRIBUTE EXISTS IN TrackedEntityType' );
 										}
 										
 										response( Util.sortByKey( json_persons_new, 'label', true ) );
