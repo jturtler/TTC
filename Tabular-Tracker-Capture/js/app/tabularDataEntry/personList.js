@@ -405,7 +405,7 @@ function PersonList( TabularDEObj )
 						}
 						else
 						{
-							var programId = me.TabularDEObj.searchPanel.programManager.selectedProgramId;
+							//var programId = me.TabularDEObj.searchPanel.programManager.selectedProgramId;
 							
 							// ou Added for the limited feature..
 							// var requestUrl = _queryURL_PersonQuery + ".json?filter=" + attribute0_id + ":LIKE:" + request.term + "&ouMode=DESCENDANTS&ou=" + me.TabularDEObj.searchPanel.getCountryId() + "&trackedEntityType=" + me.TabularDEObj.getSelectedProgram().trackedEntityType + "&program=" + programId;
@@ -424,7 +424,7 @@ function PersonList( TabularDEObj )
 								}
 								else
 								{
-									requestUrl += '&skipPaging=true';
+									requestUrl += '&skipPaging=true&includeAllAttributes=true';
 
 									// Step 1. Search Person  --- TODO: do the loading message?
 									var xhr_personSearch = RESTUtil.getAsynchData( requestUrl
