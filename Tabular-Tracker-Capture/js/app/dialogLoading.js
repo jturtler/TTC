@@ -175,16 +175,43 @@ MsgManager.cssBlock_Body = {
 	,width: '200px'
 };
 
-MsgManager.appBlock = function( msg )
-{
-	if ( !Util.checkValue( msg ) ) msg = "Processing..";
+MsgManager.locked = false;
+MsgManager.lockMsg = "";
+MsgManager.LOCK = 'LOCK';
+MsgManager.UNLOCK = 'UNLOCK';
 
-	FormBlock.block( true, msg, MsgManager.cssBlock_Body );
+MsgManager.appBlock = function( msg, lock )
+{
+	if ( MsgManager.locked )
+	{
+		FormBlock.block( true, MsgManager.lockMsg + ", " + msg, MsgManager.cssBlock_Body );
+	}
+	else
+	{
+		if ( !Util.checkValue( msg ) ) msg = "Processing..";
+
+		FormBlock.block( true, msg, MsgManager.cssBlock_Body );	
+	}
+
+	if ( lock === MsgManager.LOCK ) 
+	{
+		MsgManager.locked = true;
+		MsgManager.lockMsg = msg;
+	}
 }
 
-MsgManager.appUnblock = function()
+MsgManager.appUnblock = function( unlock )
 {
-	FormBlock.block( false );
+	if ( unlock === MsgManager.UNLOCK ) 
+	{
+		MsgManager.locked = false;
+		MsgManager.lockMsg = "";
+	}
+
+	if ( !MsgManager.locked )
+	{
+		FormBlock.block( false );
+	}
 }
 
 

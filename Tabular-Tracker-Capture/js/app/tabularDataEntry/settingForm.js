@@ -919,7 +919,8 @@ function SettingForm( _TabularDEObj, _matrixObj )
 	// Initial Setup Call
 	me.initialSetup = function()
 	{
-		MsgManager.appBlock("Configuration ...");
+
+		MsgManager.appBlock( "Configuration..." );
 		$( "#settingDialogTabs" ).tabs();
 		
 		me.specificPeriodChkTag.change( function(){

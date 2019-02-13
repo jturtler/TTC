@@ -141,9 +141,16 @@ function DataInMemory()
 			me.retrieveFromMemory( me.programList_Full, 'id', 'programFull', _queryURL_ProgramList + '?paging=false&fields=id,displayName,programType,onlyEnrollOnce,executionDateLabel,trackedEntityType[id,displayName]'
 				, function( json_programList )
 				{	
+					//console.log( '[-==1]. retrieve getProgramList_Full =====> ' + JSON.stringify( json_programList ) );					
+
 					me.retrieveProgramStageList( function( json_programStageList )
 						{
-							me.programListWithStage_Full = me.setProgramWithStage( json_programList.programs, json_programStageList.programStages );
+							var jsonCopy_programStageList = Util.getDeepCopyJson( json_programStageList );
+							//console.log( '[-==2]. retrieveProgramStageList ====> ' + JSON.stringify( jsonCopy_programStageList ) );
+
+							me.programListWithStage_Full = me.setProgramWithStage( json_programList.programs, jsonCopy_programStageList.programStages );
+							//console.log( '[-==3]. programListWithStage_Full ====> ' + JSON.stringify( me.programListWithStage_Full ) );
+
 
 							runFunc( me.programListWithStage_Full );
 						}
@@ -244,25 +251,19 @@ function DataInMemory()
 		{
 			var item_stage = programStages[j];
 
-			if ( item_stage.program !== undefined )
+			if ( item_stage.program )
 			{
+				var stageProgramJson = item_stage.program;
 
-				for( i = 0; i < programs.length; i++ )
+				// In each Stage's program, match the program and add to the stage.. 
+				var matchProgObj = Util.getFromList( programs, stageProgramJson.id, "id" );
+
+				if ( matchProgObj )
 				{
-					if ( programs[i].id == item_stage.program.id )
-					{
-						var programMatch = programs[i];
+					if ( matchProgObj.programStages === undefined ) matchProgObj.programStages = [];
 
-						if ( programMatch.programStages === undefined )
-						{
-							programMatch.programStages = [];
-						}
-
-						programMatch.programStages.push( item_stage );
-
-						break;
-					}
-				}
+					matchProgObj.programStages.push( item_stage );
+				}	
 			}
 		}
 

@@ -343,6 +343,26 @@ function TabularDataEntry( _orgUnitSelectionTreePopup )
 		// Initially set focus on OrgUnit Search Tag
 		me.searchPanel.orgUnitNameTag.val( '' ).focus();
 
+
+
+		// Load program / stage data..
+		QuickLoading.dialogShowAdd( 'preDataLoading' );		
+		
+		MsgManager.appBlock( "Preloading Program/Stage Data...", MsgManager.LOCK );
+
+		me.dataInMemory.retrieveProgramListWithStage_Full( function() 
+		{
+			var preDataLoadedTag = $( '#preDataLoaded' );
+			preDataLoadedTag.attr( 'loaded', 'true' );
+			preDataLoadedTag.attr( 'title', 'program/stage data loaded' );
+			preDataLoadedTag.find( 'img' ).attr( 'src', 'img/info.png' );
+
+			QuickLoading.dialogShowRemove( 'preDataLoading' );
+
+			MsgManager.appUnblock( MsgManager.UNLOCK );			
+		});
+
+
 		/*
 		$( '#testBtn' ).click( function()
 		{

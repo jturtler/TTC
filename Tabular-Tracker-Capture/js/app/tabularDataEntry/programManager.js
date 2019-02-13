@@ -136,6 +136,9 @@ function ProgramManager( TabularDEObj, defaultProgramTag )
 	{
 		var stageList = me.getProgramStageList( programId );
 
+		console.log( 'CHECK, populateProgramStages:' );
+		console.log( stageList );
+		
 		// TODO: 2.30 
 		Util.removeDuplicateItems( stageList, "id" );
 
@@ -145,19 +148,26 @@ function ProgramManager( TabularDEObj, defaultProgramTag )
 	
 	me.getProgramStageList = function( programId )
 	{
-		var programStages;
+		var programStages = [];
 
+		// So, there is problem in this memory?  <-- but we are loading all 499 ones...  too long...
 		var programList = me.TabularDEObj.dataInMemory.getProgramList_Full();
 
-		// if these is no list for thie programId, generate one and add to the list.
-		for( i = 0; i < programList.length; i++ )
+		console.log( 'programList:' );
+		console.log( programList );
+
+		var matchProgObj = Util.getFromList( programList, programId, "id" );
+
+		if ( matchProgObj && matchProgObj.programStages )
 		{
-			if( programList[i].id == programId )
-			{
-				programStages = programList[i].programStages;
-				break;
-			}
+			console.log( 'matchProgObj:' );
+			console.log( matchProgObj );
+	
+			programStages = matchProgObj.programStages;
 		}
+		
+		console.log( 'programStages:' );
+		console.log( programStages );	
 
 		return programStages;
 	}
@@ -308,7 +318,11 @@ function ProgramManager( TabularDEObj, defaultProgramTag )
 
 	me.initialSetup = function( )
 	{	
+		// This gets called...  TODO: SHOULD BE MOVED TO OTHER MORE CLEAR PLACE
 		me.TabularDEObj.dataInMemory.retrieveProgramListWithStage_Full( function() {} );
+
+
+
 	}
 
 	// Initial Setup Call

@@ -599,7 +599,7 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 	}
 	
 	
-	this.setStatusRelated = function( trCurrent, json_Event, programStageId )
+	me.setStatusRelated = function( trCurrent, json_Event, programStageId )
 	{
 		var eventDate = trCurrent.find( "input.eventDate" );
 		var eventStatus = trCurrent.find( "span.eventStatus" );
@@ -619,7 +619,7 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 		if ( !statusMsg ) statusMsg = '<span style="font-style: italic; font-color: #555;">' + status + '</span>'; 
 
 		eventStatus.html( statusMsg );
-		eventStatus.attr( "status", event.status );
+		eventStatus.attr( "status", status ); // ?? json_Event.status and 'status' by 'getEventStatus' is a bit different..?
 
 		
 		// remove previous Delete click event
@@ -627,78 +627,89 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 		eventRowDel.off( 'click' );
 		eventDel.click( function() { me.eventDelete( trCurrent, json_Event.event ); });
 			
-			
-		if( status == EventStatus.SIGN_SEwR_PROGRAM_INACTIVE
-			|| status == EventStatus.SIGN_SEwR_PROGRAM_COMPLETED )
+		try
 		{
-			me.disableAllEventsRow_inTei( trCurrent.closest( "div.divPersonDetail" ), "Events Disabled: Program inactive/completed", "programNA" );
-		}
-		else if( status == EventStatus.SIGN_SEwR_EVENT_OPEN
-			|| status == EventStatus.SIGN_SEwoR_EVENT_OPEN )
-		{
-			// Delete related
-			eventDel.show();
-			
-			// Complete related
-			eventComplete.show();
-
-			eventComplete.off( "click" ).on( "click", function() 
+			if( status == EventStatus.SIGN_SEwR_PROGRAM_INACTIVE
+				|| status == EventStatus.SIGN_SEwR_PROGRAM_COMPLETED )
 			{
-				me.completeEvent( trCurrent, json_Event, programStageId );
-			});
-			
-			eventIncomplete.hide();
-			
-			// Show 'Add new event' button if Active program
-			var personUid = trCurrent.closest("tr.trPersonDetail").attr("uid");
-			var personTag = me.mainSection_PersonTag.find("tr.trPerson[uid='" + personUid + "']");
-		}
-		else if( status == EventStatus.SIGN_SEwR_EVENT_COMPLETED_CAN_REOPEN
-			|| status == EventStatus.SIGN_SEwoR_EVENT_COMPLETED_CAN_REOPEN )
-		{
-			eventDel.show();
-		
-			// In-Complete related
-			me.TabularDEObj.checkIncompleteAction_UserRole( function() 
+				me.disableAllEventsRow_inTei( trCurrent.closest( "div.divPersonDetail" ), "Events Disabled: Program inactive/completed", "programNA" );
+			}
+			else if( status == EventStatus.SIGN_SEwR_EVENT_OPEN
+				|| status == EventStatus.SIGN_SEwoR_EVENT_OPEN )
 			{
-				eventIncomplete.show();
-			});
-			
-			eventIncomplete.off( "click" ).on( "click", function() 
-			{
-				me.incompleteEvent( trCurrent, json_Event, programStageId );
-			});
-			
-			me.TabularDEObj.dataInMemory.retrieveProgramStageData( programStageId, function( programStageJson )
-			{
-				if ( programStageJson.blockEntryForm )
+				// Delete related
+				eventDel.show();
+				
+				// Complete related
+				eventComplete.show();
+	
+				eventComplete.off( "click" ).on( "click", function() 
 				{
-					// Disable all the DataElements controls - move the control rendering area..
-					me.setEventDEControlDisable( trCurrent );
-
-					me.appendWarningMsg_Tr( trCurrent, "EventEntry Blocked: Event completed with block entry", "completed" );
-				}
-			});
+					me.completeEvent( trCurrent, json_Event, programStageId );
+				});
+				
+				eventIncomplete.hide();
+				
+				// Show 'Add new event' button if Active program
+				var personUid = trCurrent.closest("tr.trPersonDetail").attr("uid");
+				var personTag = me.mainSection_PersonTag.find("tr.trPerson[uid='" + personUid + "']");
+			}
+			else if( status == EventStatus.SIGN_SEwR_EVENT_COMPLETED_CAN_REOPEN
+				|| status == EventStatus.SIGN_SEwoR_EVENT_COMPLETED_CAN_REOPEN )
+			{
+				eventDel.show();
 			
-			eventComplete.hide();
-			eventDel.show();
+				// In-Complete related
+				me.TabularDEObj.checkIncompleteAction_UserRole( function() 
+				{
+					eventIncomplete.show();
+				});
+				
+				eventIncomplete.off( "click" ).on( "click", function() 
+				{
+					me.incompleteEvent( trCurrent, json_Event, programStageId );
+				});
+				
+				me.TabularDEObj.dataInMemory.retrieveProgramStageData( programStageId, function( programStageJson )
+				{
+					if ( programStageJson.blockEntryForm )
+					{
+						// Disable all the DataElements controls - move the control rendering area..
+						me.setEventDEControlDisable( trCurrent );
+	
+						me.appendWarningMsg_Tr( trCurrent, "EventEntry Blocked: Event completed with block entry", "completed" );
+					}
+				});
+				
+				eventComplete.hide();
+				eventDel.show();
+			}
+			else
+			{
+				eventIncomplete.hide();
+				eventComplete.hide();
+				// eventDel.hide();
+				eventDel.show();
+				
+				me.setEventFixedColumnDisable( trCurrent );
+				me.setEventDEControlDisable( trCurrent );					
+				Util.paintClear( eventProgramDiv );
+				Util.paintClear( eventStageDiv );
+	
+				eventProgramDiv.css( 'color', '#80808F' );
+				eventStageDiv.css( 'color', '#80808F' );
+			}
+			
 		}
-		else
+		catch( e )
 		{
-			eventIncomplete.hide();
-			eventComplete.hide();
-			// eventDel.hide();
-			eventDel.show();
-			
-			me.setEventFixedColumnDisable( trCurrent );
-			me.setEventDEControlDisable( trCurrent );					
-			Util.paintClear( eventProgramDiv );
-			Util.paintClear( eventStageDiv );
-
-			eventProgramDiv.css( 'color', '#80808F' );
-			eventStageDiv.css( 'color', '#80808F' );
+			console.log( 'Error setting status' );
+			console.log( e );
 		}
-		
+
+
+		// ABOVE FAILS SOMETIME??
+
 		// Hide 'Add new event' button if program is COMPLETED / INACTIVE
 		var personUid = trCurrent.closest("tr.trPersonDetail").attr("uid");
 		var trPerson = me.mainSection_PersonTag.find("tr.trPerson[uid='" + personUid + "']");
@@ -730,10 +741,16 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 				}
 			}
 			
-			if( eventStage.find("option").length > 1 )
-			{
+
+			// TODO: WE SHOULD WRITE NOTE ABOUT 'DONE' STAGE!!!
+
+
+			// But we should add Event Button always.. Regardless of stage population..
+			//if( eventStage.find("option").length >= 1 )
+			//if( eventStage.find("option").length > 1 )
+			//{
 				addNewEventRowButton.show();
-			}
+			//}
 		}
 		
 	};

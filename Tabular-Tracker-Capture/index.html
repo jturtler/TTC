@@ -1,36 +1,37 @@
 <!DOCTYPE html>
 <html>
-<head>
-<title>Tabular Tracker Capture</title>
-<meta charset="UTF-8">
 
-<script> var _jsIncludeDate = Date.now(); </script>
-<script> var _appVersion = '1.67.2'; </script>
+<head>
+	<title>Tabular Tracker Capture</title>
+	<meta charset="UTF-8">
+
+	<script> var _jsIncludeDate = Date.now(); </script>
+	<script> var _appVersion = '1.67.4'; </script>
 
 	<!-- Credit: 
 		'webL10n' - implemented by Victor Garcia, vgarciabnz@gmail.com
 	-->
-	
+
 	<script src="js/jQuery/jquery-1.11.1.min.js"></script>
 	<script src="js/jQuery/jquery-ui.min.js"></script>
 	<script src="js/jQuery/jquery.ui.core.js"></script>
 	<script src="js/jQuery/jquery.ui.widget.js"></script>
 	<script src="js/jQuery/jquery.ui.datepicker.js"></script>
 	<script src="js/jQuery/jquery.ui.timepicker.js"></script>
-	
+
 	<script src="js/jQuery/jquery.dateFormat-1.0.js"></script>
 	<script src="js/jQuery/jquery.watermark.js"></script>
 	<script src="js/jQuery/jquery.cookie.js"></script>
 	<script src="js/jQuery/jquery.blockUI.js"></script>
 	<script src="js/moment.min.js"></script>
 
-	<script src="js/gmap3/gmap3.min.js"></script> 
+	<script src="js/gmap3/gmap3.min.js"></script>
 	<script src="js/gmap3/gmap3-menu.js"></script>
 
-	<script> document.write("<script src='js/app/util.js?v=" + _appVersion + "'><\/script>"); </script>
-	<script> document.write("<script src='js/app/dialogLoading.js?v=" + _appVersion + "'><\/script>"); </script>
-	<script> document.write("<script src='js/app/RESTUtil.js?v=" + _appVersion + "'><\/script>"); </script>
-	
+	<script src='js/app/util.js?1.67.4'></script>
+	<script src='js/app/dialogLoading.js?1.67.4'></script>
+	<script src='js/app/RESTUtil.js?1.67.4'></script>
+
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap-theme.min.css">
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
@@ -38,17 +39,17 @@
 	<script src="js/bootstrap/moment-with-locales.js"></script>
 	<link rel="stylesheet" href="js/bootstrap/bootstrap-datetimepicker.css">
 	<script src="js/bootstrap/bootstrap-datetimepicker.js"></script>
-	
+
 	<link rel="stylesheet" href="css/jQuery/jquery.ui.all.css">
 	<link rel="stylesheet" href="css/jQuery/jquery-ui.css" />
 	<link rel="stylesheet" href="css/jQuery/jquery.ui.timepicker.css">
 	<link rel="stylesheet" href="css/gmap3/gmap3-menu.css" />
 
-	<script> document.write("<link rel='stylesheet' href='css/app/style.css?v=" + _appVersion + "' \/>"); </script>
-	
+	<link rel='stylesheet' href='css/app/style.css?1.67.4'/>
+
 	<link rel="resource" type="application/l10n" href="locales/locales.ini" />
 	<script src="js/l10n.js"></script>
-	
+
 
 	<!-- URL addresses (Dhis site, home, api) -->
 	<script>
@@ -56,9 +57,9 @@
 		// ------------------------------------
 		// *** DHIS AppStore Deploy Version ***
 		// -- App Manifest Json (Get this via Synch, so that it is defined ahead)
-		var _appManifest = $.parseJSON( RESTUtil.getSynchData( 'manifest.webapp' ) );
+		var _appManifest = $.parseJSON(RESTUtil.getSynchData('manifest.webapp'));
 		// -- URLs
-		var _dhisSiteURL = _appManifest.activities.dhis.href.replace( '/dhis-web-maintenance-appmanager', '' ) + '/';
+		var _dhisSiteURL = _appManifest.activities.dhis.href.replace('/dhis-web-maintenance-appmanager', '') + '/';
 		// ------------------------------------
 
 		// -------------------
@@ -84,10 +85,10 @@
 		var _queryURL_DataElementDetail = _queryURL_api + "dataElements/";
 		var _queryURL_OptionSets = _queryURL_api + "optionSets/";
 
-		var _queryURL_Events = _queryURL_api + "events"; 
+		var _queryURL_Events = _queryURL_api + "events";
 
 		var _queryURL_PersonSubmit = _queryURL_api + "trackedEntityInstances";
-		var _queryURL_PersonQuery = _queryURL_api + "trackedEntityInstances"; 
+		var _queryURL_PersonQuery = _queryURL_api + "trackedEntityInstances";
 
 		var _queryURL_PersonAttributes = _queryURL_api + "trackedEntityAttributes.json?paging=false&viewClass=detail&fields=id,name,displayName,valueType,optionSetValue,optionSet[id,displayName,options[id,code,displayName]]";
 
@@ -122,39 +123,39 @@
 	<script type="text/javascript" src="js/DHIS/oust_v2.js"></script>
 
 	<script src="js/app/settings/dbSetting.js"></script>
-	
-	<script> document.write("<script src='js/app/tabularDataEntry/tabularDataEntry.js?v=" + _appVersion + "'><\/script>"); </script>	
-	<script> document.write("<script src='js/app/tabularDataEntry/searchPanel.js?v=" + _appVersion + "'><\/script>"); </script>	
-	<script> document.write("<script src='js/app/tabularDataEntry/defaultProgramTEAManager.js?v=" + _appVersion + "'><\/script>"); </script>
-	<script> document.write("<script src='js/app/tabularDataEntry/programManager.js?v=" + _appVersion + "'><\/script>"); </script>
-	<script> document.write("<script src='js/app/tabularDataEntry/catOptionComboManager.js?v=" + _appVersion + "'><\/script>"); </script>
-	<script> document.write("<script src='js/app/tabularDataEntry/personList.js?v=" + _appVersion + "'><\/script>"); </script>
-	<script> document.write("<script src='js/app/tabularDataEntry/personEvent.js?v=" + _appVersion + "'><\/script>"); </script>
-	<script> document.write("<script src='js/app/tabularDataEntry/dataInMemory.js?v=" + _appVersion + "'><\/script>"); </script>
-	<script> document.write("<script src='js/app/tabularDataEntry/programRule.js?v=" + _appVersion + "'><\/script>"); </script>
-	<script> document.write("<script src='js/app/tabularDataEntry/personDialogForm.js?v=" + _appVersion + "'><\/script>"); </script>
 
-	<script> document.write("<script src='js/app/settings/userSecurityManager.js?v=" + _appVersion + "'><\/script>"); </script>
+	<script src='js/app/tabularDataEntry/tabularDataEntry.js?1.67.4'></script>
+	<script src='js/app/tabularDataEntry/searchPanel.js?1.67.4'></script>
+	<script src='js/app/tabularDataEntry/defaultProgramTEAManager.js?1.67.4'></script>
+	<script src='js/app/tabularDataEntry/programManager.js?1.67.4'></script>
+	<script src='js/app/tabularDataEntry/catOptionComboManager.js?1.67.4'></script>
+	<script src='js/app/tabularDataEntry/personList.js?1.67.4'></script>
+	<script src='js/app/tabularDataEntry/personEvent.js?1.67.4'></script>
+	<script src='js/app/tabularDataEntry/dataInMemory.js?1.67.4'></script>
+	<script src='js/app/tabularDataEntry/programRule.js?1.67.4'></script>
+	<script src='js/app/tabularDataEntry/personDialogForm.js?1.67.4'></script>
 
-	<script> document.write("<script src='js/app/tabularDataEntry/settingForm.js?v=" + _appVersion + "'><\/script>"); </script>
-	<script> document.write("<script src='js/app/tabularDataEntry/orgUnitSelectionTreePopup.js?v=" + _appVersion + "'><\/script>"); </script>
-	<script> document.write("<script src='js/app/tabularDataEntry/orgUnitMapPopup.js?v=" + _appVersion + "'><\/script>"); </script>
-	<script> document.write("<script src='js/app/tabularDataEntry/dataElementOrguUnitPopup.js?v=" + _appVersion + "'><\/script>"); </script>
-	<script> document.write("<script src='js/app/tabularDataEntry/dataSetValues.js?v=" + _appVersion + "'><\/script>"); </script>
+	<script src='js/app/settings/userSecurityManager.js?1.67.4'></script>
 
-	<script> document.write("<script src='js/app/orgunit/orgUnitHierarchy.js?v=" + _appVersion + "'><\/script>"); </script>
+	<script src='js/app/tabularDataEntry/settingForm.js?1.67.4'></script>
+	<script src='js/app/tabularDataEntry/orgUnitSelectionTreePopup.js?1.67.4'></script>
+	<script src='js/app/tabularDataEntry/orgUnitMapPopup.js?1.67.4'></script>
+	<script src='js/app/tabularDataEntry/dataElementOrguUnitPopup.js?1.67.4'></script>
+	<script src='js/app/tabularDataEntry/dataSetValues.js?1.67.4'></script>
 
-	<script> document.write("<script src='js/app/tabularDataEntry/period/weekly.js?v=" + _appVersion + "'><\/script>"); </script>
-	<script> document.write("<script src='js/app/tabularDataEntry/period/monthly.js?v=" + _appVersion + "'><\/script>"); </script>
-	<script> document.write("<script src='js/app/tabularDataEntry/util/appUtil.js?v=" + _appVersion + "'><\/script>"); </script>
+	<script src='js/app/orgunit/orgUnitHierarchy.js?1.67.4'></script>
 
-	<script> document.write("<script src='js/app/matrixOrgUnit/relativePeriod.js?v=" + _appVersion + "'><\/script>"); </script>
-	<script> document.write("<script src='js/app/matrixOrgUnit/searchMatrixOrgUnit.js?v=" + _appVersion + "'><\/script>"); </script>
-	<script> document.write("<script src='js/app/matrixOrgUnit/matrixOrgunitPeriod.js?v=" + _appVersion + "'><\/script>"); </script>	
-	
+	<script src='js/app/tabularDataEntry/period/weekly.js?1.67.4'></script>
+	<script src='js/app/tabularDataEntry/period/monthly.js?1.67.4'></script>
+	<script src='js/app/tabularDataEntry/util/appUtil.js?1.67.4'></script>
+
+	<script src='js/app/matrixOrgUnit/relativePeriod.js?1.67.4'></script>
+	<script src='js/app/matrixOrgUnit/searchMatrixOrgUnit.js?1.67.4'></script>
+	<script src='js/app/matrixOrgUnit/matrixOrgunitPeriod.js?1.67.4'></script>
+
 	<!-- Main App Coding -->
 	<script>
-	
+
 		// Global variables/objects
 
 		// -- Static definitions
@@ -165,7 +166,7 @@
 		var _dateFormat_Picker_YYMMDD_Dash = "yy-mm-dd";
 		var _dateFormat_YYYYMMDD = "yyyy/MM/dd";
 		var _dateFormat_YYYYMMDD_Dash = "yyyy-MM-dd";
-		
+
 		var _dateFormat_DDMMMYYYY = "dd MMM yyyy";
 
 		var _status_ACTIVE = "ACTIVE";
@@ -192,30 +193,28 @@
 		var _appInitialized = false;
 		var _userLanguage;
 
-		var _deploymentManagerIds = ["jamesc","trancs","rmelia"]; // userID for some feature on 'Setting' popup - 'latest version number update / 'incomplete' event user role'
+		var _deploymentManagerIds = ["jamesc", "trancs", "rmelia"]; // userID for some feature on 'Setting' popup - 'latest version number update / 'incomplete' event user role'
 
 
 		// =========================================================
 		// On localization and page load run
-		
+
 		// This method is called when localization and page are loaded
-		document.webL10n.ready( function() 
-		{
-			$( '#currentVersion' ).text( _appVersion );
+		document.webL10n.ready(function () {
+			$('#currentVersion').text(_appVersion);
 
 			l10n = document.webL10n;
 
-			if( _userLanguage == null ) {
+			if (_userLanguage == null) {
 
 				// First call to document.webL10n.ready
-				DHISUtil.retrieveUserAccount( function( json_data ) 
-				{
+				DHISUtil.retrieveUserAccount(function (json_data) {
 					_userLanguage = json_data.settings.keyUiLocale;
-					if( _userLanguage == null ) _userLanguage = "en";
+					if (_userLanguage == null) _userLanguage = "en";
 					l10n.setLanguage(_userLanguage);
 				});
 
-			} else if ( !_appInitialized ){
+			} else if (!_appInitialized) {
 				// Second call to document.webL10n.ready
 
 				// Loading message popup initial setup 
@@ -233,52 +232,47 @@
 				DHISUtil.preRetrieve_UserInfo();
 
 				// Main class create/run
-				
+
 				_orgUnitSelectionTreePopup = new OrgUnitSelectionTreePopup();
-				
-				_TabularDEObj = new TabularDataEntry( _orgUnitSelectionTreePopup );
-				
-				_matrixOrgunitPeriod = new MatrixOrgunitPeriod( _orgUnitSelectionTreePopup, _TabularDEObj );
-				
+
+				_TabularDEObj = new TabularDataEntry(_orgUnitSelectionTreePopup);
+
+				_matrixOrgunitPeriod = new MatrixOrgunitPeriod(_orgUnitSelectionTreePopup, _TabularDEObj);
+
 				// App Setting Form Popup
-				_settingForm = new SettingForm( _TabularDEObj, _matrixOrgunitPeriod );
-				
+				_settingForm = new SettingForm(_TabularDEObj, _matrixOrgunitPeriod);
+
 				_appInitialized = true;
-			} 
-		
+			}
+
 		});
 
 		// -------------------------------------------
 		// -- ProgramRuleUtil Static Classes
-		
-		function ProgramRuleUtil() {}
 
-		ProgramRuleUtil.checkProgramRuleData = function( areaTag )
-		{
+		function ProgramRuleUtil() { }
+
+		ProgramRuleUtil.checkProgramRuleData = function (areaTag) {
 			var pass = true;
 
 			// Program Rule error case occurances
-			if ( areaTag.find( "img.ruleError" ).length > 0 )
-			{
+			if (areaTag.find("img.ruleError").length > 0) {
 				pass = false;
-				alert( $( 'span.msg_ProgramRuleError' ).text() );
+				alert($('span.msg_ProgramRuleError').text());
 			}
 
 			return pass;
 		};
 
-		function GMapHelper() {}
+		function GMapHelper() { }
 
 		GMapHelper.hasLoaded = false;
 
-		GMapHelper.loadScript = function( callBack_Str, callBack ) 
-		{
-			if ( GMapHelper.hasLoaded )
-			{
+		GMapHelper.loadScript = function (callBack_Str, callBack) {
+			if (GMapHelper.hasLoaded) {
 				callBack();
 			}
-			else
-			{
+			else {
 				var script = document.createElement('script');
 
 				script.type = 'text/javascript';
@@ -299,9 +293,9 @@
 
 	<div id="dialog-loading" style="display:none;">
 		<table border="0" cellpadding="0" cellspacing="0" align="right" valign="top">
-		<tr>
-		<td><a id="forceClose" href="" style="color:Tomato;font-size:75%;">[X]</a></td>
-		</tr>
+			<tr>
+				<td><a id="forceClose" href="" style="color:Tomato;font-size:75%;">[X]</a></td>
+			</tr>
 		</table>
 		<table border="0" cellpadding="0" cellspacing="0" width="180px" height="100%" align="center" valign="middle">
 			<tr valign="middle">
@@ -309,7 +303,7 @@
 					<img src="img/loading_big_blue.gif" alt="Loading" />
 				</td>
 				<td height="50px" valign="middle" align="left" style="font-size: medium;">
-					&nbsp;&nbsp;- 
+					&nbsp;&nbsp;-
 				</td>
 				<td data-l10n-id="loading" height="50px" valign="middle" align="left" style="font-size: medium;">
 				</td>
@@ -318,14 +312,14 @@
 	</div>
 
 	<div id="personDialogForm" class="ui-widget" style="margin:0; padding:0; display:none;">
-		<b><span data-l10n-id="personInfo" nameId='PersonInfo' ></span></b>
+		<b><span data-l10n-id="personInfo" nameId='PersonInfo'></span></b>
 
 		<div style="margin: 3px; padding: 4px 7px; border: solid 1px #888;">
 			<table class="tbTEIDetail" style="width:100%;">
 				<tbody id="person_Table">
-					
+
 				</tbody>
-				
+
 				<tbody id="enrollment_Table">
 					<tr>
 						<td>
@@ -337,7 +331,7 @@
 					</tr>
 					<tr id="incidentDateRow">
 						<td>
-							<span class="attrname" id='incidentDateLabel' >Incident Date</span>
+							<span class="attrname" id='incidentDateLabel'>Incident Date</span>
 						</td>
 						<td type="attribute" enrollmentAttr="incidentDate">
 							<input class="textbox" type="text" id="incidentDate">
@@ -345,15 +339,15 @@
 					</tr>
 				</tbody>
 			</table>
-			
+
 		</div>
-		
-		
-		
+
+
+
 		<input id="person_Result" type="hidden" />
 		<input id="person_formType" type="hidden" />
 		<input id="person_id" type="hidden" />
-	</div>		
+	</div>
 
 	<div id="orgUnitMapDialogForm" class="ui-widget" style="margin:0;padding:0;">
 		<div id="orgUnitMapBig" class="gmap3"></div>
@@ -364,14 +358,14 @@
 			<thead>
 				<tr>
 					<td>
-						<select id="treeSelectedId" name="treeSelectedId" multiple="multiple" style="display:none"/>
+						<select id="treeSelectedId" name="treeSelectedId" multiple="multiple" style="display:none" />
 					</td>
 				</tr>
 			</thead>
 			<tbody>
 				<tr>
-					<td>											
-						<div id="selectionTree"></div>	
+					<td>
+						<div id="selectionTree"></div>
 					</td>
 				</tr>
 			</tbody>
@@ -381,75 +375,78 @@
 
 	<div id="settingDialogForm" class="ui-widget" style="margin:0;padding:0;display:none;">
 		<b><span data-l10n-id="appSetting" nameId='SettingFormTitle'></span></b>
-		
+
 		<div id="settingDialogTabs">
-		  <ul>
-			<li><a href="#tabs-1" data-l10n-id="settings_general">General</a></li>
-			<li><a href="#tabs-2" data-l10n-id="settings_programRules">Program Rules</a></li>
-			<li><a href="#tabs-3" data-l10n-id="settings_dataSets">Data Sets</a></li>
-		  </ul>
-		  <div id="tabs-1">
-			<table id="setting_Table" class="listTable" style="width:95%;">
-				<tr>
-					<td data-l10n-id="countryLevel"> <span title='Compulsory' class='mandatory'>*</span></td><td><select id="countryLevels"></select></td>
-				</tr>
-				<tr id="trLatestVersion" style="display: none;">
-					<td data-l10n-id="latestVersion"></td><td><input id="latestVersion" type="Text" size="5" /></td>
-				</tr>
-				<tr id="trIncompleteActionUserRole" style="display: none;">
-					<td data-l10n-id="incompleteActionUserRole"></td><td><input id="incompleteActionUserRole" type="Text" size="20" /></td>
-				</tr>
-				<tr>
-					<td data-l10n-id="defaultModeSetting"> 
-						<span title='Compulsory' class='mandatory'>*</span>
-					</td>
-					<td>
-						<select id="specificPeriodMode">
-							<option value="true" selected data-l10n-id="specificPeriodMode"></option>
-							<option value="false" data-l10n-id="matrixMode"></option>
-						</select>
-					</td>
-				</tr>
-				<tr>
-					<td data-l10n-id="matrixPeriodSetting"> 
-						<span title='Compulsory' class='mandatory'>*</span>
-					</td>
-					<td>
-						<input type="checkbox" id="thisYearMonthsPeriod" value="thisYearMonthsPeriod" checked> <span data-l10n-id="thisYearMonthsPeriod"><br>
-						<input type="checkbox" id="last12MonthsPeriod" value="last12MonthsPeriod" checked> <span data-l10n-id="last12MonthsPeriod"><br>
-						<input type="checkbox" id="last12WeeksPeriod" value="last12WeeksPeriod" checked> <span data-l10n-id="last12WeeksPeriod"><br>
-						<input type="checkbox" id="last12QuartersPeriod" value="last12QuartersPeriod" checked> <span data-l10n-id="last12QuartersPeriod"><br>
-						<span id="matrixPeriodSettingMsg" data-l10n-id="matrixPeriodSettingMsg" style="display:none;color:red;font-size: 9px; font-style: italic;"></span>
-					</td>
-				</tr>
-			</table>
-		  </div>
-		  <div id="tabs-2">
-			<table class="listTable" style="width:95%;">
-				<tr>
-					<td data-l10n-id="settings_orgUnitGroup"></td>
-					<td  data-l10n-id="settings_hideDEs"></td>
-				</tr>
-				<tr>
-					<td colspan="2">
-						<button id="addProgramRuleBtn" data-l10n-id="settings_addMoreProgramRule"></button>
-					</td>
-				</tr>
-			</table>
-		  </div>
-		  <div id="tabs-3">
-			<table class="listTable" style="width:95%;">
-				<tr>
-					<td data-l10n-id="settings_orgUnitGroup"></td>
-					<td data-l10n-id="settings_hideDEs"></td>
-				</tr>
-				<tr>
-					<td colspan="2">
-						<button id="addDataSetRuleBtn" data-l10n-id="settings_addDataSetRule"></button>
-					</td>
-				</tr>
-			</table>
-		  </div>
+			<ul>
+				<li><a href="#tabs-1" data-l10n-id="settings_general">General</a></li>
+				<li><a href="#tabs-2" data-l10n-id="settings_programRules">Program Rules</a></li>
+				<li><a href="#tabs-3" data-l10n-id="settings_dataSets">Data Sets</a></li>
+			</ul>
+			<div id="tabs-1">
+				<table id="setting_Table" class="listTable" style="width:95%;">
+					<tr>
+						<td data-l10n-id="countryLevel"> <span title='Compulsory' class='mandatory'>*</span></td>
+						<td><select id="countryLevels"></select></td>
+					</tr>
+					<tr id="trLatestVersion" style="display: none;">
+						<td data-l10n-id="latestVersion"></td>
+						<td><input id="latestVersion" type="Text" size="5" /></td>
+					</tr>
+					<tr id="trIncompleteActionUserRole" style="display: none;">
+						<td data-l10n-id="incompleteActionUserRole"></td>
+						<td><input id="incompleteActionUserRole" type="Text" size="20" /></td>
+					</tr>
+					<tr>
+						<td data-l10n-id="defaultModeSetting">
+							<span title='Compulsory' class='mandatory'>*</span>
+						</td>
+						<td>
+							<select id="specificPeriodMode">
+								<option value="true" selected data-l10n-id="specificPeriodMode"></option>
+								<option value="false" data-l10n-id="matrixMode"></option>
+							</select>
+						</td>
+					</tr>
+					<tr>
+						<td data-l10n-id="matrixPeriodSetting">
+							<span title='Compulsory' class='mandatory'>*</span>
+						</td>
+						<td>
+							<input type="checkbox" id="thisYearMonthsPeriod" value="thisYearMonthsPeriod" checked> <span data-l10n-id="thisYearMonthsPeriod"><br>
+								<input type="checkbox" id="last12MonthsPeriod" value="last12MonthsPeriod" checked> <span data-l10n-id="last12MonthsPeriod"><br>
+									<input type="checkbox" id="last12WeeksPeriod" value="last12WeeksPeriod" checked> <span data-l10n-id="last12WeeksPeriod"><br>
+										<input type="checkbox" id="last12QuartersPeriod" value="last12QuartersPeriod" checked> <span data-l10n-id="last12QuartersPeriod"><br>
+											<span id="matrixPeriodSettingMsg" data-l10n-id="matrixPeriodSettingMsg" style="display:none;color:red;font-size: 9px; font-style: italic;"></span>
+						</td>
+					</tr>
+				</table>
+			</div>
+			<div id="tabs-2">
+				<table class="listTable" style="width:95%;">
+					<tr>
+						<td data-l10n-id="settings_orgUnitGroup"></td>
+						<td data-l10n-id="settings_hideDEs"></td>
+					</tr>
+					<tr>
+						<td colspan="2">
+							<button id="addProgramRuleBtn" data-l10n-id="settings_addMoreProgramRule"></button>
+						</td>
+					</tr>
+				</table>
+			</div>
+			<div id="tabs-3">
+				<table class="listTable" style="width:95%;">
+					<tr>
+						<td data-l10n-id="settings_orgUnitGroup"></td>
+						<td data-l10n-id="settings_hideDEs"></td>
+					</tr>
+					<tr>
+						<td colspan="2">
+							<button id="addDataSetRuleBtn" data-l10n-id="settings_addDataSetRule"></button>
+						</td>
+					</tr>
+				</table>
+			</div>
 		</div>
 	</div>
 
@@ -462,17 +459,19 @@
 					<td style="color: White;" data-l10n-id="matrixMode">Matrix </td>
 					<td>
 						<label class="switch">
-						  <input type="checkbox" id="specificPeriodChk" checked>
-						  <span class="slider round"></span>
+							<input type="checkbox" id="specificPeriodChk" checked>
+							<span class="slider round"></span>
 						</label>
 					</td>
 					<td style="color: White;" data-l10n-id="specificPeriodMode">Specific Period</td>
-					<td>	
+					<td>
 						<span id="settingLink" style="display:none;">
-							| <a href="" id="settingFormOpen" style="color: White;" data-l10n-id="setting">Setting</a> 
+							| <a href="" id="settingFormOpen" style="color: White;" data-l10n-id="setting">Setting</a>
 						</span>
-						| <a href="https://docs.google.com/document/d/1S6WD_oYdewVWFvsDnr1CL8yM2easN5mDc7j8QWI09Sw" target="_blank" style="color: White;">v <span id="currentVersion"></span></a>
-						| <button type="button" id="closeButton" class="button" style="font-size: 11px;"><span data-l10n-id="close" nameid="closeButton">Close</span></button>
+						| <a href="https://docs.google.com/document/d/1S6WD_oYdewVWFvsDnr1CL8yM2easN5mDc7j8QWI09Sw" target="_blank" style="color: White;">v
+							<span id="currentVersion"></span></a>
+						| <button type="button" id="closeButton" class="button" style="font-size: 11px;"><span data-l10n-id="close"
+							 nameid="closeButton">Close</span></button>
 					</td>
 				</tr>
 			</table>
@@ -484,7 +483,7 @@
 		<span id="spanMsgAreaText"></span>
 	</div>
 
-	<div id="specificPeriodSection" style="display:block;margin-top:38px;">		
+	<div id="specificPeriodSection" style="display:block;margin-top:38px;">
 
 		<table border="0" cellpadding="0" cellspacing="0" width="100%">
 			<tr>
@@ -492,114 +491,138 @@
 
 					<div style="margin-top: 4px;">
 
-						<div><span data-l10n-id="appTitle" nameId='MainTitle' class="pageTitle" style="display:block;"></span><div>
+						<table>
+							<tr>
+								<td>
+									<span data-l10n-id="appTitle" nameId='MainTitle' class="pageTitle" style="display:block;"></span>
+								</td>
+								<td>
+									<div id="preDataLoaded" loaded="false" title="program/stage data preloading not done yet" style="margin-left: 3px;">
+										<img src="img/info_red.png" style="opacity: 0.6;" />
+									</div>
+								</td>
+								<td>
+									<div id="preDataLoading" style="display:none; margin-left: 6px;"">
+										<img src="img/ajax-loader-bar.gif" />
+									</div>
+								</td>
+							</tr>
+						</table>
 
 						<table id="settingConsole" class="tbBorderNone" style="margin-top: 4px;">
-						  <tr class="valignTop">
+							<tr class="valignTop">
 
-							<td id="orgUnitRow" class="searchPanelTd" style="display:none;">
-								<table>
-								<tr>
-								  <td class="consoleTitle">	
-									<span data-l10n-id="searchOrgUnit" nameId='OrgUnit'></span>
-								  </td>
-								  <td style="white-space: nowrap;">
-									<input type="text" id="orgUnitName" size="30"/><input type="button" id="orgUnitTreeBtn" value="T" title="Open OrgUnitTree" style="cursor:pointer; margin:0px; padding:1px 2px; color:#777777; background-color: #F2F9FF; border-left: none;"><span id="personFoundNo" style="font-size: 9px;color:#CCCCCC;margin-left:1px;"></span>
-								  </td>
-								 </tr>
-								 </table>
+								<td id="orgUnitRow" class="searchPanelTd" style="display:none;">
+									<table>
+										<tr>
+											<td class="consoleTitle">
+												<span data-l10n-id="searchOrgUnit" nameId='OrgUnit'></span>
+											</td>
+											<td style="white-space: nowrap;">
+												<input type="text" id="orgUnitName" size="30" /><input type="button" id="orgUnitTreeBtn" value="T" title="Open OrgUnitTree"
+												 style="cursor:pointer; margin:0px; padding:1px 2px; color:#777777; background-color: #F2F9FF; border-left: none;"><span
+												 id="personFoundNo" style="font-size: 9px;color:#CCCCCC;margin-left:1px;"></span>
+											</td>
+										</tr>
+									</table>
 
-								<div id='orgUnitLoading' style='display:none'>
-									<img src='img/ui-anim_basic.gif'/><span data-l10n-id="retrieving"></span>
-								</div>
+									<div id='orgUnitLoading' style='display:none'>
+										<img src='img/ui-anim_basic.gif' /><span data-l10n-id="retrieving"></span>
+									</div>
 
-							</td>
+								</td>
 
-							<td id="defaultProgramRow" class="searchPanelTd" style="display:none;">
-								<table>
-								<tr>
-								  <td class="consoleTitle">	
-									<span data-l10n-id="searchProgram" nameId='DefaultProgram'></span>
-								  </td>
-								  <td>
-									<select id="defaultProgram"></select> 
-								  </td>
-								 </tr>
-								 </table>
+								<td id="defaultProgramRow" class="searchPanelTd" style="display:none;">
+									<table>
+										<tr>
+											<td class="consoleTitle">
+												<span data-l10n-id="searchProgram" nameId='DefaultProgram'></span>
+											</td>
+											<td>
+												<select id="defaultProgram"></select>
+											</td>
+										</tr>
+									</table>
 
-								<div id='programLoading' style='display:none'>
-									<img src='img/ui-anim_basic.gif'/><span data-l10n-id="loading"></span>
-								</div>
+									<div id='programLoading' style='display:none'>
+										<img src='img/ui-anim_basic.gif' /><span data-l10n-id="loading"></span>
+									</div>
 
-							</td>
-							
-							<td id="defaultCatOptionRow" class="searchPanelTd" style="display:none;color:black;">
-								<table>
-									<tr>
-									  <td class="consoleTitle">	
-										<span data-l10n-id="searchCategoryOptionCombo" nameId='defaultCatOption'></span>
-									  </td>
-									  <td>
-										<select id="defaultCatOption"></select> 
-									  </td>
-									</tr>
-								 </table>
-							</td>
+								</td>
 
-							<td id="defaultDateRow" class="searchPanelTd" style="display:none;">
-								<table>
-								<tr>
-								  <td class="consoleTitle">	
-									<span data-l10n-id="searchPeriod" nameId='Period'></span>
-								  </td>
-								  <td style="white-space: nowrap;">
-									<input type="radio" name="period" value="month"/><span data-l10n-id="month" nameId='PeriodMonth'></span>
-									<input type="radio" name="period" value="week"/><span data-l10n-id="week" nameId='PeriodWeek'></span>
-									<input type="radio" name="period" value="custom"/><span data-l10n-id="custom" nameId='PeriodOther'></span>
-									
-									<span id="defaultMonth" style="display:none;"><select id="defaultMonth_Month"></select> <select id="defaultMonth_Year"></select></span> 
+								<td id="defaultCatOptionRow" class="searchPanelTd" style="display:none;color:black;">
+									<table>
+										<tr>
+											<td class="consoleTitle">
+												<span data-l10n-id="searchCategoryOptionCombo" nameId='defaultCatOption'></span>
+											</td>
+											<td>
+												<select id="defaultCatOption"></select>
+											</td>
+										</tr>
+									</table>
+								</td>
 
-									<input type="text" id="defaultWeek" class="defaultDatePicker" style="display:none; width:160px;"></input>
+								<td id="defaultDateRow" class="searchPanelTd" style="display:none;">
+									<table>
+										<tr>
+											<td class="consoleTitle">
+												<span data-l10n-id="searchPeriod" nameId='Period'></span>
+											</td>
+											<td style="white-space: nowrap;">
+												<input type="radio" name="period" value="month" /><span data-l10n-id="month" nameId='PeriodMonth'></span>
+												<input type="radio" name="period" value="week" /><span data-l10n-id="week" nameId='PeriodWeek'></span>
+												<input type="radio" name="period" value="custom" /><span data-l10n-id="custom" nameId='PeriodOther'></span>
 
-									<span id="defaultDatePeriod" style="display:none;"><input type="text" id="defaultDateFrom" class="defaultDatePicker" style="width:80px;"></input> - <input type="text" id="defaultDateTo" class="defaultDatePicker"  style="width:80px;"></input></span>
-								  </td>
-								</tr>
-								</table>
-							</td>
+												<span id="defaultMonth" style="display:none;"><select id="defaultMonth_Month"></select> <select id="defaultMonth_Year"></select></span>
 
-							<td id="defaultRetrievalRow" style="display:none; vertical-align:middle; padding-left:5px;">
-								<button type="button" id="executeRetrieval" class="BlueButton" style="width: 50px;" ><span data-l10n-id="executeRetrieval" nameId='executeRetrieval'></span></button>
-								<button type="button" id="backToMatrix" class="BlueButton" style="width: 50px;display:none;" ><span data-l10n-id="backToMatrix"></span></button>
-							</td>
+												<input type="text" id="defaultWeek" class="defaultDatePicker" style="display:none; width:160px;"></input>
 
-						  </tr>
-						  <tr id="personEventSearchOptions" style="display:none;">
-							<td colspan="3" class="valignTop" style="padding-top:4px;padding-bottom:3px;">
+												<span id="defaultDatePeriod" style="display:none;"><input type="text" id="defaultDateFrom" class="defaultDatePicker"
+													 style="width:80px;"></input> - <input type="text" id="defaultDateTo" class="defaultDatePicker" style="width:80px;"></input></span>
+											</td>
+										</tr>
+									</table>
+								</td>
 
-							<span data-l10n-id="programStatus" nameId='ProgramStatus'></span>
-							<select id="programStatusList">
-								<option data-l10n-id="active" value="ACTIVE"></option>
-								<option data-l10n-id="completed" value="COMPLETED"></option>
-								<option data-l10n-id="cancelled" value="CANCELLED"></option>
-								<option data-l10n-id="all" value=""></option>
-							</select>&nbsp;&nbsp;
+								<td id="defaultRetrievalRow" style="display:none; vertical-align:middle; padding-left:5px;">
+									<button type="button" id="executeRetrieval" class="BlueButton" style="width: 50px;"><span data-l10n-id="executeRetrieval"
+										 nameId='executeRetrieval'></span></button>
+									<button type="button" id="backToMatrix" class="BlueButton" style="width: 50px;display:none;"><span
+										 data-l10n-id="backToMatrix"></span></button>
+								</td>
 
-							<input id="searchAllProgram" type="checkbox" style="vertical-align:bottom;" /><span data-l10n-id="searchProgramPerson" nameId='SearchAllProgram' style="color:#222222; font-style:italic;"></span>&nbsp;&nbsp;&nbsp;
-							<input id="listAllPersonHistoricalEvents" type="checkbox" style="vertical-align:bottom;" /><span data-l10n-id="listEventsPerson" nameId='ListAllHistoricalEvents' style="color:#222222; font-style:italic;"></span>
-						</td>
-					  </tr>
-					  <tr id="searchResultMsgRow" style="display:none;">
-						<td colspan="3">
-							&nbsp;&nbsp;<span id="searchResultMessage" style="color:#444444;font-style:italic;"> </span>
-							&nbsp;&nbsp;<span id="defaultProgramNote"></span>
-						</td>
-					  </tr>
-					  </table>
-				</div>
+							</tr>
+							<tr id="personEventSearchOptions" style="display:none;">
+								<td colspan="3" class="valignTop" style="padding-top:4px;padding-bottom:3px;">
+
+									<span data-l10n-id="programStatus" nameId='ProgramStatus'></span>
+									<select id="programStatusList">
+										<option data-l10n-id="active" value="ACTIVE"></option>
+										<option data-l10n-id="completed" value="COMPLETED"></option>
+										<option data-l10n-id="cancelled" value="CANCELLED"></option>
+										<option data-l10n-id="all" value=""></option>
+									</select>&nbsp;&nbsp;
+
+									<input id="searchAllProgram" type="checkbox" style="vertical-align:bottom;" /><span data-l10n-id="searchProgramPerson"
+									 nameId='SearchAllProgram' style="color:#222222; font-style:italic;"></span>&nbsp;&nbsp;&nbsp;
+									<input id="listAllPersonHistoricalEvents" type="checkbox" style="vertical-align:bottom;" /><span data-l10n-id="listEventsPerson"
+									 nameId='ListAllHistoricalEvents' style="color:#222222; font-style:italic;"></span>
+								</td>
+							</tr>
+							<tr id="searchResultMsgRow" style="display:none;">
+								<td colspan="3">
+									&nbsp;&nbsp;<span id="searchResultMessage" style="color:#444444;font-style:italic;"> </span>
+									&nbsp;&nbsp;<span id="defaultProgramNote"></span>
+								</td>
+							</tr>
+						</table>
+					</div>
 
 				</td>
 				<td align="right" valign="top">
-					<div id="orgUnitMapSmall" style="display:none;margin-top:2px;margin-right:4px;"><a href="" id="orgUnitMapAnchor"><img id="orgUnitMapImage" src="" alt="" /></a></div>
+					<div id="orgUnitMapSmall" style="display:none;margin-top:2px;margin-right:4px;"><a href="" id="orgUnitMapAnchor"><img
+							 id="orgUnitMapImage" src="" alt="" /></a></div>
 				</td>
 			</tr>
 		</table>
@@ -608,7 +631,7 @@
 		<div style="line-height:5px;"></div>
 		<br>
 
-		<div id="mainSection_Person" class="tbStyle_Person" style="display:none;" >
+		<div id="mainSection_Person" class="tbStyle_Person" style="display:none;">
 
 			<div style="margin-top:-10px; margin-bottom:6px;">
 				<button type="button" class="person_addNewRow BlueButton"><span data-l10n-id="addNewRow" nameId='AddNewRow'></span></button>
@@ -619,7 +642,7 @@
 					<col />
 					<col width="100px" />
 				</colgroup>
-			</table>	
+			</table>
 
 			<div style="margin-top:4px;">
 				<button type="button" class="person_addNewRow BlueButton"><span data-l10n-id="addNewRow" nameId='AddNewRow'></span></button>
@@ -629,7 +652,8 @@
 
 		<div id="mainSection_Event" class="tbStyle_Person" style="display:none;">
 
-			<button type='button' class='personEvent_addNewRow BlueButton' style="margin-top: -10px; margin-bottom:8px;"><span data-l10n-id="addEvent" nameId='AddNewEventRow'></span></button>
+			<button type='button' class='personEvent_addNewRow BlueButton' style="margin-top: -10px; margin-bottom:8px;"><span
+				 data-l10n-id="addEvent" nameId='AddNewEventRow'></span></button>
 
 			<table id="mainTable_Event" border="1" class="tbStyle_PersonDetail" style="margin-left: 0px;font-size:small;">
 				<tr class='trEventHead'>
@@ -642,14 +666,15 @@
 
 			<div id="specialPeriodFooter" style="color:gray;font-size:11px;font-style:italic">
 				*** <span data-l10n-id="completeEventExpireDays"></span>: <span class="completeEventExpireDays"></span>
-				| <span data-l10n-id="expiryPeriodType"></span>: <span class="expiryPeriodType"></span>  
-				| <span data-l10n-id="expiryDays"></span>: <span class="expiryDays"></span>  
+				| <span data-l10n-id="expiryPeriodType"></span>: <span class="expiryPeriodType"></span>
+				| <span data-l10n-id="expiryDays"></span>: <span class="expiryDays"></span>
 			</div>
-					
-			<button type='button' class='personEvent_addNewRow BlueButton' style="margin-top:4px;"><span data-l10n-id="addEvent" nameId='AddNewEventRow'></span></button>
-			
+
+			<button type='button' class='personEvent_addNewRow BlueButton' style="margin-top:4px;"><span data-l10n-id="addEvent"
+				 nameId='AddNewEventRow'></span></button>
+
 			<br><br>
-			
+
 			<table id="dataSetForm" border="1" class="dataSetForm" style="display:none;"></table>
 
 		</div>
@@ -691,14 +716,14 @@
 				</tbody>
 			</table>
 		</div>
-		
+
 		<br>
 
 		<!--
 		<button type='button' id='testBtn'>Test</button>
 		-->
 		<div id='programRuleLoading' style='display:none'>
-			<img src='img/ui-anim_basic.gif'/>retrieving..</span>
+			<img src='img/ui-anim_basic.gif' />retrieving..</span>
 		</div>
 
 
@@ -714,158 +739,188 @@
 			<span data-l10n-id="create" nameId='CreateEvent'></span>
 			<span data-l10n-id="complete" nameId='CompleteEvent'></span>
 
-			<span class="msg_CacheClear" nameId='Msg_CacheClear'>[Warning] Application files are not in synch. Please clear cache in browser to remove older javascript files.</span>
+			<span class="msg_CacheClear" nameId='Msg_CacheClear'>[Warning] Application files are not in synch. Please clear
+				cache in browser to remove older javascript files.</span>
 			<span class="msg_MandatoryFill" nameId='Msg_MandatoryFill'>[Message] Mandatory field has to be filled.</span>
-			<span class="msg_ValidFill" nameId='Msg_ValidFill'>[Message] Invalid fields have to be cleared.</span>			
-			<span class="msg_NoProgramAttributes" nameId='Msg_NoProgramAttributes'>[Message] The selected program does not have any person attribtues.</span>
-			<span class="msg_SelectDefaultProgram" nameId='Msg_SelectDefaultProgram'>[Message] Please select the default program in order to proceed this.</span>
-			<span class="msg_ProgramAttributeAtLeast" nameId='Msg_ProgramAttributeAtLeast'>[Message] The program needs to have at least one display attribute for this!</span>
-			<span class="msg_SamePersonInList" nameId='Msg_SamePersonInList'>[Message] The same person exists in the list already.</span>
-			<span class="msg_CanNotEnrol_PreviousEnroll" nameId='Msg_CanNotEnrol_PreviousEnroll'>[Message] Can not enroll to the program.  It has previous non-active enrollment to the program and the program is set to only enroll once.</span>
-			<span class="msg_CheckEventDateStage" nameId='Msg_CheckEventDateStage'>[Message] Please check event date value and event stage selection, and try again.</span>
-			<span class="msg_NotEnrolled" nameId='Msg_NotEnrolled'>[Message] The TEI is not yet enrolled to the program.  Update the TEI Info first to create event.</span>
+			<span class="msg_ValidFill" nameId='Msg_ValidFill'>[Message] Invalid fields have to be cleared.</span>
+			<span class="msg_NoProgramAttributes" nameId='Msg_NoProgramAttributes'>[Message] The selected program does not have
+				any person attribtues.</span>
+			<span class="msg_SelectDefaultProgram" nameId='Msg_SelectDefaultProgram'>[Message] Please select the default program
+				in order to proceed this.</span>
+			<span class="msg_ProgramAttributeAtLeast" nameId='Msg_ProgramAttributeAtLeast'>[Message] The program needs to have
+				at least one display attribute for this!</span>
+			<span class="msg_SamePersonInList" nameId='Msg_SamePersonInList'>[Message] The same person exists in the list
+				already.</span>
+			<span class="msg_CanNotEnrol_PreviousEnroll" nameId='Msg_CanNotEnrol_PreviousEnroll'>[Message] Can not enroll to the
+				program. It has previous non-active enrollment to the program and the program is set to only enroll once.</span>
+			<span class="msg_CheckEventDateStage" nameId='Msg_CheckEventDateStage'>[Message] Please check event date value and
+				event stage selection, and try again.</span>
+			<span class="msg_NotEnrolled" nameId='Msg_NotEnrolled'>[Message] The TEI is not yet enrolled to the program. Update
+				the TEI Info first to create event.</span>
 			<span class="msg_FailedToEnroll" nameId='Msg_FailedToEnroll'>[Message] Failed to enroll - </span>
 			<span class="msg_FailedToCreateEvent" nameId='Msg_FailedToCreateEvent'>[Message] Failed to create the event: </span>
 			<span class="msg_EventDeleted" nameId='Msg_EventDeleted'>[Message] Successfully deleted the event!</span>
 			<span class="msg_EventDeleteFailed" nameId='Msg_EventDeleteFailed'>[Message] Failed to delete the event!</span>
 			<span class="msg_EventRetrievalFailed" nameId='Msg_EventRetrievalFailed'>[Message] Failed to retrieve the events!</span>
 			<span class="msg_EventUpdateFailed" nameId='Msg_EventUpdateFailed'>[Message] Failed to update the event</span>
-			<span class="msg_CompulsoryFill" nameId='Msg_CompulsoryFill'>[Message] Please fill the compulsory fields in order to proceed.</span>
-			<span class="msg_ProgramRuleError" nameId='Msg_ProgramRuleError'>[Message] Please resolve the program rule error case(s) before proceeding.</span>
-			<span class="msg_PersonNotFoundDHIS" nameId='Msg_PersonNotFoundDHIS'>[Message] Tracked Entity 'Person' was not found in this DHIS system.  Please add 'Person' Tracked Entity first.</span>
-			<span class="msg_SelectDefaultProgram" nameId='Msg_SelectDefaultProgram'>[Message] Please select the Default Program.</span>
+			<span class="msg_CompulsoryFill" nameId='Msg_CompulsoryFill'>[Message] Please fill the compulsory fields in order to
+				proceed.</span>
+			<span class="msg_ProgramRuleError" nameId='Msg_ProgramRuleError'>[Message] Please resolve the program rule error
+				case(s) before proceeding.</span>
+			<span class="msg_PersonNotFoundDHIS" nameId='Msg_PersonNotFoundDHIS'>[Message] Tracked Entity 'Person' was not found
+				in this DHIS system. Please add 'Person' Tracked Entity first.</span>
+			<span class="msg_SelectDefaultProgram" nameId='Msg_SelectDefaultProgram'>[Message] Please select the Default
+				Program.</span>
 			<span class="msg_PersonNotFound" nameId='Msg_PersonNotFound'>[Message] Person Not Found</span>
 			<span class="msg_PersonCreated" nameId='Msg_PersonCreated'>[Message] Person created successfully!</span>
 			<span class="msg_ProgramEnrolled" nameId='Msg_ProgramEnrolled'>[Message] Enrolled to the program</span>
 			<span class="msg_ProgramEnrollFailed" nameId='Msg_ProgramEnrollFailed'>[Message] Failed to enroll - </span>
 			<span class="msg_PersonInfoUpdated" nameId='Msg_PersonInfoUpdated'>[Message] Person info updated successfully!</span>
-			<span class="msg_PersonCreateUpdateFailed" nameId='Msg_PersonCreateUpdateFailed'>[Message] Failed to create/update the person.  Detail: </span>
+			<span class="msg_PersonCreateUpdateFailed" nameId='Msg_PersonCreateUpdateFailed'>[Message] Failed to create/update
+				the person. Detail: </span>
 			<span class="msg_DefaultLanguageEdit" nameId='Msg_DefaultLanguageEdit'>[Message] Default langauge can not be edited.</span>
-			<span class="msg_SettingData_MandatoryCountryLevel" nameId='Msg_SettingData_MandatoryCountryLevel'>[Message] Country Level is a mandatory field.  Please set the Country Level to continue.</span>
-			<span class="msg_SettingData_FailedToSave" nameId='Msg_SettingData_FailedToSave'>[Message] Failed to save the setting data.</span>
-			<span class="msg_SettingData_CountryLevelNotDefined" nameId='Msg_SettingData_CountryLevelNotDefined'>[Message] Country Level is not defined!  Aborted the task.</span>
-			<span class="msg_SettingData_OrgUnitLevelNotFound" nameId='Msg_SettingData_OrgUnitLevelNotFound'>[Message] Organisation Unit Level not found.  Please check Organisation Unit level set or manifest.webapp dhis.href value.</span>
+			<span class="msg_SettingData_MandatoryCountryLevel" nameId='Msg_SettingData_MandatoryCountryLevel'>[Message] Country
+				Level is a mandatory field. Please set the Country Level to continue.</span>
+			<span class="msg_SettingData_FailedToSave" nameId='Msg_SettingData_FailedToSave'>[Message] Failed to save the
+				setting data.</span>
+			<span class="msg_SettingData_CountryLevelNotDefined" nameId='Msg_SettingData_CountryLevelNotDefined'>[Message]
+				Country Level is not defined! Aborted the task.</span>
+			<span class="msg_SettingData_OrgUnitLevelNotFound" nameId='Msg_SettingData_OrgUnitLevelNotFound'>[Message]
+				Organisation Unit Level not found. Please check Organisation Unit level set or manifest.webapp dhis.href value.</span>
 
 			<span class="msg_ConfirmDelete" nameId='Msg_ConfirmDelete'>[Confirm] Are you sure that you want to delete?</span>
-			<span class="msg_ConfirmEventComplete" nameId='Msg_ConfirmEventComplete'>[Confirm] Are you sure that you want to complete this event?</span>
-			<span class="Msg_ConfirmEventWarmingOnComplete" nameId='Msg_ConfirmEventWarmingOnComplete'>[Confirm] Are you sure that you want to complete with some rules violated?</span>
-			<span class="Msg_ConfirmEventErrorOnComplete" nameId='Msg_ConfirmEventErrorOnComplete'>[Confirm] Please check rules violated before completing</span>
+			<span class="msg_ConfirmEventComplete" nameId='Msg_ConfirmEventComplete'>[Confirm] Are you sure that you want to
+				complete this event?</span>
+			<span class="Msg_ConfirmEventWarmingOnComplete" nameId='Msg_ConfirmEventWarmingOnComplete'>[Confirm] Are you sure
+				that you want to complete with some rules violated?</span>
+			<span class="Msg_ConfirmEventErrorOnComplete" nameId='Msg_ConfirmEventErrorOnComplete'>[Confirm] Please check rules
+				violated before completing</span>
 			<span class="msg_ErrorEventComplete" nameId='Msg_ErrorEventComplete'>[Warming] Please check values in red fields ?</span>
-			<span class="msg_ConfirmEventIncomplete" nameId='Msg_ConfirmEventIncomplete'>[Confirm] Are you sure that you want to incomplete this event?</span>
+			<span class="msg_ConfirmEventIncomplete" nameId='Msg_ConfirmEventIncomplete'>[Confirm] Are you sure that you want to
+				incomplete this event?</span>
 		</div>
 	</div>
 
 </body>
 
 
-	<div id="ouMatrixSection" style="display:none;margin-top:38px;">		
+<div id="ouMatrixSection" style="display:none;margin-top:38px;">
 
-		<table border="0" cellpadding="0" cellspacing="0" width="100%">
-			<tr>
-				<td align="left" valign="top">
+	<table border="0" cellpadding="0" cellspacing="0" width="100%">
+		<tr>
+			<td align="left" valign="top">
 
-					<div style="margin-top: 4px;">
+				<div style="margin-top: 4px;">
 
-						<div><span data-l10n-id="appTitle" nameId='MainTitle' class="pageTitle" style="display:block;"></span><div>
+					<div>
+						<span data-l10n-id="appTitle" nameId='MainTitle' class="pageTitle" style="display:block;"></span>
+					</div>
 
-						<table id="settingConsole" class="tbBorderNone" style="margin-top: 4px;">
-						  <tr class="valignTop">
+					<table id="settingConsole" class="tbBorderNone" style="margin-top: 4px;">
+						<tr class="valignTop">
 
 							<td>
 								<table>
-								<tr>
-								  <td class="consoleTitle">	
-									<span data-l10n-id="searchOrgUnit" nameId='OrgUnit'></span>
-								  </td>
-								  <td style="white-space: nowrap;">
-									<input type="text" id="matrixOrgUnitName" size="30"/>
-									<input type="button" id="matrixOrgUnitTreeBtn" value="T" title="Open OrgUnitTree" style="cursor:pointer; margin:0px; padding:1px 2px; color:#777777; background-color: #F2F9FF; border-left: none;"><span id="personFoundNo" style="font-size: 9px;color:#CCCCCC;margin-left:1px;"></span>
-								  </td>
-								 </tr>
-								 </table>
+									<tr>
+										<td class="consoleTitle">
+											<span data-l10n-id="searchOrgUnit" nameId='OrgUnit'></span>
+										</td>
+										<td style="white-space: nowrap;">
+											<input type="text" id="matrixOrgUnitName" size="30" />
+											<input type="button" id="matrixOrgUnitTreeBtn" value="T" title="Open OrgUnitTree" style="cursor:pointer; margin:0px; padding:1px 2px; color:#777777; background-color: #F2F9FF; border-left: none;"><span
+											 id="personFoundNo" style="font-size: 9px;color:#CCCCCC;margin-left:1px;"></span>
+										</td>
+									</tr>
+								</table>
 
 								<div id='matrixOrgUnitLoading' style='display:none'>
-									<img src='img/ui-anim_basic.gif'/><span data-l10n-id="retrieving"></span>
+									<img src='img/ui-anim_basic.gif' /><span data-l10n-id="retrieving"></span>
 								</div>
 
 							</td>
 
 							<td>
 								<table>
-								<tr>
-								  <td class="consoleTitle">	
-									<span data-l10n-id="searchProgram" nameId='DefaultProgram'></span>
-								  </td>
-								  <td>
-									<select id="programList" style="width:200px;"></select> 
-									
-									<div id='matrixProgramLoading' style='display:none'>
-										<img src='img/ui-anim_basic.gif'/><span data-l10n-id="retrieving"></span>
-									</div>
+									<tr>
+										<td class="consoleTitle">
+											<span data-l10n-id="searchProgram" nameId='DefaultProgram'></span>
+										</td>
+										<td>
+											<select id="programList" style="width:200px;"></select>
 
-								  </td>
-								 </tr>
-								 </table>
+											<div id='matrixProgramLoading' style='display:none'>
+												<img src='img/ui-anim_basic.gif' /><span data-l10n-id="retrieving"></span>
+											</div>
+
+										</td>
+									</tr>
+								</table>
 
 							</td>
 
 							<td>
 								<table id="matrixPeriodTb">
-								<tr>
-								  <td class="consoleTitle">	
-									<span data-l10n-id="searchPeriod" nameId='Period'></span>
-								  </td>
-								  <td style="white-space: nowrap;">
-									<select id="matrixPeriod">
-										<option value="thisYearMonths_MONTH" dataVal="thisYearMonthsPeriod" data-l10n-id="thisYearMonthsPeriod">This Year months</option>
-										<option value="last12Months_MONTH" dataVal="last12MonthsPeriod" data-l10n-id="last12MonthsPeriod">Last 12 months</option>
-										<option value="last12Weeks_WEEK" dataVal="last12WeeksPeriod" data-l10n-id="last12WeeksPeriod">Last 12 weeks</option>
-										<option value="last12Quarters_QUARTER" dataVal="last12QuartersPeriod" data-l10n-id="last12QuartersPeriod">Last 12 Quarters</option>
-									</select>
-								  </td>
-								</tr>
+									<tr>
+										<td class="consoleTitle">
+											<span data-l10n-id="searchPeriod" nameId='Period'></span>
+										</td>
+										<td style="white-space: nowrap;">
+											<select id="matrixPeriod">
+												<option value="thisYearMonths_MONTH" dataVal="thisYearMonthsPeriod" data-l10n-id="thisYearMonthsPeriod">This
+													Year months</option>
+												<option value="last12Months_MONTH" dataVal="last12MonthsPeriod" data-l10n-id="last12MonthsPeriod">Last 12
+													months</option>
+												<option value="last12Weeks_WEEK" dataVal="last12WeeksPeriod" data-l10n-id="last12WeeksPeriod">Last 12
+													weeks</option>
+												<option value="last12Quarters_QUARTER" dataVal="last12QuartersPeriod" data-l10n-id="last12QuartersPeriod">Last
+													12 Quarters</option>
+											</select>
+										</td>
+									</tr>
 								</table>
 							</td>
 
 							<td style="vertical-align:middle; padding-left:5px;">
-								<button type="button" id="matrixExecuteRetrieval" class="BlueButton" style="width: 50px;" ><span data-l10n-id="matrixExecuteRetrieval" nameId='matrixExecuteRetrieval'></span></button>
+								<button type="button" id="matrixExecuteRetrieval" class="BlueButton" style="width: 50px;"><span data-l10n-id="matrixExecuteRetrieval"
+									 nameId='matrixExecuteRetrieval'></span></button>
 
 							</td>
 
-						  </tr>
-					  </tr>
-					  </table>
+						</tr>
+
+					</table>
 				</div>
 
+			</td>
+		</tr>
+	</table>
+
+
+	<div style="line-height:5px;"></div>
+	<br>
+
+	<div id="matrixOuDataDiv" style="display:none;">
+		<table>
+			<tr>
+				<td>
+					<Button id="matrixPrevPeriod" class="BlueButton">&laquo;</button>
+					<span style="float:right;"><Button id="matrixNextPeriod" class="BlueButton">&raquo;</button></span>
 				</td>
+			</tr>
+			<tr>
+				<td>
+					<table id="matrixOuData" class='tbStyle_Person' style='font-size:small;'></table>
+				</td>
+			</tr>
+			<tr>
+				<td id="matrixFooter" style="color:gray;font-size:11px;font-style:italic;float:right">
+					*** <span data-l10n-id="completeEventExpireDays"></span>: <span id="completeEventExpireDays"></span>
+					| <span data-l10n-id="expiryPeriodType"></span>: <span id="expiryPeriodType"></span>
+					| <span data-l10n-id="expiryDays"></span>: <span id="expiryDays"></span>
+				</td>
+			</tr>
 		</table>
-
-
-		<div style="line-height:5px;"></div>
-		<br>
-		
-		<div id="matrixOuDataDiv" style="display:none;" >
-			<table>
-				<tr>
-					<td> 
-						<Button id="matrixPrevPeriod" class="BlueButton">&laquo;</button>
-						<span style="float:right;"><Button id="matrixNextPeriod" class="BlueButton">&raquo;</button></span>
-					</td>
-				</tr>
-				<tr>
-					<td>
-						<table id="matrixOuData" class='tbStyle_Person' style='font-size:small;'></table>
-					</td>
-				</tr>
-				<tr>
-					<td id="matrixFooter" style="color:gray;font-size:11px;font-style:italic;float:right">
-						*** <span data-l10n-id="completeEventExpireDays"></span>: <span id="completeEventExpireDays"></span>
-						| <span data-l10n-id="expiryPeriodType"></span>: <span id="expiryPeriodType"></span>  
-						| <span data-l10n-id="expiryDays"></span>: <span id="expiryDays"></span>  
-					</td>
-				</tr>
-			</table>
-		</div>
 	</div>
-	
+</div>
+
 </html>

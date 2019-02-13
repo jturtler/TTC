@@ -39,6 +39,20 @@ Util.disableTag = function( tags, isDisable )
 	});
 }
 
+
+Util.getDeepCopyJson = function( inputJson )
+{
+	var output = {};
+
+	if ( inputJson )
+	{
+		output = JSON.parse( JSON.stringify( inputJson ) );
+	}
+
+	return output
+}
+
+
 Util.sortByKey = function( array, key, noCase, emptyStringLast ) {
 
 	if ( array.length == 0 || array[0][key] === undefined ) return array;
