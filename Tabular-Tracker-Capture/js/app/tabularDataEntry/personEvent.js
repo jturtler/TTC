@@ -767,8 +767,8 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 		var eventStatus = event.status;
 
 		// if this 'completeEventsExpiryDays'/'expiryDays' set to "0", this should be considered unset.
-		if ( completeEventsExpiryDays === "0" ) completeEventsExpiryDays = "";
-		if ( expiryDays === "0" ) expiryDays = "";
+		// if ( completeEventsExpiryDays === "0" ) completeEventsExpiryDays = "";
+		// if ( expiryDays === "0" ) expiryDays = "";
 
 		return relativePeriod.lockDataFormByEventDate( !me.TabularDEObj.isCase_MEwR(), event, expiredPeriodType, expiryDays, completeEventsExpiryDays );
 	};
@@ -2186,8 +2186,8 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 				var expiryDays = programSelected.attr("expiryDays");
 				var completeEventsExpiryDays = programSelected.attr("completeEventsExpiryDays");
 				
-				if ( expiryDays === "0" ) expiryDays = "";
-				if ( completeEventsExpiryDays === "0" ) completeEventsExpiryDays = "";
+				// if ( expiryDays === "0" ) expiryDays = "";
+				// if ( completeEventsExpiryDays === "0" ) completeEventsExpiryDays = "";
 
 				var lockFormSign = relativePeriod.lockDataFormByEventDate( !me.TabularDEObj.isCase_MEwR(), event, expiredPeriodType, expiryDays, completeEventsExpiryDays );
 				

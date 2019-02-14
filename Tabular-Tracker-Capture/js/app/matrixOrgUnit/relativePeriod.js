@@ -438,13 +438,16 @@ function RelativePeriod()
 			if( completeEventsExpiryDays )
 			{
 				completeEventsExpiryDays = Number( completeEventsExpiryDays );
-				var todayStr = me.formatDateObj_YYYYMMDD( new Date() );
+				// var todayStr = me.formatDateObj_YYYYMMDD( new Date() );
 				
+				var completedEventDate = Util.getDate_FromYYYYMMDD( event.completedDate );
+				var completedEventDateStr = me.formatDateObj_YYYYMMDD( completedEventDate );
+
 				var checkedCompletedEventDate = Util.getDate_FromYYYYMMDD( event.completedDate );
 				checkedCompletedEventDate.setDate( checkedCompletedEventDate.getDate() + completeEventsExpiryDays );
 				var checkedCompletedEventDateStr = me.formatDateObj_YYYYMMDD( checkedCompletedEventDate );
 
-				if ( checkedCompletedEventDateStr >= todayStr )
+				if ( completedEventDateStr < checkedCompletedEventDateStr )
 				{
 					return ( isSEwoR ) ? EventStatus.SIGN_SEwoR_EVENT_COMPLETED_CAN_REOPEN : EventStatus.SIGN_SEwR_EVENT_COMPLETED_CAN_REOPEN;
 				}
