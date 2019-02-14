@@ -572,6 +572,7 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 					if ( importSummary.status == "SUCCESS" )
 					{
 						trCurrent.attr( "uid", importSummary.reference );
+						trCurrent.attr( "eventStatus", "ACTIVE" );
 						
 						successFunc( importSummary.reference, json_Data.status );
 					}
@@ -767,8 +768,8 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 		var eventStatus = event.status;
 
 		// if this 'completeEventsExpiryDays'/'expiryDays' set to "0", this should be considered unset.
-		// if ( completeEventsExpiryDays === "0" ) completeEventsExpiryDays = "";
-		// if ( expiryDays === "0" ) expiryDays = "";
+		if ( completeEventsExpiryDays === "0" ) completeEventsExpiryDays = "";
+		if ( expiryDays === "0" ) expiryDays = "";
 
 		return relativePeriod.lockDataFormByEventDate( !me.TabularDEObj.isCase_MEwR(), event, expiredPeriodType, expiryDays, completeEventsExpiryDays );
 	};
@@ -924,6 +925,9 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 					me.eventUpdate( trCurrent, _status_COMPLETED
 						, function( json_Event )
 						{
+							
+							trCurrent.attr( "eventStatus", "COMPLETED" );
+
 							if( status == EventStatus.SIGN_SEwoR_EVENT_COMPLETED_EXPIRED || status == EventStatus.SIGN_SEwR_EVENT_COMPLETED_LOCKED )
 							{
 								trCurrent.find("input,select").each( function(){
@@ -962,6 +966,8 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 			me.eventUpdate( trCurrent, _status_ACTIVE
 				, function( json_Event )
 				{
+					trCurrent.attr( "eventStatus", "ACTIVE" );
+
 					trCurrent.find("input,select").each( function(){
 						Util.disableTag( $(this), false );
 					});
@@ -1865,7 +1871,7 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 
 				if ( dataValue != "" ) dataElementValue.value = dataValue;
 
-				var json_Data = { "dataValues": [ dataElementValue ] };
+				var json_Data = { "status": $(tag).closest("tr.trEventData").attr("eventStatus"), "dataValues": [ dataElementValue ] };
 
 
 				var queryUrl = _queryURL_EventSubmit + '/' + eventId + '/' + dataElementId;
@@ -2188,8 +2194,8 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 				var expiryDays = programSelected.attr("expiryDays");
 				var completeEventsExpiryDays = programSelected.attr("completeEventsExpiryDays");
 				
-				// if ( expiryDays === "0" ) expiryDays = "";
-				// if ( completeEventsExpiryDays === "0" ) completeEventsExpiryDays = "";
+				if ( expiryDays === "0" ) expiryDays = "";
+				if ( completeEventsExpiryDays === "0" ) completeEventsExpiryDays = "";
 
 				var lockFormSign = relativePeriod.lockDataFormByEventDate( !me.TabularDEObj.isCase_MEwR(), event, expiredPeriodType, expiryDays, completeEventsExpiryDays );
 				
@@ -2274,8 +2280,10 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 		eventStage.attr( "selectedProgramStage", item_event.programStage ); 
 
 		// Disable 3 rows
-		// put event id
+		// put event id, status
 		trCurrent.attr( "uid", item_event.event );	
+		trCurrent.attr( "eventStatus", item_event.status );	
+		
 		
 
 		// Set Event Org Unit Name - only for MEwR case.
