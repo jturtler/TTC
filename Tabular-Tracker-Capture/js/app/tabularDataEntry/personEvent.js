@@ -645,7 +645,7 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 	
 				eventComplete.off( "click" ).on( "click", function() 
 				{
-					me.completeEvent( trCurrent, json_Event, programStageId );
+					me.completeEvent( trCurrent, json_Event, programStageId, status );
 				});
 				
 				eventIncomplete.hide();
@@ -887,7 +887,7 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 	}
 
 
-	me.completeEvent = function( trCurrent, eventUid, programStageId )
+	me.completeEvent = function( trCurrent, eventUid, programStageId, status )
 	{		
 		if ( me.checkCompulsoryData( trCurrent ) && ProgramRuleUtil.checkProgramRuleData( trCurrent ) )
 		{
@@ -924,11 +924,13 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 					me.eventUpdate( trCurrent, _status_COMPLETED
 						, function( json_Event )
 						{
+							if( status == EventStatus.SIGN_SEwoR_EVENT_COMPLETED_EXPIRED || status == EventStatus.SIGN_SEwR_EVENT_COMPLETED_LOCKED )
+							{
+								trCurrent.find("input,select").each( function(){
+									Util.disableTag( $(this), true );
+								});
+							}
 							
-							trCurrent.find("input,select").each( function(){
-								Util.disableTag( $(this), true );
-							});
-						
 							// Find the next tabbing tag first.
 							var nextTabTag = EventUtil.getNextRowFocus_Event( trCurrent );
 
