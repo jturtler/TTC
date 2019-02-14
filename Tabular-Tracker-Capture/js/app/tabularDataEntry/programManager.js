@@ -135,9 +135,6 @@ function ProgramManager( TabularDEObj, defaultProgramTag )
 	me.populateProgramStages = function( selectTag, programId )
 	{
 		var stageList = me.getProgramStageList( programId );
-
-		console.log( 'CHECK, populateProgramStages:' );
-		console.log( stageList );
 		
 		// TODO: 2.30 
 		Util.removeDuplicateItems( stageList, "id" );
@@ -153,22 +150,13 @@ function ProgramManager( TabularDEObj, defaultProgramTag )
 		// So, there is problem in this memory?  <-- but we are loading all 499 ones...  too long...
 		var programList = me.TabularDEObj.dataInMemory.getProgramList_Full();
 
-		console.log( 'programList:' );
-		console.log( programList );
-
 		var matchProgObj = Util.getFromList( programList, programId, "id" );
 
 		if ( matchProgObj && matchProgObj.programStages )
 		{
-			console.log( 'matchProgObj:' );
-			console.log( matchProgObj );
-	
 			programStages = matchProgObj.programStages;
 		}
 		
-		console.log( 'programStages:' );
-		console.log( programStages );	
-
 		return programStages;
 	}
 
