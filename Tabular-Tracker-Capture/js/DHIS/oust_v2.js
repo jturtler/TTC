@@ -7,7 +7,7 @@
 var selectionTreeSelection = new SelectionTreeSelection();
 var selectionTree = new SelectionTree();
 
-var selectionTreePath = _dhisSiteURL + 'dhis-web-commons/oust/';
+var selectionTreePath = _dhisSiteURL + 'dhis-web-commons/ouwt/';
 
 var selectedOrganisationUnit = new Array();
 var selectedOrganisationUnitUid = new Array();
@@ -253,6 +253,13 @@ function SelectionTree()
         if( children.length > 0 ) {
             treeTag.removeChild(children[0]);
         }
+
+       /* $.ajax({
+            url: selectionTreePath + 'getExpandedTree.action',
+            cache: false,
+            dataType: "xml",
+            success: treeReceived
+        }); */
 
         $.ajax({
             url: selectionTreePath + 'getExpandedTree.action',
