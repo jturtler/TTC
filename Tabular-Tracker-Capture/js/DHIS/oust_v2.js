@@ -254,13 +254,6 @@ function SelectionTree()
             treeTag.removeChild(children[0]);
         }
 
-       /* $.ajax({
-            url: selectionTreePath + 'getExpandedTree.action',
-            cache: false,
-            dataType: "xml",
-            success: treeReceived
-        }); */
-
         $.ajax({
             url: selectionTreePath + 'getExpandedTree.action',
             cache: false,
