@@ -660,11 +660,19 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 			{
 				eventDel.show();
 			
+				// TODO - Remove the checking userrole so that "Incomplete" button will be displayed based on completed expire days
 				// In-Complete related
-				me.TabularDEObj.checkIncompleteAction_UserRole( function() 
+				/* me.TabularDEObj.checkIncompleteAction_UserRole( function() 
 				{
 					eventIncomplete.show();
-				});
+				}); */
+				
+					
+				eventIncomplete.show();
+				
+				/* trCurrent.find("input,select").each( function(){
+					Util.disableTag( $(this), true );
+				}); */
 				
 				eventIncomplete.off( "click" ).on( "click", function() 
 				{
@@ -685,10 +693,16 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 				eventComplete.hide();
 				eventDel.show();
 			}
-			else
+			else // if( status == EventStatus.SIGN_SEwoR_EVENT_COMPLETED_EXPIRED || status == EventStatus.SIGN_SEwR_EVENT_COMPLETED_LOCKED )
 			{
 				eventIncomplete.hide();
 				eventComplete.hide();
+
+
+				trCurrent.find("input,select").each( function(){
+					Util.disableTag( $(this), true );
+				});
+
 				// eventDel.hide();
 				eventDel.show();
 				
@@ -928,12 +942,22 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 							
 							trCurrent.attr( "eventStatus", "COMPLETED" );
 
-							if( status == EventStatus.SIGN_SEwoR_EVENT_COMPLETED_EXPIRED || status == EventStatus.SIGN_SEwR_EVENT_COMPLETED_LOCKED )
+							// TODO - Always lock form after completing an event
+							/* if( status == EventStatus.SIGN_SEwoR_EVENT_COMPLETED_EXPIRED || status == EventStatus.SIGN_SEwR_EVENT_COMPLETED_LOCKED )
 							{
 								trCurrent.find("input,select").each( function(){
 									Util.disableTag( $(this), true );
 								});
-							}
+							} */
+							
+
+							/* if( status == EventStatus.SIGN_SEwoR_EVENT_COMPLETED_EXPIRED || status == EventStatus.SIGN_SEwR_EVENT_COMPLETED_LOCKED )
+							{
+								trCurrent.find("input,select").each( function(){
+									Util.disableTag( $(this), true );
+								});
+							} */
+
 							
 							// Find the next tabbing tag first.
 							var nextTabTag = EventUtil.getNextRowFocus_Event( trCurrent );
