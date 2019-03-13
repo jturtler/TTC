@@ -213,10 +213,10 @@ function SelectionTree()
 {
     this.clearSelectedOrganisationUnits = function()
     {
-    	$.ajax({ 
+    	/* $.ajax({ 
     		url: selectionTreePath + 'clearSelectedOrganisationUnits.action',
 			async: false
-    	});
+    	}); */
     };
 
     this.toggle = function( unitId, afterExpandFunc )

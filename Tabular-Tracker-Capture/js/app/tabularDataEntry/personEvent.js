@@ -662,32 +662,52 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 			
 				// TODO - Remove the checking userrole so that "Incomplete" button will be displayed based on completed expire days
 				// In-Complete related
-				/* me.TabularDEObj.checkIncompleteAction_UserRole( function() 
-				{
-					eventIncomplete.show();
-				}); */
+				// me.TabularDEObj.checkIncompleteAction_UserRole( function() 
+				// {
+				// 	eventIncomplete.show();
+				// });
 				
 					
-				eventIncomplete.show();
+				// eventIncomplete.show();
 				
 				/* trCurrent.find("input,select").each( function(){
 					Util.disableTag( $(this), true );
 				}); */
 				
+				eventIncomplete.show();
 				eventIncomplete.off( "click" ).on( "click", function() 
 				{
 					me.incompleteEvent( trCurrent, json_Event, programStageId );
 				});
-				
+
 				me.TabularDEObj.dataInMemory.retrieveProgramStageData( programStageId, function( programStageJson )
-				{
+				{	
 					if ( programStageJson.blockEntryForm )
 					{
+						me.TabularDEObj.checkIncompleteAction_UserRole( function() 
+						{
+							Util.disableTag( eventIncomplete, false );
+						}, function(){
+							Util.disableTag( eventIncomplete, true ); // No 'uncomplete' authority
+							eventIncomplete.attr( "title", "This stage is blocked after completion. You will need the authority 'uncomplete' if you want to re-open it");
+						});
+
 						// Disable all the DataElements controls - move the control rendering area..
 						me.setEventDEControlDisable( trCurrent );
-	
+
 						me.appendWarningMsg_Tr( trCurrent, "EventEntry Blocked: Event completed with block entry", "completed" );
+
 					}
+					else
+					{
+						Util.disableTag( eventIncomplete, false ); // Allow to edit
+					}
+
+					// // Disable all the DataElements controls - move the control rendering area..
+					// me.setEventDEControlDisable( trCurrent );
+
+					// me.appendWarningMsg_Tr( trCurrent, "EventEntry Blocked: Event completed with block entry", "completed" );
+					
 				});
 				
 				eventComplete.hide();
@@ -783,7 +803,7 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 
 		// if this 'completeEventsExpiryDays'/'expiryDays' set to "0", this should be considered unset.
 		if ( completeEventsExpiryDays === "0" ) completeEventsExpiryDays = "";
-		if ( expiryDays === "0" ) expiryDays = "";
+		// if ( expiryDays === "0" ) expiryDays = "";
 
 		return relativePeriod.lockDataFormByEventDate( !me.TabularDEObj.isCase_MEwR(), event, expiredPeriodType, expiryDays, completeEventsExpiryDays );
 	};
@@ -984,7 +1004,7 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 
 
 	me.incompleteEvent = function( trCurrent, json_Event, programStageId )
-	{		
+	{	
 		if( confirm( $( 'span.msg_ConfirmEventIncomplete' ).text() ) )
 		{
 			me.eventUpdate( trCurrent, _status_ACTIVE
@@ -1682,14 +1702,14 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 
 	me.setEventDataSave = function( trCurrent )
 	{
-		// TODO: 2.30 Only on matrix version, this was commented out.  Don't know why.
-		// Maybe we should only edit the date of active date?
-		trCurrent.find( "input.eventDate" ).datepicker( "option", "onSelect", function() 
-		{
-			me.setStatusChecking( $( this ), true );
+		// // TODO: 2.30 Only on matrix version, this was commented out.  Don't know why.
+		// // Maybe we should only edit the date of active date?
+		// trCurrent.find( "input.eventDate" ).datepicker( "option", "onSelect", function() 
+		// {
+		// 	me.setStatusChecking( $( this ), true );
 
-			me.eventUpdate( trCurrent );
-		});
+		// 	me.eventUpdate( trCurrent );
+		// });
 
 
 		trCurrent.find( "input.eventCoorLat, input.eventCoorLng" ).change( function () 
@@ -1698,6 +1718,8 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 		});
 
 
+		// For event data element fields 
+	
 		trCurrent.find( "td.added input.datepicker" ).focusout( function () 
 		{
 			var cntrl = $( this );
@@ -1763,7 +1785,8 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 
 		var eventDateInFormat = Util.formatDate( eventDate.val() );
 		
-		var status = eventStatus.attr("status");
+		// var status = eventStatus.attr("status");
+		var status = trCurrent.attr("eventStatus");
 
 		if ( Util.checkValue( newStatus ) )
 		{
@@ -1875,8 +1898,9 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 
 	me.eventUpdatePartial = function( tag, eventId, successAction )
 	{
-		// Check the Validation
-		if ( me.validateEventDEControlVal( tag ) )
+		// Check the validation
+		var passed = me.validateEventDEControlVal( tag );
+		if ( passed == 0 ) // SUCCESS
 		{
 			var dataElementId = tag.closest( "td" ).attr( "DEID" );
 			
@@ -1903,7 +1927,8 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 				RESTUtil.submitData( json_Data, queryUrl, "PUT"
 				, function()
 				{
-					tag.attr( "status", "updated" );				 
+					tag.attr( "status", "updated" );		
+					tag.data('val', tag.val());		 
 					Util.paintResult( tag, true );
 					
 					if ( successAction !== undefined ) successAction();
@@ -1918,17 +1943,35 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 				);
 			}	
 		}
+		else if( passed == 1 )
+		{
+			alert( $( 'span.msg_WarmingMandatoryField' ).text() );
+		}
 	};
 
 
 	me.validateEventDEControlVal = function( inputTag )
 	{
-		var pass = true;
+		// 0: SUCCESS
+		// 1: FAIL - COMPLETED Event with empty data for mandatory fields
+		// 2: FAIL - Value type is wrong		
+		var pass = 0; 
+
+		var eventStatus = inputTag.closest("tr.trEventData").attr( "eventstatus" );
+		var compulsory = eval( inputTag.closest("td").attr("compulsory" ) );
 		var valType = inputTag.attr( 'valType' );
 
-		if ( valType !== undefined && valType != '' )
+		if( eventStatus === "COMPLETED" && compulsory && inputTag.val() == "" )
 		{
-			pass = FormUtil.validateValueType( inputTag, valType );
+			var oldValue = inputTag.data('val');
+			inputTag.val( oldValue );
+			Util.paintLightGreen( inputTag );
+			pass = 1;
+		}
+		else if ( valType !== undefined && valType != '' )
+		{
+			var checkedValueType = FormUtil.validateValueType( inputTag, valType );
+			if( !checkedValueType ) pass = 2;
 		}
 
 		return pass;

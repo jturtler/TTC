@@ -897,11 +897,20 @@ function SearchPanel( TabularDEObj )
 		if( selectedProgramId == '' )
 		{
 			me.defaultProgramNoteSpanTag.text( '*Please select a program.' );
+			me.searchResultMsgRowTag.show();
 			Util.paintAttention( me.defaultProgramTag );
 			
 			if( exeFunc != undefined ) exeFunc();
 
 			//me.setStatus_PopulateButton();					
+		}
+		else if( me.TabularDEObj.getSelectedProgram().programStages === undefined || me.TabularDEObj.getSelectedProgram().programStages.length == 0 )
+		{
+			me.defaultProgramNoteSpanTag.text( '* No any stage in this program.' );
+			me.searchResultMsgRowTag.show();
+			Util.paintAttention( me.defaultProgramTag );
+			
+			if( exeFunc != undefined ) exeFunc();
 		}
 		else
 		{

@@ -42,9 +42,9 @@ function TabularDataEntry( _orgUnitSelectionTreePopup )
 		return _settingForm.getCountryLevel();
 	}
 
-	me.checkIncompleteAction_UserRole = function( runFunc )
+	me.checkIncompleteAction_UserRole = function( runFunc, failFunc )
 	{
-		_settingForm.checkIncompleteAction_UserRole( runFunc );
+		_settingForm.checkIncompleteAction_UserRole( runFunc, failFunc );
 	}
 
 

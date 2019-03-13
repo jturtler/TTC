@@ -7,6 +7,8 @@ function SettingForm( _TabularDEObj, _matrixObj )
 	me.TabularDEObj = _TabularDEObj;
 	me.matrixObj = _matrixObj;
 
+	me.KEY_UNCOMPLE_EVENT_AUTHORITY = "F_UNCOMPLETE_EVENT";
+
 	me.searchMatrixOrgUnit = me.matrixObj.searchMatrixOrgUnit;
 	me.orgUnitSelectionTreePopup = me.matrixObj.orgUnitSelectionTreePopup;
 	
@@ -37,9 +39,6 @@ function SettingForm( _TabularDEObj, _matrixObj )
 	me.trLatestVersionTag = $( '#trLatestVersion' );
 	me.latestVersionTag = $( '#latestVersion' );
 
-	me.trIncompleteActionUserRoleTag = $( '#trIncompleteActionUserRole' );
-	me.incompleteActionUserRoleTag = $( '#incompleteActionUserRole' );
-	
 	
 	me.mainPersonSectionTag =  $( '#mainSection_Person' );
 	me.mainSectionEventTag =  $( '#mainSection_Event' );
@@ -126,12 +125,6 @@ function SettingForm( _TabularDEObj, _matrixObj )
 						json_SettingData.latestVersion = me.latestVersionTag.val();
 					}
 
-
-					if ( me.trIncompleteActionUserRoleTag.is( ':visible' ) )
-					{
-						json_SettingData.incompleteActionUserRole = me.incompleteActionUserRoleTag.val();
-					}
-					
 					// Matrix periods
 					json_SettingData.specialPeriodMode = me.specificPeriodModeTag.val();
 					
@@ -274,11 +267,6 @@ function SettingForm( _TabularDEObj, _matrixObj )
 			if ( me.settingData.latestVersion !== undefined )
 			{
 				me.latestVersionTag.val( me.settingData.latestVersion );
-			}
-
-			if ( me.settingData.incompleteActionUserRole !== undefined )
-			{
-				me.incompleteActionUserRoleTag.val( me.settingData.incompleteActionUserRole );
 			}
 			
 			// Set Default Mode : Matrix/Special Period
@@ -479,30 +467,37 @@ function SettingForm( _TabularDEObj, _matrixObj )
 	}
 
 
-	me.checkIncompleteAction_UserRole = function( runFunc )
+	me.checkIncompleteAction_UserRole = function( runFunc, failFunc )
 	{
-		// If user has userRole that matches 'Incomplete Action User Role', execute 'runFunc'
+		// Check if current user has authority "F_UNCOMPLETE_EVENT" ( uncompleted event authority )
 
-		if ( me.settingData !== undefined && Util.checkValue( me.settingData.incompleteActionUserRole ) )
+		DHISUtil.retrieveUserInfo( function( json_Data )
 		{
-			DHISUtil.retrieveUserInfo( function( json_Data )
-			{
-				var userRoles = json_Data.userCredentials.userRoles;
+			var userRoles = json_Data.userCredentials.userRoles;
 
-				if ( userRoles !== undefined )
+			if ( userRoles !== undefined )
+			{
+				var found = false;
+				$.each( userRoles, function( i_ur, item_ur )
 				{
-					$.each( userRoles, function( i_ur, item_ur )
+					var authorities = item_ur.authorities;
+					for( var i in authorities )
 					{
-						if ( item_ur.name == me.settingData.incompleteActionUserRole )
+						if ( authorities[i] === me.KEY_UNCOMPLE_EVENT_AUTHORITY || authorities[i] === "ALL" )
 						{
 							runFunc();
 
-							return false;
+							found = true;
 						}
-					});
+					}
+				});
+
+				if( !found && failFunc !== undefined )
+				{
+					failFunc();
 				}
-			});
-		}
+			}
+		});
 	}
 
 
@@ -525,8 +520,6 @@ function SettingForm( _TabularDEObj, _matrixObj )
 			if ( _deploymentManagerIds.indexOf( json_data.username ) >= 0 )
 			{
 				me.trLatestVersionTag.show();
-
-				me.trIncompleteActionUserRoleTag.show();
 			}
 		});	
 	}
