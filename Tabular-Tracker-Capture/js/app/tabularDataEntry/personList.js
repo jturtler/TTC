@@ -460,7 +460,7 @@ function PersonList( TabularDEObj )
 
 											});
 
-											if ( !hasAnySearchKeyAttrVal ) alert( 'Search Key Value emtpy - PLEASE CHECK IF THE SEARCH KEY ATTRIBUTE EXISTS IN TrackedEntityType' );
+											// if ( !hasAnySearchKeyAttrVal ) alert( 'Search Key Value emtpy - PLEASE CHECK IF THE SEARCH KEY ATTRIBUTE EXISTS IN TrackedEntityType' );
 										}
 										
 										response( Util.sortByKey( json_persons_new, 'label', true ) );
