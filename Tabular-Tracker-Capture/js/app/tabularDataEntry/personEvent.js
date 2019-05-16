@@ -1919,7 +1919,8 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 
 				if ( dataValue != "" ) dataElementValue.value = dataValue;
 
-				var json_Data = { "status": $(tag).closest("tr.trEventData").attr("eventStatus"), "dataValues": [ dataElementValue ] };
+				var programId = me.TabularDEObj.getSelectedProgram().id;
+				var json_Data = { "program": programId, "status": $(tag).closest("tr.trEventData").attr("eventStatus"), "dataValues": [ dataElementValue ] };
 
 
 				var queryUrl = _queryURL_EventSubmit + '/' + eventId + '/' + dataElementId;
