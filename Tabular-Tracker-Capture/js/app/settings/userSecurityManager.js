@@ -12,6 +12,7 @@ function UserSecurityManager()
 	
 	me.roleName_EditSettings = "_App_TTC_Admin";
 	me.roleJson = { "name": me.roleName_EditSettings, authorities:["F_SYSTEM_SETTING"], "description":"Controls access to TTC setting menu - role automatically created by TTC on first run" };
+	me.usernameTag = $("#username");
 	
 	// -----------------------------------------------------
 
@@ -145,6 +146,8 @@ function UserSecurityManager()
 			{					
 				me.userGroups = json_Data.userGroups;
 			}
+
+			me.usernameTag.html( json_Data.userCredentials.username );
 
 			runFunc();
 		});
