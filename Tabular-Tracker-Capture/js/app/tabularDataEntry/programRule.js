@@ -730,6 +730,7 @@ function ProgramRule( TabularDEObj )
 	
 	me.getObjectIdFromVariable = function( type, ruleVariable )
 	{
+		console.log( ' ruleVariable : ' + ruleVariable );
 		return ( type == EventUtil.varSrcType_TEI_Attribute ) ? ruleVariable.trackedEntityAttribute.id : ruleVariable.dataElement.id;
 	};
 
