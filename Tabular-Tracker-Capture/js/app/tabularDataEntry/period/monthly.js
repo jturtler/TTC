@@ -21,7 +21,10 @@ Monthly.populateMonthYear = function( monthTag, yearTag )
 	monthTag.append( $( '<option></option>' ).attr( "value", 11 ).text( l10n.get("November") ) );
 	monthTag.append( $( '<option></option>' ).attr( "value", 12 ).text( l10n.get("December") ) );
 	
-	for( i = 1990; i < 2020; i++ )
+	var date = new Date();
+	var year = date.getFullYear() + 5;
+
+	for( i = 1990; i < year; i++ )
 	{
 		yearTag.append( $( '<option></option>' ).attr( "value", i ).text( i ) );
 	}			
