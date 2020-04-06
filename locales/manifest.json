@@ -1,0 +1,12 @@
+{
+  "locales": [
+    "en",
+    "es",
+	"km"
+  ],
+  "default_locale": "en",
+  "resources": [
+    "./{{locale}}.l20n"
+  ]
+}
+

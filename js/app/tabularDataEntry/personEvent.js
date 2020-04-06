@@ -1145,42 +1145,12 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 			var json_EventList = new Array();
 			var tbEvents = divPersonDetailTag.find( ".tbStyle_PersonDetail" );
 
-			RESTUtil.getAsynchData( requestUrl, function( data )
+			RESTUtil.getAsynchData( requestUrl, function( json_Events )
 			{	
-				var enrollments = data.enrollments;
-
-				var events = [];
-				
-				var orgUnitId = me.TabularDEObj.getOrgUnitId();
-				var programId = me.TabularDEObj.getSelectedProgramId();
-				var startDate = me.TabularDEObj.getDefaultStartDate();
-				var endDate = me.TabularDEObj.getDefaultEndDate();
-				var catOptionURLParam =  me.TabularDEObj.getSelectedCategoryOptionId(); // == "ALL" 
-	
-				for( var i=0;i<enrollments.length; i++ )
-				{
-					if( enrollments.events !== undefined )
-					{
-						for( var j=0; j<enrollments.length; j++ )
-						{
-							var event = enrollments[j];
-
-							if(( catOptionURLParam == "ALL" || catOptionURLParam == event.attributeCategoryOptions )
-								&& ( event.eventDate.substr(0,10) >= startDate && event.eventDate.substr(0,10) <= endDate 
-									&& event.orgUnit == orgUnitId && event.program == programId ) )
-							{
-								events.push( event );
-							}
-						}
-					}
-				}
-				
-
-				
 				// Combine unregistered and registered events
-				if ( Util.checkDataExists( events ) )
+				if ( Util.checkDataExists( json_Events.events ) )
 				{
-					var json_EventList_Sorted = Util.sortByKey(  events, "eventDate" );
+					var json_EventList_Sorted = Util.sortByKey( json_Events.events, "eventDate" );
 
 					json_EventList = $.merge( events_unregistered, json_EventList_Sorted );
 				}
@@ -2232,7 +2202,6 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 		{
 			returnUrl = me.getEventsDefaultPopulate_SearchUrl( catOptionId );
 		}
-	
 
 		if ( Util.checkValue( personId ) )
 		{
