@@ -763,17 +763,20 @@ function ProgramRule( TabularDEObj )
 
 	me.collectConditionVariables = function( objectId, type, ruleVariable, conditionObjects )
 	{
-		var conditionObject = {};
-		conditionObject.id = objectId;
-		conditionObject.type = type;
-		conditionObject.valueType = ruleVariable.dataElement.valueType;
-
-		if( ruleVariable.programStage !== undefined )
+		if( ruleVariable.dataElement != undefined )
 		{
-			conditionObject.programStageId = ruleVariable.programStage.id;
+			var conditionObject = {};
+			conditionObject.id = objectId;
+			conditionObject.type = type;
+			conditionObject.valueType = ruleVariable.dataElement.valueType;
+
+			if( ruleVariable.programStage !== undefined )
+			{
+				conditionObject.programStageId = ruleVariable.programStage.id;
+			}
+			
+			conditionObjects.push( conditionObject );
 		}
-		
-		conditionObjects.push( conditionObject );
 	};
 		
 	me.collectActionVariables = function( programRuleActions, actionObjects )
