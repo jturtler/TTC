@@ -6,7 +6,7 @@
 	<meta charset="UTF-8">
 
 	<script> var _jsIncludeDate = Date.now(); </script>
-	<script> var _appVersion = '1.68.4 SNAPSHOT 6'; </script>
+	<script> var _appVersion = '1.68.4 SNAPSHOT 7'; </script>
 
 	<!-- Credit: 
 		'webL10n' - implemented by Victor Garcia, vgarciabnz@gmail.com
@@ -92,20 +92,12 @@
 
 		var _queryURL_PersonAttributes = _queryURL_api + "trackedEntityAttributes.json?paging=false&viewClass=detail&fields=id,name,displayName,valueType,optionSetValue,optionSet[id,displayName,options[id,code,displayName]]";
 
-		// < DHIS 2.30
-		// var _queryURL_TrackedEntities = _queryURL_api + "trackedEntities";
-		// DHIS 2.30
-		var _queryURL_TrackedEntities = _queryURL_api + "trackedEntityTypes";
-
 		var _queryURL_Enrollments = _queryURL_api + "enrollments.json?ouMode=ACCESSIBLE";
-		// var _queryURL_EventQuery = _queryURL_api + "26/events.json?paging=false&skipPaging=true";
 		var _queryURL_EventQuery = _queryURL_api + "events.json?paging=false&skipPaging=true";
 		var _queryURL_EventSubmit = _queryURL_api + "events";
 
 		var _queryURL_TEIFromEventQuery = _queryURL_api + "events/eventRows.json?paging=false&skipPaging=true";
 
-		// var _queryURL_ProgramEnrollmentSubmit = _queryURL_api + "enrollments";
-		//var _queryURL_ProgramEnrollmentQuery = _queryURL_api + "26/enrollments.json";
 		var _queryURL_ProgramEnrollmentSubmit = _queryURL_api + "enrollments";
 		var _queryURL_ProgramEnrollmentQuery = _queryURL_api + "enrollments.json";
 

@@ -117,9 +117,6 @@ function ProgramManager( TabularDEObj, defaultProgramTag )
 
 	me.populatePrograms = function( selectTag )
 	{
-		//Util.populateSelect( selectTag, "Program", me.programList );
-		////selectTag.val( me.defaultProgramId );
-		
 		selectTag.empty();
 
 		selectTag.append( '<option value="">Select Program</option>' );
@@ -143,7 +140,6 @@ function ProgramManager( TabularDEObj, defaultProgramTag )
 		Util.removeDuplicateItems( stageList, "id" );
 
 		Util.populateSelect( selectTag, "ProgramStage", stageList, "displayName" );
-		//selectTag.val( me.defaultProgramId );
 	}
 	
 	me.getProgramStageList = function( programId )
@@ -153,22 +149,13 @@ function ProgramManager( TabularDEObj, defaultProgramTag )
 		// So, there is problem in this memory?  <-- but we are loading all 499 ones...  too long...
 		var programList = me.TabularDEObj.dataInMemory.getProgramList_Full();
 
-		console.log( 'programList:' );
-		console.log( programList );
-
 		var matchProgObj = Util.getFromList( programList, programId, "id" );
 
 		if ( matchProgObj && matchProgObj.programStages )
 		{
-			console.log( 'matchProgObj:' );
-			console.log( matchProgObj );
-	
 			programStages = matchProgObj.programStages;
 		}
 		
-		console.log( 'programStages:' );
-		console.log( programStages );	
-
 		return programStages;
 	}
 

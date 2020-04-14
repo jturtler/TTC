@@ -719,7 +719,7 @@ function PersonList( TabularDEObj )
 			trCurrent.find( '.detailToggle' ).show().off( 'click' ).click( function() {
 				
 				Util.toggleTarget( $( this ), trDetailRow );
-
+console.log(".detailToggle CLICKED !!!");
 
 				// If event section is not setup/populated, create Table and load data, event setup
 				var populateStatus = trDetailRow.attr( 'populateStatus' );
@@ -841,7 +841,8 @@ function PersonList( TabularDEObj )
 
 		me.personEvent.populateEventsByPersonId( personId, trPersonRow, divPersonDetailTag, function( json_Events )
 		{
-			
+			item_person.events = json_Events;
+
 			// * After populating event data, Set 'DoneStage'
 			me.setDoneStageRelated( item_person, trPersonRow, function( doneStages )
 			{
@@ -1158,37 +1159,51 @@ function PersonList( TabularDEObj )
 		$.each( programStageList, function( i_programStage, item_programStage )
 		{
 			if ( !item_programStage.repeatable )
-			{
-				deferredArrActions_checkStages.push( 
-					RESTUtil.getAsynchData( me.TabularDEObj.getEventQueryBaseUrl() 
-						+ '&programStage=' + item_programStage.id 
-						+ '&trackedEntityInstance=' + item_person.trackedEntityInstance
-					, function( eventsRetrieved )
+			{	
+				if ( Util.checkValue( item_person.events ) ) 
+				{
+					if ( item_person.doneStages === undefined )
 					{
-						if ( Util.checkValue( eventsRetrieved.events ) ) 
-						{
-							if ( item_person.doneStages === undefined )
-							{
-								item_person.doneStages = item_programStage.id + ";";
-							}
-							else
-							{
-								item_person.doneStages += item_programStage.id + ";";
-							}
-						}
+						item_person.doneStages = item_programStage.id + ";";
 					}
-					, function() 
-					{ 
-						console.log( 'Failed - On retrieveAndSetDoneProgramStages.  Stage: ' + item_programStage.id + ', TrackedEntityInstance: ' + item_person.trackedEntityInstance ); 
-					} ) );	
+					else
+					{
+						item_person.doneStages += item_programStage.id + ";";
+					}
+				}
 			}
-		});
-			
 
-		$.when.apply($, deferredArrActions_checkStages ).then( function( ) 
-		{
-			execFunc();
-		});		
+				// deferredArrActions_checkStages.push( 
+				// 	RESTUtil.getAsynchData( me.TabularDEObj.getEventQueryBaseUrl() 
+				// 		+ '&programStage=' + item_programStage.id 
+				// 		+ '&trackedEntityInstance=' + item_person.trackedEntityInstance
+				// 	, function( eventsRetrieved )
+				// 	{
+				// 		if ( Util.checkValue( eventsRetrieved.events ) ) 
+				// 		{
+				// 			if ( item_person.doneStages === undefined )
+				// 			{
+				// 				item_person.doneStages = item_programStage.id + ";";
+				// 			}
+				// 			else
+				// 			{
+				// 				item_person.doneStages += item_programStage.id + ";";
+				// 			}
+				// 		}
+				// 	}
+				// 	, function() 
+				// 	{ 
+				// 		console.log( 'Failed - On retrieveAndSetDoneProgramStages.  Stage: ' + item_programStage.id + ', TrackedEntityInstance: ' + item_person.trackedEntityInstance ); 
+				// 	} ) );	
+			// }
+		});
+		
+		execFunc();	
+
+		// $.when.apply($, deferredArrActions_checkStages ).then( function( ) 
+		// {
+		// 	execFunc();
+		// });		
 	}
 
 

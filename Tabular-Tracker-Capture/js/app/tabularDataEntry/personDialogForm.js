@@ -516,33 +516,7 @@ function PersonDialogForm( TabularDEObj )
 
 	me.getTrackedEntityId_Person = function()
 	{
-		if ( me.trackedEntityId_Person === undefined )
-		{
-			var json_TrackedEntities = $.parseJSON( RESTUtil.getSynchData( _queryURL_TrackedEntities + '.json?query=Person' ) );
-
-			// Lower DHIS 2.30
-			// var trackedEntities = json_TrackedEntities.trackedEntities;
-			// DHIS 2.30
-			var trackedEntities = json_TrackedEntities.trackedEntityTypes;
-			
-			for ( i = 0; i < trackedEntities.length ; i++ )
-			{
-				var trackedEntity = trackedEntities[i];
-
-				if ( trackedEntity.displayName == "Person" )
-				{
-					me.trackedEntityId_Person = trackedEntity.id;
-					break;
-				}
-			}
-		}
-
-		if ( me.trackedEntityId_Person === undefined )
-		{
-			alert( $( 'span.msg_PersonNotFoundDHIS' ).text() );
-		}
-
-		return me.trackedEntityId_Person;
+		return me.TabularDEObj.getSelectedProgram().trackedEntityType;
 	}
 
 
