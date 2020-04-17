@@ -443,6 +443,9 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 		//var returnVal = false;
 
 		// check date, program, programstage
+		// var _enableCoordinateCapture = me.TabularDEObj.getSelectedProgram().featureType;
+		// _enableCoordinateCapture = ( _enableCoordinateCapture == undefined || _enableCoordinateCapture == "NONE" ) ? false : true;
+
 		var eventDate = trCurrent.find( "input.eventDate" );
 		var eventProgram = trCurrent.find( "select.eventProgram" );
 		var eventStage = trCurrent.find( "select.eventStage" );
@@ -1480,14 +1483,14 @@ console.log("getUnregisteredEventsByPersonId" + requestUrl );
 		if( i < count_columnAdded )
 		{
 			// reuse the column
-			trCurrent.find( "td[colCount='" + i + "']" ).attr( "DEID", deId ).attr("compulsory", compulsory ).append( "<span class='dataElementName' " + cssTD_Name + ">" + titleName + compulsorySpan + ": </span>" + controlsTemplate );
+			trCurrent.find( "td[colCount='" + i + "']" ).css("position", "relative").attr( "DEID", deId ).attr("compulsory", compulsory ).append( "<span class='dataElementName' " + cssTD_Name + ">" + titleName + compulsorySpan + ": </span>" + controlsTemplate );
 		}
 		else
 		{
 			// create the column
 			trHead.append( "<th class='added' colCount='" + i + "'><span class='dataElementName' " + cssTH_Name + ">" + titleName + compulsorySpan + "</span>&nbsp;</th>" );
 
-			trCurrent.append( "<td class='added' DEID='" + deId + "' compulsory='" + compulsory + "'  colCount='" + i + "'><span class='dataElementName' " + cssTD_Name + ">" + titleName + compulsorySpan + ": </span>" + controlsTemplate + "</td>" );
+			trCurrent.append( "<td class='added' style='position:relative' DEID='" + deId + "' compulsory='" + compulsory + "'  colCount='" + i + "'><span class='dataElementName' " + cssTD_Name + ">" + titleName + compulsorySpan + ": </span>" + controlsTemplate + "</td>" );
 		}
 
 	}
@@ -1553,7 +1556,7 @@ console.log("getUnregisteredEventsByPersonId" + requestUrl );
 
 					if( json_DataElement.id == 'k3gpW1Vm3Ov' )
 					{
-						var controlTag = me.setAndGetControlTag( tdTag, ".textbox" );
+						controlTag = me.setAndGetControlTag( tdTag, ".textbox" );
 						
 						// For Orgunit Field
 						controlTag.click( function(){
@@ -1564,7 +1567,7 @@ console.log("getUnregisteredEventsByPersonId" + requestUrl );
 					}
 					else if( json_DataElement.optionSetValue || valType == "BOOLEAN" )
 					{
-						var controlTag = me.setAndGetControlTag( tdTag, ".dropdown" );
+						controlTag = me.setAndGetControlTag( tdTag, ".dropdown" );
 
 						if( valType == "BOOLEAN" )
 						{
