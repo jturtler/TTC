@@ -130,6 +130,7 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 
 
 		// Populate Program and Stage
+		var eventUId = trCurrent.attr('uid');
 		var eventDate = trCurrent.find( ".eventDate" );
 		var eventProgram = trCurrent.find( ".eventProgram" );
 		var eventProgramDiv = trCurrent.find( "div.eventProgramDiv" );
@@ -190,10 +191,17 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 		me.setEventCreateButtonEnable( trCurrent );
 
 		
-		// Create DATE range for eventDate picker
+		// Create DATE range for eventDate. Because TTC doesn't suppport to change eventDate. So the date picker we add here is the date range for new event
 			
-		var validEventDateRange = me.getValidEventDateRange();
+		var validEventDateRange;
 		
+		// if( eventUId != "" ) {
+		// 	validEventDateRange = me.getValidEventDateRange();
+		// }
+		// else
+		// {
+			validEventDateRange = me.getPeriodDateRange();
+		// }
 		// Set start data for the new event date as default value of matrix period selected if any
 		// In case the range date of matrix period includes today, then set today as default value.
 		
@@ -396,11 +404,20 @@ function PersonEvent( TabularDEObj, mainPersonTableTag )
 		var todayExpiredDateRange = relativePeriod.calExpiredDateRange( today, selectedProgramOption.attr("peType"), selectedProgramOption.attr("expiryDays") );
 		
 		return {
-			"startDate": todayExpiredDateRange.validMinDate
+			"startDate": todayExpiredDateRange.startDate
 			,"endDate": today
 		}
 		
 	};
+
+	me.getPeriodDateRange = function()
+	{
+		var selectedProgramOption = me.TabularDEObj.searchPanel.defaultProgramTag.find("option:selected");
+		var today = new Date();
+		var relativePeriod = new RelativePeriod();
+
+		return relativePeriod.getPeriodByDate( today, selectedProgramOption.attr("peType") );
+	}
   
 	
 	me.removeFromStageList = function( eventStage, doneStages )
@@ -2294,7 +2311,6 @@ console.log("getUnregisteredEventsByPersonId" + requestUrl );
 
 				// Populate Event Columns and Data.
 				me.populateEventData( item_EventTable, item_event );
-				
 			});
 		}
 		

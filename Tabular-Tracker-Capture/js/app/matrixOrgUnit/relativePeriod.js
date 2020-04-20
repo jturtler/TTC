@@ -304,8 +304,8 @@ function RelativePeriod()
 			
 			var startDateStr = me.formatDateObj_YYYYMMDD( periodDateRange.startDate );
 			var endDateStr = me.formatDateObj_YYYYMMDD( periodDateRange.endDate );
-			var validMinDateStr = me.formatDateObj_YYYYMMDD( expiredRangeDate.validMinDate );
-			var expiredDateStr = me.formatDateObj_YYYYMMDD( expiredRangeDate.expiredDate );
+			var validMinDateStr = me.formatDateObj_YYYYMMDD( expiredRangeDate.startDate );
+			var expiredDateStr = me.formatDateObj_YYYYMMDD( expiredRangeDate.endDate );
 			var todayStr = me.formatDateObj_YYYYMMDD( new Date() );
 			
 			
@@ -366,8 +366,8 @@ function RelativePeriod()
 		{
 			var expiredDateRange = me.calExpiredDateRange( new Date(), expiredPeriodType, eval( expiredDays ) );
 
-			var validMinDateStr = me.formatDateObj_YYYYMMDD( expiredDateRange.validMinDate );
-			var expiredDateStr = me.formatDateObj_YYYYMMDD( expiredDateRange.expiredDate );
+			var validMinDateStr = me.formatDateObj_YYYYMMDD( expiredDateRange.startDate );
+			var expiredDateStr = me.formatDateObj_YYYYMMDD( expiredDateRange.endDate );
 			
 			if( dateStr <= todayStr && validMinDateStr <= dateStr && dateStr <= expiredDateStr )
 			{
@@ -409,8 +409,8 @@ function RelativePeriod()
 			else if( expiredDays && expiredPeriodType !== "undefined" && expiredPeriodType !== "" )
 			{
 				var expiredDateRange = me.calExpiredDateRange( new Date(), expiredPeriodType, eval( expiredDays ) );
-				var validMinDateStr = me.formatDateObj_YYYYMMDD( expiredDateRange.validMinDate );
-				var expiredDateStr = me.formatDateObj_YYYYMMDD( expiredDateRange.expiredDate );
+				var validMinDateStr = me.formatDateObj_YYYYMMDD( expiredDateRange.startDate );
+				var expiredDateStr = me.formatDateObj_YYYYMMDD( expiredDateRange.endDate );
 				
 				if( dateStr <= todayStr && validMinDateStr <= dateStr && dateStr <= expiredDateStr )
 				{
@@ -475,8 +475,8 @@ function RelativePeriod()
 		}
 		
 		return {
-				"expiredDate" : expiredDate
-				,"validMinDate" : startDate
+				"endDate" : expiredDate
+				,"startDate" : startDate
 			}
 	};
 	
@@ -610,8 +610,22 @@ function RelativePeriod()
 		
 		if( startPeriodDate != undefined && expiredPeriodType != undefined && expiredPeriodType != "" )
 		{
-			var startDate = new Date( startPeriodDate );
-			startDate.setDate( startDate.getDate() - eval(expiredDays) );
+			var date = new Date( startPeriodDate );
+			date.setDate( date.getDate() - eval(expiredDays) );
+
+			startDate = me.getStartDatePeriod( date, expiredPeriodType );
+		}
+		
+		return startDate;
+	};
+	
+	me.getStartDatePeriod = function( date, expiredPeriodType )
+	{
+		var startDate;
+		
+		if( date != undefined && expiredPeriodType != undefined && expiredPeriodType != "" )
+		{
+			startDate = new Date( date );
 			
 			if( expiredPeriodType == "Daily" )
 			{
@@ -727,10 +741,140 @@ function RelativePeriod()
 		}
 		
 		return startDate;
-		
 	};
 	
 	
+	me.getEndDatePeriod = function( date, expiredPeriodType )
+	{
+		var endDate = new Date( date );
+
+		if( expiredPeriodType !== "undefined" && expiredPeriodType != "" )
+		{
+			if( expiredPeriodType == "Monthly" )
+			{
+				endDate.setMonth( date.getMonth() + 1 );
+				endDate.setDate( 0 );
+			}
+			else if( expiredPeriodType == "Weekly" )
+			{
+				var firstDays = date.getDate() - date.getDay() + 1; // First day is the day of the month - the day of the week
+				endDate.setDate( firstDays + 6 );
+			  console.log(endDate);
+			}
+			else if( expiredPeriodType == "Quarterly" )
+			{
+				var quarter = Math.floor((date.getMonth() + 3) / 3);
+				
+				if (quarter == 4) {
+					endDate = new Date ( date.getFullYear(), 1, 1);
+				} else {
+					endDate = new Date ( date.getFullYear(), quarter * 3, 1);
+				}
+				endDate.setDate( 0 );
+			}
+			else if( expiredPeriodType == "Yearly" )
+			{
+				endDate.setFullYear( date.getFullYear() ) + 1;
+				endDate.setMonth( 0 );
+				endDate.setDate( 0 );
+			}
+			else if( expiredPeriodType == "BiMonthly" )
+			{
+				var month = date.getMonth() + 1;
+				month = ( month % 2 == 0 ) ? 1 : 2;
+				endDate.setMonth( date.getMonth() + month );
+				endDate.setDate( 0 );
+
+				
+				console.log(endDate);
+			}
+			else if( expiredPeriodType == "SixMonthly" )
+			{
+				var month = date.getMonth() + 1;
+				if( month >= 7 )
+				{
+					endDate.setFullYear( date.getFullYear() + 1 );
+					endDate.setMonth( 0 );
+				}
+				else
+				{
+					endDate.setMonth( 6 );
+				}
+				endDate.setDate( 0 );
+			}
+			// April-September 2004
+			else if( expiredPeriodType == "SixMonthlyApril" )
+			{
+				var month = date.getMonth() + 1;
+				// Next period : April, This year
+				if( month < 4 )
+				{
+					endDate.setMonth( 3 );
+				}
+				// Next period : Oct, This year
+				else if( month >= 4 && month <= 9)
+				{
+					endDate.setMonth( 9 ); 
+				}
+				// Next period : April, Next year
+				else if( month > 9 )
+				{
+					endDate.setFullYear( date.getFullYear() + 1 );
+					endDate.setMonth( 3 );
+				}
+				
+				endDate.setDate( 0 );
+			}
+			// Apr 2004-Mar 2005
+			else if( expiredPeriodType == "FinancialApril" )
+			{
+				var month = date.getMonth();
+				if( month >= 3 )
+				{
+					endDate.setFullYear( date.getFullYear() + 1 ); // Next year
+				}
+				
+				endDate.setMonth( 3 );// April
+				endDate.setDate( 0 );
+			}
+			// July 2004-June 2005
+			else if( expiredPeriodType == "FinancialJuly" )
+			{
+				var month = date.getMonth();
+				if( month >= 6 )
+				{
+					endDate.setFullYear( date.getFullYear() + 1 ); // Next year
+				}
+				
+				endDate.setMonth( 6 );// July
+				endDate.setDate( 0 );
+			}
+			// Oct 2004-Sep 2005
+			else if( expiredPeriodType == "FinancialOct" )
+			{
+				var month = date.getMonth();
+				if( month >= 9 )
+				{
+					endDate.setFullYear( date.getFullYear() + 1 ); // Next year
+				}
+				
+				endDate.setMonth( 9 );// Oct
+				endDate.setDate( 0 );
+			}
+			
+		}
+		
+		return endDate;
+	};
+
+	me.getPeriodByDate = function( date, expiredPeriodType )
+	{
+		return {
+			"startDate" : me.getStartDatePeriod( date, expiredPeriodType )
+			,"endDate" : me.getEndDatePeriod( date, expiredPeriodType )
+		}
+	};
+
 	// -------------------------------------------------------------------------------------------------------
 	// Generate startDate and endDate by period code
 	
@@ -780,8 +924,9 @@ function RelativePeriod()
 			"startDate" : startDate
 			,"endDate" : endDate
 		};
-	}
+	};
 	
+
 	// -------------------------------------------------------------------------------------------------------
 	// Generate period code by periodIdx and year
 	
