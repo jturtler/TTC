@@ -755,11 +755,13 @@ function PersonDialogForm( TabularDEObj )
 		}
 		else if( valueType == "TIME" )
 		{
-			attributeControl = trCurrent.find( ".textbox" ).val( value ).attr( _view, _view_Yes ).attr('valType', valueType );
+			trCurrent.find( ".textbox" ).closest("td").css("position", "relative");
+			attributeControl = trCurrent.find( ".textbox" ).css("position", "relative").val( value ).attr( _view, _view_Yes ).attr('valType', valueType );
 			Util.setTimePicker( attributeControl );
 		}
 		else if( valueType == "DATETIME" )
 		{
+			trCurrent.find( ".textbox" ).closest("td").css("position", "relative");
 			attributeControl = trCurrent.find( ".textbox" ).val( value ).attr( _view, _view_Yes ).attr('valType', valueType );
 			Util.setDateTimePicker( attributeControl );
 		}

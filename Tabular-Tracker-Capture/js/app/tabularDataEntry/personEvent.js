@@ -2311,6 +2311,7 @@ console.log("getUnregisteredEventsByPersonId" + requestUrl );
 
 				// Populate Event Columns and Data.
 				me.populateEventData( item_EventTable, item_event );
+				
 			});
 		}
 		
