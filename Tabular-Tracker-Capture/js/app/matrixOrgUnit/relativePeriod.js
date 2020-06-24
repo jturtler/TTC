@@ -623,7 +623,7 @@ function RelativePeriod()
 	{
 		var startDate;
 		
-		if( date != undefined && expiredPeriodType != undefined && expiredPeriodType != "" )
+		if( date != undefined && expiredPeriodType !== "undefined" && expiredPeriodType != "" )
 		{
 			startDate = new Date( date );
 			
